@@ -217,7 +217,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$execDisabled) {
                     throw new Exception("Erro ao exportar banco: " . implode("\n", $outputDump));
                 }
 
-                // SQL será usado como está (SEM substituições)
+                // SEGURANÇA: Limpar dados sensíveis do dump SQL
+                $sqlContent = file_get_contents($bancoPath);
+
+                // Lista de settings sensíveis que devem ser zeradas no deploy
+                $sensitiveSettings = [
+                    'ftp_host',
+                    'ftp_port',
+                    'ftp_username',
+                    'ftp_password',
+                    'gtm_id',
+                    'uptime_robot_api_key'
+                ];
+
+                // Limpar cada setting sensível (substitui valor por string vazia)
+                foreach ($sensitiveSettings as $setting) {
+                    // Pattern: ('setting_name','valor_qualquer') -> ('setting_name','')
+                    $sqlContent = preg_replace(
+                        "/\('$setting','[^']*'\)/",
+                        "('$setting','')",
+                        $sqlContent
+                    );
+                    // Pattern alternativo com escape: (\'setting_name\',\'valor\') -> (\'setting_name\',\'\')
+                    $sqlContent = preg_replace(
+                        "/\(\\'$setting\\',\\'[^']*\\'\)/",
+                        "(\\'$setting\\',\\'\\')",
+                        $sqlContent
+                    );
+                }
+
+                // Salvar SQL limpo
+                file_put_contents($bancoPath, $sqlContent);
+
                 // O servidor deve ter APP_URL configurado no _config.php
 
                 $bancoSize = filesize($bancoPath);
