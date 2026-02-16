@@ -505,6 +505,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     has_slug TINYINT(1) DEFAULT 0,
                     slug_source VARCHAR(50) DEFAULT NULL,
                     has_frontend TINYINT(1) DEFAULT 0,
+                    frontend_format ENUM('grid', 'list', 'table') DEFAULT 'grid',
                     has_upload TINYINT(1) DEFAULT 0,
                     upload_config JSON DEFAULT NULL,
                     relationships JSON DEFAULT NULL,
