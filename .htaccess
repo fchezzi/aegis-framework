@@ -32,7 +32,7 @@ LimitRequestBody 10485760
 
 # Routing
 RewriteEngine On
-RewriteBase /aegis/
+RewriteBase /
 
 # Permitir acesso direto a assets (CSS, JS, imagens) e storage
 RewriteRule ^(assets|storage)/ - [L]
