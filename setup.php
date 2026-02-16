@@ -491,6 +491,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     INDEX idx_active (active)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
                 $db->execute($sql);
+
+                // Tabela tbl_cruds - Sistema de gerenciamento de CRUDs (SEMPRE criada)
+                $sql = "CREATE TABLE IF NOT EXISTS tbl_cruds (
+                    id VARCHAR(36) PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL COMMENT 'Nome humanizado',
+                    table_name VARCHAR(100) NOT NULL UNIQUE COMMENT 'Nome da tabela',
+                    controller_name VARCHAR(100) NOT NULL COMMENT 'Nome do controller',
+                    route VARCHAR(100) NOT NULL UNIQUE COMMENT 'Rota base',
+                    fields JSON NOT NULL COMMENT 'Array de campos',
+                    has_ordering TINYINT(1) DEFAULT 0,
+                    has_status TINYINT(1) DEFAULT 1,
+                    has_slug TINYINT(1) DEFAULT 0,
+                    slug_source VARCHAR(50) DEFAULT NULL,
+                    has_frontend TINYINT(1) DEFAULT 0,
+                    has_upload TINYINT(1) DEFAULT 0,
+                    upload_config JSON DEFAULT NULL,
+                    relationships JSON DEFAULT NULL,
+                    status ENUM('draft', 'generated', 'active', 'inactive') DEFAULT 'draft',
+                    generated_at TIMESTAMP NULL,
+                    generated_files JSON DEFAULT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_status (status),
+                    INDEX idx_table (table_name),
+                    INDEX idx_route (route)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+                $db->execute($sql);
             }
 
             // Criar usuário admin
