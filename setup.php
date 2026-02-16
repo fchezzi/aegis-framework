@@ -535,6 +535,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     INDEX idx_operation (operation)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
                 $db->execute($sql);
+
+                // Tabela report_templates
+                $sql = "CREATE TABLE IF NOT EXISTS report_templates (
+                    id VARCHAR(36) PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    description TEXT,
+                    file_path VARCHAR(500) NOT NULL,
+                    visible TINYINT(1) DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_visible (visible)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+                $db->execute($sql);
+
+                // Tabela report_cells
+                $sql = "CREATE TABLE IF NOT EXISTS report_cells (
+                    id VARCHAR(36) PRIMARY KEY,
+                    template_id VARCHAR(36) NOT NULL,
+                    cell_ref VARCHAR(20) NOT NULL COMMENT 'Ex: B5, D12, AA100',
+                    data_source_key VARCHAR(100) NOT NULL COMMENT 'Chave da fonte em ReportDataSources',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_template (template_id),
+                    FOREIGN KEY (template_id) REFERENCES report_templates(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+                $db->execute($sql);
             }
 
             // Criar usuário admin
