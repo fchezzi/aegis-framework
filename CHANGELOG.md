@@ -8,6 +8,25 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ---
 
 
+
+## [17.3.8] - 2026-02-16
+
+### 🐛 Bug Fixes
+
+Auto-bump: Apenas modificações em arquivos existentes
+
+- database/migrations/create_uptime_tables.sql
+- database/migrations/create_search_console_tables.sql
+- composer.lock
+- composer.phar
+- core/GoogleSearchConsole.php
+- core/UptimeRobot.php
+- CHANGELOG.md
+- phpstan.neon
+- config.codekit3
+- README-phpstan.html
+
+
 ## [17.3.7] - 2026-02-15
 
 ### 🐛 Bug Fixes
