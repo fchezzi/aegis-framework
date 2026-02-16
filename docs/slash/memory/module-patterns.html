@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="🚀padrõesdedesenvolvimento-módulosaegis">🚀 Padrões de Desenvolvimento - Módulos AEGIS</h1>
+
+<blockquote>
+<p><strong>Quando usar:</strong> Ao criar qualquer módulo novo. Ler ANTES de começar (obrigatório).</p>
+</blockquote>
+
+<hr />
+
+<h2 id="✅checklistprÉ-desenvolvimento">✅ CHECKLIST PRÉ-DESENVOLVIMENTO</h2>
+
+<p><strong>Antes de escrever qualquer código:</strong></p>
+
+<ul>
+<li>[ ] 🚨 <strong>Prefixo obrigatório</strong> = Rotas públicas DEVEM usar <code>/{modulo}/</code> (exceto blog)</li>
+<li>[ ] 🚨 <strong>Padrão de acesso</strong> = Implementar <code>checkModuleAccess()</code> em rotas públicas</li>
+<li>[ ] 🚨 <strong>Router order</strong> = Rotas específicas ANTES de genéricas (problema #1)</li>
+<li>[ ] Tabela de admins = <code>users</code> (não <code>admins</code>)</li>
+<li>[ ] Database = <code>DB::connect()</code> (não <code>getInstance</code>)</li>
+<li>[ ] Router = <code>Router::get()</code> static (não <code>$router-&gt;add</code>)</li>
+<li>[ ] CSRF = <code>Security::validateCSRF($_POST['csrf_token'])</code> (com parâmetro)</li>
+<li>[ ] Upload = <code>Upload::image($file, 'dest')</code> (não <code>new FileUpload</code>)</li>
+<li>[ ] Views = Self-contained HTML completo (não <code>require header.php</code>)</li>
+<li>[ ] Rota raiz = <code>/admin/[modulo]</code> que redireciona para principal</li>
+<li>[ ] <strong>module.json</strong> = Incluir <code>&quot;label&quot;</code>, <code>&quot;public&quot;: false</code>, <code>&quot;public_url&quot;</code></li>
+</ul>
+
+<p><strong>Se todos ✅ → pode começar!</strong></p>
+
+<hr />
+
+<h2 id="⚠️erroscrÍticos-nÃocometa">⚠️ ERROS CRÍTICOS - NÃO COMETA</h2>
+
+<h3 id="1.database-foreignkeys">1. Database - Foreign Keys</h3>
+
+<pre><code class="sql">-- ❌ ERRADO
+FOREIGN KEY (autor_id) REFERENCES admins(id)
+LEFT JOIN admins a ON a.id = p.autor_id
+
+-- ✅ CERTO (tabela de admins se chama 'users')
+FOREIGN KEY (autor_id) REFERENCES users(id)
+LEFT JOIN users a ON a.id = p.autor_id
+</code></pre>
+
+<h3 id="2.databaseconnection">2. Database Connection</h3>
+
+<pre><code class="php">// ❌ ERRADO
+$db = DB::getInstance();
+
+// ✅ CERTO
+$db = DB::connect();
+</code></pre>
+
+<h3 id="3.routermétodosestáticos">3. Router (Métodos Estáticos)</h3>
+
+<pre><code class="php">// ❌ ERRADO
+$router-&gt;add('/path', ...);
+
+// ✅ CERTO
+Router::get('/path', ...);
+Router::post('/path', ...);
+</code></pre>
+
+<h3 id="4.csrftoken">4. CSRF Token</h3>
+
+<pre><code class="php">// ❌ ERRADO - generateCSRF() retorna APENAS o token, não o HTML
+&lt;?= Security::generateCSRF() ?&gt;
+
+// ✅ CERTO - input completo
+&lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+
+// ❌ ERRADO - validateCSRF sem parâmetro
+Security::validateCSRF();
+
+// ✅ CERTO - com parâmetro
+Security::validateCSRF($_POST['csrf_token']);
+</code></pre>
+
+<h3 id="5.viewsself-contained">5. Views Self-Contained</h3>
+
+<pre><code class="php">// ❌ ERRADO - views não usam includes
+require ROOT_PATH . 'admin/includes/header.php';
+require 'frontend/templates/header.php';
+
+// ✅ CERTO - HTML completo
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;pt-BR&quot;&gt;
+&lt;head&gt;...&lt;/head&gt;
+&lt;body&gt;...&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p><strong>Mensagens:</strong></p>
+
+<ul>
+<li>Controller usa <code>$_SESSION['success']</code></li>
+<li>View lê e faz <code>unset</code></li>
+</ul>
+
+<h3 id="6.uploaddearquivos">6. Upload de Arquivos</h3>
+
+<pre><code class="php">// ❌ ERRADO
+$result = new FileUpload();
+$erro = $result['error'];
+unlink(UPLOAD_PATH . $path);
+
+// ✅ CERTO
+$result = Upload::image($_FILES['foto'], 'destino');
+$erro = $result['message'];  // não 'error'
+Upload::delete($path);  // não unlink
+</code></pre>
+
+<h3 id="7.routerorderproblema1quequebramÓdulos">7. Router Order (PROBLEMA #1 QUE QUEBRA MÓDULOS)</h3>
+
+<p>⚠️ <strong>Ordem de registro de rotas é FUNDAMENTAL</strong></p>
+
+<p><strong>No routes.php principal:</strong></p>
+
+<pre><code class="php">// ❌ ERRADO - /:slug captura tudo antes dos módulos
+Router::get('/:slug', function($slug) { ... });
+ModuleManager::loadAllRoutes(); // módulos nunca executam!
+
+// ✅ CERTO - módulos primeiro
+ModuleManager::loadAllRoutes(); // /blog funciona!
+Router::get('/:slug', function($slug) { ... }); // genérico por último
+</code></pre>
+
+<p><strong>No routes.php do módulo:</strong></p>
+
+<pre><code class="php">// ✅ Ordem correta (mais específica → menos específica)
+Router::get('/blog', ...);                          // 1. Fixo
+Router::get('/blog/pagina/:page', ...);            // 2. Com param
+Router::get('/:categoria_slug/pagina/:page', ...); // 3. Genérico 2 params
+Router::get('/:categoria_slug/:post_slug', ...);   // 4. Genérico 2 params
+Router::get('/:categoria_slug', ...);              // 5. Genérico 1 param (ÚLTIMO!)
+</code></pre>
+
+<p>⚠️ <strong>Se <code>/blog</code> der 404, problema é ordem de rotas!</strong></p>
+
+<hr />
+
+<h2 id="🗄️databasepatterns">🗄️ Database Patterns</h2>
+
+<h3 id="tabelaprincipalmysql">Tabela Principal (MySQL)</h3>
+
+<pre><code class="sql">CREATE TABLE IF NOT EXISTS tbl_[modulo]_[entidade] (
+    id VARCHAR(36) PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    conteudo TEXT,
+    imagem VARCHAR(500),
+    ativo TINYINT(1) NOT NULL DEFAULT 1,
+    ordem INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_slug (slug),
+    INDEX idx_ativo (ativo),
+    INDEX idx_ordem (ordem),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+</code></pre>
+
+<h3 id="tabelaprincipalsupabase">Tabela Principal (Supabase)</h3>
+
+<pre><code class="sql">CREATE TABLE IF NOT EXISTS tbl_[modulo]_[entidade] (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    titulo VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    conteudo TEXT,
+    imagem VARCHAR(500),
+    ativo BOOLEAN DEFAULT true,
+    ordem INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_slug ON tbl_[modulo]_[entidade](slug);
+CREATE INDEX idx_ativo ON tbl_[modulo]_[entidade](ativo);
+
+-- Trigger updated_at
+CREATE OR REPLACE FUNCTION update_[tabela]_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_updated_at
+BEFORE UPDATE ON tbl_[modulo]_[entidade]
+FOR EACH ROW
+EXECUTE FUNCTION update_[tabela]_updated_at();
+</code></pre>
+
+<h3 id="foreignkeys">Foreign Keys</h3>
+
+<pre><code class="sql">-- RESTRICT: não deixa deletar pai se tem filhos
+FOREIGN KEY (categoria_id) REFERENCES tbl_categorias(id)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+
+-- CASCADE: deleta filhos quando deleta pai
+FOREIGN KEY (post_id) REFERENCES tbl_posts(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+
+-- SET NULL: seta NULL nos filhos quando deleta pai
+-- ⚠️ CRÍTICO: Tabela de admins se chama 'users' (não 'admins')
+FOREIGN KEY (autor_id) REFERENCES users(id)
+    ON DELETE SET NULL ON UPDATE CASCADE
+</code></pre>
+
+<hr />
+
+<h2 id="🎮controllerpatternadmincrud">🎮 Controller Pattern (Admin CRUD)</h2>
+
+<pre><code class="php">&lt;?php
+class Admin[Entidade]Controller {
+
+    public function index() {
+        Auth::require();
+        $db = DB::connect(); // ⚠️ CORRETO: DB::connect() (não getInstance)
+        $items = $db-&gt;query(&quot;SELECT * FROM tbl_[modulo] ORDER BY created_at DESC&quot;);
+        require __DIR__ . '/../views/admin/index.php';
+    }
+
+    public function store() {
+        Auth::require();
+        Security::validateCSRF($_POST['csrf_token']); // ⚠️ COM parâmetro
+
+        $db = DB::connect();
+        $errors = [];
+
+        // Sanitizar
+        $campo = Security::sanitize($_POST['campo'] ?? '');
+
+        // Validar
+        if (empty($campo)) $errors[] = 'Campo obrigatório';
+        if (strlen($campo) &gt; 255) $errors[] = 'Campo muito longo';
+
+        // Unique
+        $exists = $db-&gt;query(&quot;SELECT id FROM tbl WHERE campo = ?&quot;, [$campo]);
+        if (!empty($exists)) $errors[] = 'Já existe';
+
+        // Upload (opcional)
+        $imagemPath = null;
+        if (!empty($_FILES['imagem']['name'])) {
+            $upload = Upload::image($_FILES['imagem'], '[modulo]');
+            if ($upload['success']) {
+                $imagemPath = $upload['path'];
+            } else {
+                $errors[] = $upload['message']; // ⚠️ 'message' não 'error'
+            }
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['error'] = implode('&lt;br&gt;', $errors);
+            header('Location: ' . url('/admin/[modulo]/create'));
+            exit;
+        }
+
+        // Insert
+        $db-&gt;insert('tbl_[modulo]', [
+            'id' =&gt; Core::generateUUID(), // ⚠️ Core::generateUUID()
+            'campo' =&gt; $campo,
+            'imagem' =&gt; $imagemPath,
+            'ativo' =&gt; isset($_POST['ativo']) ? 1 : 0
+        ]);
+
+        Cache::delete('[modulo]_cache');
+
+        $_SESSION['success'] = 'Criado com sucesso!';
+        header('Location: ' . url('/admin/[modulo]'));
+        exit;
+    }
+
+    public function update($id) {
+        Auth::require();
+        Security::validateCSRF($_POST[&quot;csrf_token&quot;]);
+
+        $db = DB::connect();
+
+        // Buscar existente
+        $item = $db-&gt;query(&quot;SELECT * FROM tbl WHERE id = ?&quot;, [$id])[0];
+
+        // Validar unique (exceto próprio)
+        $exists = $db-&gt;query(&quot;SELECT id FROM tbl WHERE campo = ? AND id != ?&quot;, [$campo, $id]);
+
+        // Manter imagem antiga ou substituir
+        $imagemPath = $item['imagem'];
+        if (!empty($_FILES['imagem']['name'])) {
+            $upload = Upload::image($_FILES['imagem'], '[modulo]');
+            if ($upload['success']) {
+                // Deletar antiga
+                if (!empty($imagemPath)) {
+                    Upload::delete($imagemPath); // ⚠️ Upload::delete (não unlink)
+                }
+                $imagemPath = $upload['path'];
+            }
+        }
+
+        // Update
+        $db-&gt;update('tbl', [...], ['id' =&gt; $id]);
+
+        Cache::delete('[modulo]_cache');
+        Cache::delete('[modulo]_' . $item['slug']);
+
+        $_SESSION['success'] = 'Atualizado!';
+        header('Location: ' . url('/admin/[modulo]'));
+        exit;
+    }
+
+    public function delete($id) {
+        Auth::require();
+        Security::validateCSRF($_POST[&quot;csrf_token&quot;]);
+
+        $db = DB::connect();
+        $item = $db-&gt;query(&quot;SELECT * FROM tbl WHERE id = ?&quot;, [$id])[0];
+
+        // Deletar arquivo
+        if (!empty($item['imagem'])) {
+            Upload::delete($item['imagem']);
+        }
+
+        $db-&gt;delete('tbl', ['id' =&gt; $id]);
+
+        Cache::delete('[modulo]_cache');
+
+        $_SESSION['success'] = 'Deletado!';
+        header('Location: ' . url('/admin/[modulo]'));
+        exit;
+    }
+}
+</code></pre>
+
+<hr />
+
+<h2 id="🎨viewpatternsself-contained">🎨 View Patterns (Self-Contained)</h2>
+
+<h3 id="adminlistindex.php">Admin List (index.php)</h3>
+
+<pre><code class="php">&lt;?php
+Auth::require();
+$success = $_SESSION['success'] ?? '';
+$error = $_SESSION['error'] ?? '';
+if ($success) unset($_SESSION['success']);
+if ($error) unset($_SESSION['error']);
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;pt-BR&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;[Módulo]&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; }
+        .btn { padding: 8px 12px; color: white; text-decoration: none; border-radius: 4px; }
+        .btn-primary { background-color: #007bff; }
+        .btn-danger { background-color: #dc3545; }
+        .alert-success { background: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .alert-error { background: #f8d7da; color: #721c24; padding: 10px; margin: 10px 0; border-radius: 4px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;📝 [Entidades]&lt;/h1&gt;
+    &lt;a href=&quot;&lt;?= url('/admin/[modulo]/create') ?&gt;&quot; class=&quot;btn btn-primary&quot;&gt;+ Novo&lt;/a&gt;
+
+    &lt;?php if ($success): ?&gt;
+        &lt;div class=&quot;alert-success&quot;&gt;&lt;?= htmlspecialchars($success) ?&gt;&lt;/div&gt;
+    &lt;?php endif; ?&gt;
+
+    &lt;?php if ($error): ?&gt;
+        &lt;div class=&quot;alert-error&quot;&gt;&lt;?= htmlspecialchars($error) ?&gt;&lt;/div&gt;
+    &lt;?php endif; ?&gt;
+
+    &lt;table&gt;
+        &lt;thead&gt;
+            &lt;tr&gt;&lt;th&gt;Campo&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;th&gt;Ações&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            &lt;?php foreach ($items as $item): ?&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;&lt;?= htmlspecialchars($item['campo']) ?&gt;&lt;/td&gt;
+                    &lt;td&gt;&lt;?= $item['ativo'] ? '✅' : '❌' ?&gt;&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;a href=&quot;&lt;?= url('/admin/[modulo]/' . $item['id'] . '/edit') ?&gt;&quot; class=&quot;btn btn-primary&quot;&gt;✏️&lt;/a&gt;
+                        &lt;form method=&quot;POST&quot; action=&quot;&lt;?= url('/admin/[modulo]/' . $item['id'] . '/delete') ?&gt;&quot;
+                              style=&quot;display:inline&quot; onsubmit=&quot;return confirm('Deletar?')&quot;&gt;
+                            &lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+                            &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger&quot;&gt;🗑️&lt;/button&gt;
+                        &lt;/form&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;?php endforeach; ?&gt;
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h3 id="adminformcreate.php">Admin Form (create.php)</h3>
+
+<pre><code class="php">&lt;?php
+Auth::require();
+$error = $_SESSION['error'] ?? '';
+if ($error) unset($_SESSION['error']);
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;pt-BR&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Novo [Entidade]&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial, sans-serif; margin: 20px; max-width: 800px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input[type=&quot;text&quot;], textarea, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn { padding: 10px 15px; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .alert-error { background: #f8d7da; color: #721c24; padding: 10px; margin: 10px 0; border-radius: 4px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Novo [Entidade]&lt;/h1&gt;
+
+    &lt;?php if ($error): ?&gt;
+        &lt;div class=&quot;alert-error&quot;&gt;&lt;?= htmlspecialchars($error) ?&gt;&lt;/div&gt;
+    &lt;?php endif; ?&gt;
+
+    &lt;form method=&quot;POST&quot; action=&quot;&lt;?= url('/admin/[modulo]/store') ?&gt;&quot; enctype=&quot;multipart/form-data&quot;&gt;
+        &lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label for=&quot;titulo&quot;&gt;Título *&lt;/label&gt;
+            &lt;input type=&quot;text&quot; id=&quot;titulo&quot; name=&quot;titulo&quot; required maxlength=&quot;255&quot;&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label for=&quot;slug&quot;&gt;Slug *&lt;/label&gt;
+            &lt;input type=&quot;text&quot; id=&quot;slug&quot; name=&quot;slug&quot; required maxlength=&quot;255&quot;&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label for=&quot;imagem&quot;&gt;Imagem&lt;/label&gt;
+            &lt;input type=&quot;file&quot; id=&quot;imagem&quot; name=&quot;imagem&quot; accept=&quot;image/jpeg,image/jpg,image/png,image/webp&quot;&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label&gt;&lt;input type=&quot;checkbox&quot; name=&quot;ativo&quot; value=&quot;1&quot; checked&gt; Ativo&lt;/label&gt;
+        &lt;/div&gt;
+
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot;&gt;💾 Salvar&lt;/button&gt;
+        &lt;a href=&quot;&lt;?= url('/admin/[modulo]') ?&gt;&quot; class=&quot;btn btn-secondary&quot;&gt;Cancelar&lt;/a&gt;
+    &lt;/form&gt;
+
+    &lt;script&gt;
+    // Auto-slug
+    document.getElementById('titulo').addEventListener('input', function(e) {
+        const slug = e.target.value.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+            .replace(/-+/g, '-').replace(/^-|-$/g, '');
+        document.getElementById('slug').value = slug;
+    });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<hr />
+
+<h2 id="📱publiccontrollerpattern">📱 Public Controller Pattern</h2>
+
+<pre><code class="php">&lt;?php
+class Public[Modulo]Controller {
+
+    public function index($page = 1) {
+        $cacheKey = &quot;[modulo]_list_p{$page}&quot;;
+        $cached = Cache::get($cacheKey);
+
+        if ($cached !== null) {
+            extract($cached);
+        } else {
+            $db = DB::connect();
+            $page = max(1, (int)$page);
+            $perPage = 10;
+            $offset = ($page - 1) * $perPage;
+
+            $items = $db-&gt;query(&quot;SELECT * FROM tbl WHERE ativo = ? ORDER BY created_at DESC LIMIT ? OFFSET ?&quot;,
+                [1, $perPage, $offset]);
+
+            $total = $db-&gt;query(&quot;SELECT COUNT(*) as total FROM tbl WHERE ativo = ?&quot;, [1])[0]['total'];
+            $totalPages = ceil($total / $perPage);
+
+            Cache::set($cacheKey, compact('items', 'total', 'totalPages'), 300);
+        }
+
+        require __DIR__ . '/../views/public/index.php';
+    }
+
+    public function show($slug) {
+        $cacheKey = &quot;[modulo]_{$slug}&quot;;
+        $item = Cache::get($cacheKey);
+
+        if ($item === null) {
+            $db = DB::connect();
+            $result = $db-&gt;query(&quot;SELECT * FROM tbl WHERE slug = ? AND ativo = ?&quot;, [$slug, 1]);
+            $item = $result[0] ?? null;
+
+            if (!$item) {
+                http_response_code(404);
+                echo &quot;Não encontrado&quot;;
+                exit;
+            }
+
+            Cache::set($cacheKey, $item, 600);
+        }
+
+        require __DIR__ . '/../views/public/show.php';
+    }
+}
+</code></pre>
+
+<hr />
+
+<h2 id="🔐publicaccesspatternobrigatÓrio">🔐 Public Access Pattern (OBRIGATÓRIO)</h2>
+
+<h3 id="regras:">Regras:</h3>
+
+<ol>
+<li><strong>Prefixo obrigatório:</strong> Todas rotas públicas DEVEM usar <code>/{modulo}/</code> (exceto blog)</li>
+<li><strong>Implementar <code>checkModuleAccess()</code></strong> no início do <code>routes.php</code></li>
+<li><strong>Adicionar ao module.json:</strong> <code>&quot;label&quot;</code>, <code>&quot;public&quot;: false</code>, <code>&quot;public_url&quot;</code></li>
+</ol>
+
+<h3 id="implementaçãoemroutes.php:">Implementação em routes.php:</h3>
+
+<pre><code class="php">// Verificação de acesso (copiar no topo do routes.php)
+function checkModuleAccess($moduleName) {
+    if (!ENABLE_MEMBERS) return true;
+
+    $moduleJsonPath = ROOT_PATH . &quot;modules/{$moduleName}/module.json&quot;;
+    if (!file_exists($moduleJsonPath)) return true;
+
+    $metadata = json_decode(file_get_contents($moduleJsonPath), true);
+    $isPublic = ($metadata['public'] ?? false);
+
+    if ($isPublic) return true;
+
+    MemberAuth::require(); // Módulo privado
+    return true;
+}
+
+// Aplicar em TODAS as rotas públicas
+Router::get('/cursos', function() {
+    checkModuleAccess('cursos');
+    // controller...
+});
+
+Router::get('/cursos/:slug', function($params) {
+    checkModuleAccess('cursos');
+    // controller...
+});
+</code></pre>
+
+<h3 id="module.json:">module.json:</h3>
+
+<pre><code class="json">{
+  &quot;name&quot;: &quot;cursos&quot;,
+  &quot;label&quot;: &quot;Cursos Online&quot;,
+  &quot;public&quot;: false,
+  &quot;public_url&quot;: &quot;/cursos&quot;
+}
+</code></pre>
+
+<hr />
+
+<h2 id="🎨tinymceintegrationpattern">🎨 TinyMCE Integration Pattern</h2>
+
+<h3 id="configem_config.php:">Config em _config.php:</h3>
+
+<pre><code class="php">define('TINYMCE_API_KEY', 'sua-chave-aqui');
+</code></pre>
+
+<h3 id="viewcomeditor:">View com Editor:</h3>
+
+<pre><code class="php">&lt;textarea id=&quot;conteudo&quot; name=&quot;conteudo&quot;&gt;&lt;/textarea&gt;
+
+&lt;script src=&quot;https://cdn.tiny.cloud/1/&lt;?= TINYMCE_API_KEY ?&gt;/tinymce/6/tinymce.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+tinymce.init({
+    selector: '#conteudo',
+    height: 500,
+    language: 'pt_BR',
+    plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'media', 'table', 'code'],
+    toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image media',
+
+    // Upload de imagens
+    images_upload_url: '&lt;?= url('/admin/[modulo]/upload-image') ?&gt;',
+    automatic_uploads: true,
+
+    // YouTube embed
+    media_live_embeds: true
+});
+&lt;/script&gt;
+</code></pre>
+
+<h3 id="controllerupload:">Controller Upload:</h3>
+
+<pre><code class="php">public function uploadImage() {
+    Auth::require();
+    header('Content-Type: application/json');
+
+    $upload = Upload::image($_FILES['file'], 'modulo');
+
+    if ($upload['success']) {
+        echo json_encode(['location' =&gt; url('/storage/uploads/' . $upload['path'])]);
+    } else {
+        echo json_encode(['error' =&gt; $upload['message']]);
+    }
+    exit;
+}
+</code></pre>
+
+<h3 id="route:">Route:</h3>
+
+<pre><code class="php">Router::post('/admin/[modulo]/upload-image', function() {
+    $controller = new Admin[Modulo]Controller();
+    $controller-&gt;uploadImage();
+});
+</code></pre>
+
+<h3 id="databaseconteúdorico:">Database (conteúdo rico):</h3>
+
+<pre><code class="sql">-- Para conteúdo com imagens/vídeos
+conteudo MEDIUMTEXT NOT NULL  -- 16MB (não TEXT 64KB)
+</code></pre>
+
+<hr />
+
+<h2 id="📄module.jsontemplate">📄 module.json Template</h2>
+
+<pre><code class="json">{
+  &quot;name&quot;: &quot;[modulo]&quot;,
+  &quot;title&quot;: &quot;[Título]&quot;,
+  &quot;label&quot;: &quot;[Label no Menu]&quot;,
+  &quot;description&quot;: &quot;Descrição do módulo&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;author&quot;: &quot;Autor&quot;,
+  &quot;homepage&quot;: &quot;/[modulo]&quot;,
+  &quot;adminRoute&quot;: &quot;/admin/[modulo]&quot;,
+  &quot;public&quot;: false,
+  &quot;public_url&quot;: &quot;/[modulo]&quot;,
+  &quot;dependencies&quot;: {
+    &quot;core&quot;: [&quot;DB&quot;, &quot;Security&quot;, &quot;Auth&quot;, &quot;Cache&quot;],
+    &quot;tables&quot;: [&quot;tbl_[modulo]&quot;],
+    &quot;requires_members&quot;: false
+  },
+  &quot;installation&quot;: {
+    &quot;schemas&quot;: {
+      &quot;mysql&quot;: &quot;database/mysql-schema.sql&quot;,
+      &quot;supabase&quot;: &quot;database/supabase-schema.sql&quot;
+    },
+    &quot;rollback&quot;: &quot;database/rollback.sql&quot;,
+    &quot;auto_install&quot;: true
+  }
+}
+</code></pre>
+
+<hr />
+
+<h2 id="🎯validaçãofinal">🎯 Validação Final</h2>
+
+<p>Antes de considerar módulo pronto:</p>
+
+<pre><code>✅ module.json completo (name, label, public, public_url)
+✅ Schemas MySQL + Supabase + rollback.sql
+✅ routes.php com checkModuleAccess() nas rotas públicas
+✅ Controllers com Auth::require() e validateCSRF($_POST['csrf_token'])
+✅ Views self-contained (HTML completo, sem includes)
+✅ Security::sanitize() em TODOS inputs
+✅ Upload::image() e Upload::delete() (não unlink)
+✅ Cache em listagens públicas
+✅ htmlspecialchars() em TODOS outputs
+✅ Router order correto (específicas ANTES de genéricas)
+✅ Teste: instalar via /admin/modules
+✅ Teste: CRUD completo funciona
+✅ Teste: frontend público funciona
+</code></pre>
+
+<hr />
+
+<p><strong>Versão:</strong> 5.0.0
+<strong>Data:</strong> 2026&#8211;02&#8211;14
+<strong>Changelog:</strong> Removidas seções enfeite (workflow, métricas blog, checklist duplicado, JS utils). Focado em erros críticos, patterns práticos, router order. Reduzido de 702 → 488 linhas.</p>
+
+</body>
+</html>
+

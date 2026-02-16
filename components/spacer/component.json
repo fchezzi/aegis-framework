@@ -1,0 +1,82 @@
+{
+  "name": "spacer",
+  "title": "Espaçador",
+  "description": "Adiciona espaçamento entre blocos com opção de linha divisória",
+  "version": "1.0.0",
+  "min_size": 1,
+  "max_size": 6,
+  "fields": {
+    "height": {
+      "type": "select",
+      "label": "Altura do Espaçamento",
+      "required": false,
+      "options": ["pequeno", "medio", "grande", "extra-grande", "custom"],
+      "default": "medio",
+      "help": "Pequeno: 20px | Médio: 40px | Grande: 80px | Extra-grande: 120px | Custom: definir valor"
+    },
+    "custom_height": {
+      "type": "number",
+      "label": "Altura Customizada (px)",
+      "required": false,
+      "min": 10,
+      "max": 500,
+      "default": 60,
+      "help": "Altura em pixels (somente quando 'custom' estiver selecionado)",
+      "show_if": {
+        "height": "custom"
+      }
+    },
+    "show_divider": {
+      "type": "select",
+      "label": "Mostrar Linha Divisória",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "no",
+      "help": "Exibir uma linha no meio do espaçamento"
+    },
+    "divider_style": {
+      "type": "select",
+      "label": "Estilo da Linha",
+      "required": false,
+      "options": ["solid", "dashed", "dotted"],
+      "default": "solid",
+      "help": "Sólida, tracejada ou pontilhada",
+      "show_if": {
+        "show_divider": "yes"
+      }
+    },
+    "divider_width": {
+      "type": "select",
+      "label": "Largura da Linha",
+      "required": false,
+      "options": ["full", "75", "50", "25"],
+      "default": "full",
+      "help": "Full: 100% | 75: 75% | 50: 50% | 25: 25%",
+      "show_if": {
+        "show_divider": "yes"
+      }
+    },
+    "divider_thickness": {
+      "type": "select",
+      "label": "Espessura da Linha",
+      "required": false,
+      "options": ["thin", "medium", "thick"],
+      "default": "thin",
+      "help": "Fina: 1px | Média: 2px | Grossa: 4px",
+      "show_if": {
+        "show_divider": "yes"
+      }
+    },
+    "divider_color": {
+      "type": "select",
+      "label": "Cor da Linha",
+      "required": false,
+      "options": ["default", "primary", "secondary", "light", "dark"],
+      "default": "default",
+      "help": "Cor da linha divisória",
+      "show_if": {
+        "show_divider": "yes"
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+<?php
+/**
+ * {{CLASS_NAME}}
+ * Testes para {{DESCRIPTION}}
+ *
+ * Execute com: php aegis test {{CLASS_NAME}}
+ */
+
+class {{CLASS_NAME}} extends TestCase {
+
+    /**
+     * Setup antes de cada teste
+     */
+    protected function setUp() {
+        parent::setUp();
+        // Configurações iniciais
+    }
+
+    /**
+     * Teardown após cada teste
+     */
+    protected function tearDown() {
+        parent::tearDown();
+        // Limpeza
+    }
+
+    // ===================
+    // TESTES
+    // ===================
+
+    public function testExample() {
+        $this->assertTrue(true);
+    }
+
+    public function testAnotherExample() {
+        $expected = 'valor esperado';
+        $actual = 'valor esperado';
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    // Adicione mais testes aqui...
+}

@@ -1,0 +1,844 @@
+<?php
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/../core/Autoloader.php';
+
+Auth::require();
+
+$message = '';
+$messageType = '';
+
+// Verificar se exec() está disponível
+$execDisabled = in_array('exec', array_map('trim', explode(',', ini_get('disable_functions'))));
+if ($execDisabled) {
+    $message = "❌ ERRO: A função exec() está desabilitada no servidor. O deploy não pode ser gerado.";
+    $messageType = 'error';
+}
+
+// Processar ação
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$execDisabled) {
+    $action = $_POST['action'] ?? '';
+
+    try {
+        if ($action === 'generate_package') {
+            $ambiente = $_POST['ambiente'] ?? 'producao';
+            $incluirUploads = isset($_POST['incluir_uploads']) && $_POST['incluir_uploads'] === '1';
+            $versao = date('Ymd-His');
+            $deployDir = ROOT_PATH . 'deploys/';
+
+            // Verificar espaço em disco (mínimo 500MB livres)
+            $freeSpace = disk_free_space(ROOT_PATH);
+            $minSpace = 500 * 1024 * 1024; // 500MB
+
+            if ($freeSpace < $minSpace) {
+                $freeSpaceMB = round($freeSpace / 1024 / 1024, 2);
+                throw new Exception("Espaço em disco insuficiente. Disponível: {$freeSpaceMB}MB. Mínimo requerido: 500MB");
+            }
+
+            // Criar pasta deploys se não existir
+            if (!is_dir($deployDir)) {
+                if (!mkdir($deployDir, 0755, true)) {
+                    throw new Exception('Não foi possível criar pasta deploys/');
+                }
+            }
+
+            $arquivo = "aegis-{$ambiente}-{$versao}.tar.gz";
+            $arquivoPath = $deployDir . $arquivo;
+
+            // Criar pasta temporária para processamento
+            $tempDir = ROOT_PATH . 'deploys/temp-' . $versao . '/';
+            if (!mkdir($tempDir, 0755, true)) {
+                throw new Exception('Não foi possível criar pasta temporária');
+            }
+
+            // ========================================
+            // ETAPA 1: LIMPAR ARQUIVOS DESNECESSÁRIOS
+            // ========================================
+
+            // Padrões de arquivos temporários (mais flexível)
+            $tempPatterns = [
+                'test*.php',
+                'debug*.php',
+                'erro*.php',
+                'diagnostico*.php',
+                'fix-*.php',
+                'force-*.php',
+                'login-direct.php',
+                'dashboard-direct.php',
+                'cleanup-*.php',
+                'clear-*.php',
+                'admin/deploy.php.backup',
+                'admin/deploy.php.broken'
+            ];
+
+            $cleanedFiles = 0;
+            foreach ($tempPatterns as $pattern) {
+                $files = glob(ROOT_PATH . $pattern);
+                if ($files) {
+                    foreach ($files as $file) {
+                        if (file_exists($file) && is_file($file)) {
+                            @unlink($file);
+                            $cleanedFiles++;
+                        }
+                    }
+                }
+            }
+
+            // ========================================
+            // ETAPA 2: LIMPAR BOM DE TODOS OS ARQUIVOS PHP
+            // ========================================
+
+            // Função para limpar BOM (mais segura)
+            function cleanBOM($file) {
+                if (!file_exists($file) || !is_file($file)) return false;
+
+                $content = @file_get_contents($file);
+                if ($content === false) return false;
+
+                $original = $content;
+                $modified = false;
+
+                // Remover BOM UTF-8
+                if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
+                    $content = substr($content, 3);
+                    $modified = true;
+                }
+
+                // Remover espaços/quebras SOMENTE antes de <?php (mais seguro)
+                $content = preg_replace('/^\s+(<\?php)/m', '$1', $content);
+
+                // Remover espaços/quebras no final do arquivo
+                $content = rtrim($content);
+
+                if ($content !== $original || $modified) {
+                    return @file_put_contents($file, $content) !== false;
+                }
+
+                return true; // Arquivo já estava OK
+            }
+
+            // Buscar todos os arquivos PHP recursivamente (com proteção)
+            function findPHPFiles($dir, &$files = [], $basePath = '') {
+                if (!is_dir($dir)) return $files;
+
+                // Proteção contra loops infinitos
+                static $visited = [];
+                $realDir = realpath($dir);
+                if (in_array($realDir, $visited)) {
+                    return $files;
+                }
+                $visited[] = $realDir;
+
+                $items = @scandir($dir);
+                if ($items === false) return $files;
+
+                foreach ($items as $item) {
+                    if ($item === '.' || $item === '..') continue;
+
+                    $path = $dir . '/' . $item;
+                    $relativePath = $basePath . '/' . $item;
+
+                    // Pular diretórios que não vão no deploy (path completo)
+                    if (is_dir($path)) {
+                        // Verificar caminho relativo completo, não só basename
+                        if (preg_match('#^/(deploys|Documents|node_modules|\.git|storage/cache)(/|$)#', $relativePath)) {
+                            continue;
+                        }
+                        findPHPFiles($path, $files, $relativePath);
+                    } elseif (is_file($path) && substr($path, -4) === '.php') {
+                        $files[] = $path;
+                    }
+                }
+
+                return $files;
+            }
+
+            $bomCleaned = 0;
+            $bomErrors = [];
+
+            // Diretórios para limpar BOM
+            $dirsToClean = [
+                ROOT_PATH . 'admin',
+                ROOT_PATH . 'core',
+                ROOT_PATH . 'database',
+                ROOT_PATH . 'frontend',
+                ROOT_PATH . 'modules',
+                ROOT_PATH . 'routes',
+                ROOT_PATH . 'api',
+                ROOT_PATH . 'public'
+            ];
+
+            // Arquivos da raiz
+            $rootFiles = [
+                ROOT_PATH . 'index.php',
+                ROOT_PATH . 'routes.php',
+                ROOT_PATH . 'setup.php',
+                ROOT_PATH . 'install.php',
+                ROOT_PATH . 'config.php'
+            ];
+
+            // Copiar para temp e limpar BOM (não modifica originais!)
+            foreach ($rootFiles as $file) {
+                if (file_exists($file)) {
+                    $tempFile = $tempDir . basename($file);
+                    copy($file, $tempFile);
+
+                    if (cleanBOM($tempFile)) {
+                        $bomCleaned++;
+                    } else {
+                        $bomErrors[] = basename($file);
+                    }
+                }
+            }
+
+            // Limpar diretórios recursivamente (copiar para temp primeiro)
+            foreach ($dirsToClean as $dir) {
+                if (is_dir($dir)) {
+                    $dirName = basename($dir);
+                    $tempSubDir = $tempDir . $dirName;
+
+                    // Copiar diretório inteiro para temp
+                    if (!is_dir($tempSubDir)) {
+                        mkdir($tempSubDir, 0755, true);
+                    }
+
+                    // Usar rsync ou recurse manual
+                    exec("cp -R " . escapeshellarg($dir) . "/* " . escapeshellarg($tempSubDir) . "/", $outputCopy, $returnCopy);
+
+                    // Limpar BOM dos arquivos copiados
+                    $phpFiles = findPHPFiles($tempSubDir);
+
+                    foreach ($phpFiles as $file) {
+                        if (cleanBOM($file)) {
+                            $bomCleaned++;
+                        } else {
+                            $bomErrors[] = str_replace($tempDir, '', $file);
+                        }
+                    }
+                }
+            }
+
+            // Copiar outras pastas necessárias (sem arquivos PHP para limpar BOM)
+            $otherDirs = ['storage', 'assets'];
+            foreach ($otherDirs as $dirName) {
+                $sourceDir = ROOT_PATH . $dirName;
+                if (is_dir($sourceDir)) {
+                    $tempSubDir = $tempDir . $dirName;
+                    if (!is_dir($tempSubDir)) {
+                        mkdir($tempSubDir, 0755, true);
+                    }
+                    exec("cp -R " . escapeshellarg($sourceDir) . "/* " . escapeshellarg($tempSubDir) . "/ 2>/dev/null", $outputCopy);
+                }
+            }
+
+            // Copiar arquivos individuais
+            $individualFiles = [
+                'index.php',
+                'routes.php',
+                'setup.php',
+                'install.php',
+                'config.php',
+                '.htaccess'
+            ];
+            foreach ($individualFiles as $fileName) {
+                $sourceFile = ROOT_PATH . $fileName;
+                if (file_exists($sourceFile)) {
+                    $destFile = $tempDir . $fileName;
+                    if (!file_exists($destFile)) { // Se ainda não foi copiado
+                        copy($sourceFile, $destFile);
+                    }
+                }
+            }
+
+            // ========================================
+            // ETAPA 3: GARANTIR ESTRUTURA DE PASTAS
+            // ========================================
+            $requiredDirs = [
+                $tempDir . 'storage/cache',
+                $tempDir . 'storage/logs',
+                $tempDir . 'storage/uploads'
+            ];
+
+            foreach ($requiredDirs as $dir) {
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0755, true);
+                }
+                // Criar .gitkeep para garantir que pasta vai no pacote
+                touch($dir . '/.gitkeep');
+            }
+
+            // ========================================
+            // ETAPA 4: CRIAR PACOTE TAR.GZ
+            // ========================================
+
+            // Verificar se tar está disponível
+            exec('which tar 2>/dev/null', $tarCheck, $tarReturn);
+            if ($tarReturn !== 0) {
+                throw new Exception('Comando tar não encontrado no servidor');
+            }
+
+            // Montar excludes condicionais
+            $excludeUploads = '';
+            if (!$incluirUploads) {
+                $excludeUploads = "--exclude='storage/uploads/*.jpg' " .
+                   "--exclude='storage/uploads/*.jpeg' " .
+                   "--exclude='storage/uploads/*.png' " .
+                   "--exclude='storage/uploads/*.gif' " .
+                   "--exclude='storage/uploads/*.webp' " .
+                   "--exclude='storage/uploads/*.svg' " .
+                   "--exclude='storage/uploads/**/*.jpg' " .
+                   "--exclude='storage/uploads/**/*.jpeg' " .
+                   "--exclude='storage/uploads/**/*.png' " .
+                   "--exclude='storage/uploads/**/*.gif' " .
+                   "--exclude='storage/uploads/**/*.webp' " .
+                   "--exclude='storage/uploads/**/*.svg' ";
+            }
+
+            $cmd = "cd " . escapeshellarg($tempDir) . " && tar -czf " . escapeshellarg($arquivoPath) . " " .
+                   "--exclude='_config.php' " .
+                   "--exclude='_config.PRODUCTION.php' " .
+                   "--exclude='.env' " .
+                   "--exclude='*.backup' " .
+                   "--exclude='*.broken' " .
+                   "--exclude='*.bak' " .
+                   "--exclude='*~' " .
+                   "--exclude='storage/cache/*' " .
+                   "--exclude='storage/logs/*.log' " .
+                   $excludeUploads .
+                   ". 2>&1";
+
+            exec($cmd, $output, $return);
+
+            // Limpar pasta temporária
+            exec("rm -rf " . escapeshellarg($tempDir));
+
+            if ($return === 0 && file_exists($arquivoPath)) {
+                // Validar integridade do arquivo tar
+                exec("tar -tzf " . escapeshellarg($arquivoPath) . " > /dev/null 2>&1", $validateOutput, $validateReturn);
+
+                if ($validateReturn !== 0) {
+                    unlink($arquivoPath); // Remove arquivo corrompido
+                    throw new Exception('Pacote tar.gz gerado está corrompido. Tente novamente.');
+                }
+
+                $size = filesize($arquivoPath);
+                $sizeFormatted = round($size / 1024 / 1024, 2);
+
+                // Validar tamanho mínimo (deve ter pelo menos 1MB)
+                if ($size < 1024 * 1024) {
+                    unlink($arquivoPath);
+                    throw new Exception('Pacote muito pequeno (' . $sizeFormatted . 'MB). Possível erro na geração.');
+                }
+
+                $message = "<strong>✅ Pacote gerado com sucesso!</strong><br><br>";
+                $message .= "<strong>Arquivo:</strong> {$arquivo}<br>";
+                $message .= "<strong>Tamanho:</strong> {$sizeFormatted} MB<br>";
+                $message .= "<strong>Uploads incluídos:</strong> " . ($incluirUploads ? '✅ SIM' : '❌ NÃO') . "<br>";
+                $message .= "<strong>Integridade:</strong> ✅ Validado<br><br>";
+
+                $message .= "<strong>📦 Processamento:</strong><br>";
+                if ($cleanedFiles > 0) {
+                    $message .= "→ {$cleanedFiles} arquivo(s) temporário(s) removido(s)<br>";
+                }
+                if ($bomCleaned > 0) {
+                    $message .= "→ {$bomCleaned} arquivo(s) PHP limpo(s) (BOM/espaços)<br>";
+                }
+                if (!empty($bomErrors)) {
+                    $message .= "→ ⚠️ Erro ao limpar: " . implode(', ', $bomErrors) . "<br>";
+                }
+
+                $messageType = 'success';
+            } else {
+                $message = "❌ Erro ao gerar pacote.<br>";
+                $message .= "Comando: " . htmlspecialchars($cmd) . "<br>";
+                $message .= "Output: " . htmlspecialchars(implode("\n", $output));
+                $messageType = 'error';
+            }
+        }
+
+    } catch (Exception $e) {
+        // Limpar pasta temp se existir
+        if (isset($tempDir) && is_dir($tempDir)) {
+            exec("rm -rf " . escapeshellarg($tempDir));
+        }
+
+        $message = "❌ ERRO: " . $e->getMessage();
+        $messageType = 'error';
+    }
+}
+
+// Validações pré-deploy
+$validations = [];
+
+// 1. Verificar _config.php
+$validations[] = [
+    'name' => 'Arquivo _config.php',
+    'status' => file_exists(ROOT_PATH . '_config.php'),
+    'message' => file_exists(ROOT_PATH . '_config.php') ? 'OK' : 'Arquivo não encontrado'
+];
+
+// 2. Verificar permissões storage/cache
+$cacheWritable = is_writable(CACHE_PATH);
+$validations[] = [
+    'name' => 'Permissões storage/cache',
+    'status' => $cacheWritable,
+    'message' => $cacheWritable ? 'Writeable' : 'Sem permissão de escrita'
+];
+
+// 3. Verificar conexão com banco
+try {
+    $db = DB::connect();
+    $validations[] = [
+        'name' => 'Conexão com banco de dados',
+        'status' => true,
+        'message' => 'Conectado (' . DB_TYPE . ')'
+    ];
+} catch (Exception $e) {
+    $validations[] = [
+        'name' => 'Conexão com banco de dados',
+        'status' => false,
+        'message' => 'Erro: ' . $e->getMessage()
+    ];
+}
+
+// 4. Verificar arquivos críticos
+$criticalFiles = [
+    'core/CoreConfig.php' => 'Template _config.php',
+    'core/Core.php' => 'Facade principal',
+    'index.php' => 'Entrypoint',
+    'core/Autoloader.php' => 'Carregamento de classes',
+    'core/DB.php' => 'Conexão com banco',
+    '.htaccess' => 'Rewrite rules'
+];
+
+$missingFiles = [];
+foreach ($criticalFiles as $file => $desc) {
+    if (!file_exists(ROOT_PATH . $file)) {
+        $missingFiles[] = "$file ($desc)";
+    }
+}
+
+$validations[] = [
+    'name' => 'Arquivos críticos',
+    'status' => empty($missingFiles),
+    'message' => empty($missingFiles) ? 'Todos presentes' : 'Faltando: ' . implode(', ', $missingFiles)
+];
+
+// 5. Verificar se index.php tem ini_set antes de session_start
+$indexContent = @file_get_contents(ROOT_PATH . 'index.php');
+if ($indexContent !== false) {
+    $hasIniSet = strpos($indexContent, "ini_set('session.cookie_httponly'") !== false;
+    $iniSetBeforeSession = true;
+    if ($hasIniSet) {
+        $iniSetPos = strpos($indexContent, "ini_set('session.cookie_httponly'");
+        $sessionStartPos = strpos($indexContent, 'session_start()');
+        $iniSetBeforeSession = $iniSetPos < $sessionStartPos;
+    }
+
+    $validations[] = [
+        'name' => 'index.php: ini_set() antes de session_start()',
+        'status' => $hasIniSet && $iniSetBeforeSession,
+        'message' => $hasIniSet && $iniSetBeforeSession ? 'OK - Configuração correta' : 'ERRO - Falta ini_set() ou está na ordem errada'
+    ];
+} else {
+    $validations[] = [
+        'name' => 'index.php: ini_set() antes de session_start()',
+        'status' => false,
+        'message' => 'Não foi possível ler index.php'
+    ];
+}
+
+// 6. Verificar se CoreConfig.php NÃO tem session_start no template
+$coreConfigContent = @file_get_contents(ROOT_PATH . 'core/CoreConfig.php');
+if ($coreConfigContent !== false) {
+    $templateStart = strpos($coreConfigContent, "\$template = <<<'PHP'");
+
+    if ($templateStart !== false) {
+        $templateEnd = strpos($coreConfigContent, "PHP;", $templateStart);
+        if ($templateEnd !== false) {
+            $templateContent = substr($coreConfigContent, $templateStart, $templateEnd - $templateStart);
+            $templateHasSession = strpos($templateContent, 'session_start()') !== false;
+
+            $validations[] = [
+                'name' => 'CoreConfig.php: Template _config.php sem session_start()',
+                'status' => !$templateHasSession,
+                'message' => !$templateHasSession ? 'OK - Template limpo' : 'ERRO - Template ainda tem session_start()'
+            ];
+        } else {
+            $validations[] = [
+                'name' => 'CoreConfig.php: Template _config.php sem session_start()',
+                'status' => false,
+                'message' => 'Não foi possível encontrar fim do template'
+            ];
+        }
+    } else {
+        $validations[] = [
+            'name' => 'CoreConfig.php: Template _config.php sem session_start()',
+            'status' => false,
+            'message' => 'Não foi possível encontrar template em CoreConfig.php'
+        ];
+    }
+} else {
+    $validations[] = [
+        'name' => 'CoreConfig.php: Template _config.php sem session_start()',
+        'status' => false,
+        'message' => 'Não foi possível ler CoreConfig.php'
+    ];
+}
+
+// 7. Verificar exec() e tar
+$validations[] = [
+    'name' => 'Função exec() disponível',
+    'status' => !$execDisabled,
+    'message' => !$execDisabled ? 'Disponível' : 'Desabilitada no php.ini'
+];
+
+if (!$execDisabled) {
+    exec('which tar 2>/dev/null', $tarCheck, $tarReturn);
+    $validations[] = [
+        'name' => 'Comando tar disponível',
+        'status' => $tarReturn === 0,
+        'message' => $tarReturn === 0 ? 'Instalado' : 'Não encontrado no sistema'
+    ];
+}
+
+// 8. Verificar OPcache (WARNING - não bloqueia deploy)
+$opcacheEnabled = function_exists('opcache_get_status');
+$opcacheStatus = $opcacheEnabled ? @opcache_get_status() : null;
+$opcacheActive = $opcacheStatus && $opcacheStatus['opcache_enabled'];
+
+$validations[] = [
+    'name' => 'OPcache (Performance)',
+    'status' => $opcacheActive,
+    'critical' => false,
+    'message' => $opcacheActive
+        ? 'Ativo (' . $opcacheStatus['opcache_statistics']['num_cached_scripts'] . ' scripts cached)'
+        : ($opcacheEnabled ? 'Instalado mas desabilitado' : 'Não instalado')
+];
+
+// 9. Listar pacotes gerados
+$deployDir = ROOT_PATH . 'deploys/';
+$packages = [];
+
+if (is_dir($deployDir)) {
+    $files = glob($deployDir . '*.tar.gz');
+    if ($files) {
+        foreach ($files as $file) {
+            $packages[] = [
+                'name' => basename($file),
+                'size' => filesize($file),
+                'date' => date('d/m/Y H:i:s', filemtime($file))
+            ];
+        }
+        // Ordenar por data (mais recente primeiro)
+        usort($packages, function($a, $b) {
+            return strcmp($b['name'], $a['name']);
+        });
+    }
+}
+
+// 10. Contar arquivos modificados recentemente (últimas 24h) - COM PROTEÇÃO
+$recentFiles = [];
+try {
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(ROOT_PATH, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($iterator as $file) {
+        try {
+            if ($file->isFile() && $file->getMTime() > (time() - 86400)) {
+                $path = str_replace(ROOT_PATH, '', $file->getPathname());
+                if (!preg_match('#^(\.git|node_modules|Documents|storage/cache|deploys)#', $path)) {
+                    $recentFiles[] = $path;
+                }
+            }
+        } catch (Exception $e) {
+            // Pular arquivo sem permissão
+            continue;
+        }
+    }
+} catch (Exception $e) {
+    // Se der erro no iterator, apenas não mostra arquivos recentes
+}
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>AEGIS - Deploy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; margin-bottom: 10px; }
+        h2 { color: #667eea; margin-bottom: 15px; margin-top: 30px; }
+        .back { color: #667eea; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .back:hover { text-decoration: underline; }
+
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        .section {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .validation-item {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .validation-item.success { background: #d4edda; border-color: #c3e6cb; }
+        .validation-item.error { background: #f8d7da; border-color: #f5c6cb; }
+        .validation-item.warning { background: #fff3cd; border-color: #ffeaa7; }
+
+        .validation-item .name { font-weight: bold; }
+        .validation-item .message { color: #666; font-size: 14px; margin-top: 4px; }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+        .packages-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .packages-table th,
+        .packages-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .packages-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .packages-table a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .packages-table a:hover {
+            text-decoration: underline;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .badge-success { background: #28a745; color: white; }
+        .badge-danger { background: #dc3545; color: white; }
+        .badge-warning { background: #ff9800; color: white; }
+
+        .recent-files {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .recent-files div {
+            padding: 3px 0;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="<?= url('/admin') ?>" class="back">&larr; Voltar ao Admin</a>
+
+        <h1>🚀 Deploy - Validação e Empacotamento</h1>
+        <p style="color: #666; margin-bottom: 30px;">Valide o ambiente e gere pacotes para deploy em produção.</p>
+
+        <?php if ($message): ?>
+            <div class="alert alert-<?= $messageType ?>">
+                <?= $message ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- VALIDAÇÕES PRÉ-DEPLOY -->
+        <div class="section">
+            <h2>✓ Validações Pré-Deploy</h2>
+
+            <?php
+            $allValid = true;
+            $hasWarnings = false;
+            foreach ($validations as $validation):
+                // Só bloqueia se for erro crítico
+                $isCritical = !isset($validation['critical']) || $validation['critical'] === true;
+                if (!$validation['status'] && $isCritical) {
+                    $allValid = false;
+                }
+                if (!$validation['status'] && !$isCritical) {
+                    $hasWarnings = true;
+                }
+            ?>
+                <?php
+                    $isCritical = !isset($validation['critical']) || $validation['critical'] === true;
+                    $statusClass = $validation['status'] ? 'success' : ($isCritical ? 'error' : 'warning');
+                    $badgeClass = $validation['status'] ? 'badge-success' : ($isCritical ? 'badge-danger' : 'badge-warning');
+                    $badgeText = $validation['status'] ? 'OK' : ($isCritical ? 'ERRO' : 'AVISO');
+                ?>
+                <div class="validation-item <?= $statusClass ?>">
+                    <div>
+                        <div class="name"><?= htmlspecialchars($validation['name']) ?></div>
+                        <div class="message"><?= htmlspecialchars($validation['message']) ?></div>
+                    </div>
+                    <span class="badge <?= $badgeClass ?>">
+                        <?= $badgeText ?>
+                    </span>
+                </div>
+            <?php endforeach; ?>
+
+            <?php if ($allValid && !$hasWarnings): ?>
+                <p style="margin-top: 20px; color: #28a745; font-weight: bold;">
+                    ✅ Todas as validações passaram! Sistema pronto para deploy.
+                </p>
+            <?php elseif ($allValid && $hasWarnings): ?>
+                <p style="margin-top: 20px; color: #ff9800; font-weight: bold;">
+                    ⚠️ Sistema pronto para deploy, mas há avisos de otimização acima.
+                </p>
+            <?php else: ?>
+                <p style="margin-top: 20px; color: #dc3545; font-weight: bold;">
+                    ❌ Corrija os erros críticos acima antes de gerar o pacote de deploy.
+                </p>
+            <?php endif; ?>
+        </div>
+
+        <!-- ARQUIVOS MODIFICADOS RECENTEMENTE -->
+        <?php if (!empty($recentFiles)): ?>
+        <div class="section">
+            <h2>📝 Arquivos Modificados (Últimas 24h)</h2>
+            <p style="color: #666; margin-bottom: 15px;">
+                <strong><?= count($recentFiles) ?></strong> arquivo(s) modificado(s) recentemente.
+            </p>
+            <div class="recent-files">
+                <?php foreach ($recentFiles as $file): ?>
+                    <div><?= htmlspecialchars($file) ?></div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- GERAR PACOTE -->
+        <div class="section">
+            <h2>📦 Gerar Pacote de Deploy</h2>
+            <p style="color: #666; margin-bottom: 15px;">
+                O processo inclui:<br>
+                → Limpeza de arquivos temporários (test*, debug*, etc)<br>
+                → Cópia para pasta temporária (não modifica originais)<br>
+                → Remoção de BOM de todos os arquivos PHP copiados<br>
+                → Criação do pacote .tar.gz otimizado<br>
+                → Limpeza automática da pasta temporária
+            </p>
+
+            <form method="post">
+                <select name="ambiente" required>
+                    <option value="producao">Produção</option>
+                    <option value="homologacao">Homologação</option>
+                    <option value="teste">Teste</option>
+                </select>
+
+                <label style="margin-left: 10px; display: inline-flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" name="incluir_uploads" value="1" style="margin-right: 5px;">
+                    Incluir uploads (imagens, PDFs, etc)
+                </label>
+
+                <button type="submit" name="action" value="generate_package" class="btn btn-primary"
+                        <?= !$allValid ? 'disabled' : '' ?>>
+                    Gerar Pacote
+                </button>
+            </form>
+        </div>
+
+        <!-- PACOTES GERADOS -->
+        <?php if (!empty($packages)): ?>
+        <div class="section">
+            <h2>📋 Pacotes Gerados</h2>
+
+            <table class="packages-table">
+                <thead>
+                    <tr>
+                        <th>Arquivo</th>
+                        <th>Tamanho</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($packages as $package): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($package['name']) ?></td>
+                            <td><?= round($package['size'] / 1024 / 1024, 2) ?> MB</td>
+                            <td><?= htmlspecialchars($package['date']) ?></td>
+                            <td>
+                                <a href="<?= url('/deploys/' . $package['name']) ?>" download>
+                                    Download
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+
+        <!-- CHECKLIST DE DEPLOY -->
+        <div class="section">
+            <h2>📋 Checklist de Deploy</h2>
+
+            <ol style="line-height: 2;">
+                <li><strong>Backup:</strong> Fazer backup completo do banco e arquivos</li>
+                <li><strong>Download:</strong> Baixar o pacote gerado</li>
+                <li><strong>Servidor:</strong> Deletar tudo do servidor (inclusive _config.php antigo)</li>
+                <li><strong>Upload:</strong> Enviar e extrair: <code>tar -xzf aegis-*.tar.gz</code></li>
+                <li><strong>Instalação:</strong> Acessar <code>setup.php</code> e configurar</li>
+                <li><strong>Testes:</strong> Testar login, dashboard, módulos</li>
+                <li><strong>Cache:</strong> Limpar cache se necessário</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

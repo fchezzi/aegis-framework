@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="checklistdeexecuÇÃo-criarcrud">CHECKLIST DE EXECUÇÃO - CRIAR CRUD</h1>
+
+<p><strong>USAR TODA VEZ QUE CRIAR UM CRUD</strong></p>
+
+<p>Marque cada item conforme avança. <strong>Só entregue se todos os □ virarem ✓</strong></p>
+
+<hr />
+
+<h2 id="prÉ-requisitos">PRÉ-REQUISITOS</h2>
+
+<pre><code>□ GUIA-PRATICO.md aberto e sendo consultado
+□ Nome do recurso definido (ex: Banner, Category, Product)
+□ Tabela já existe no banco OU vai ser criada agora
+</code></pre>
+
+<hr />
+
+<h2 id="passo-2:coletarrequisitos">PASSO -2: COLETAR REQUISITOS</h2>
+
+<pre><code>□ Pergunta 1: O que é este recurso? _________________
+□ Pergunta 2: Quem acessa admin? (Admin geral/Super admin/etc)
+□ Pergunta 3: Quais campos? (listar todos)
+□ Pergunta 4: Comportamentos especiais?
+  □ Upload de arquivo? (SIM/NÃO)
+  □ Ordenação/ranking? (SIM/NÃO)
+  □ Status ativo/inativo? (SIM/NÃO)
+  □ Datas especiais? (SIM/NÃO)
+  □ Relacionamentos? (SIM/NÃO)
+□ Pergunta 5: Exibir em frontend? (SIM/NÃO)
+□ Pergunta 6: Se SIM, aonde? _________________
+□ Pergunta 7: Se SIM, como? _________________
+</code></pre>
+
+<hr />
+
+<h2 id="passo-1:criartabelanobanco">PASSO -1: CRIAR TABELA NO BANCO</h2>
+
+<pre><code>□ Arquivo SQL criado em /migrations/XXX_create_[recurso]_table.sql
+□ Charset: utf8mb4
+□ Collation: utf8mb4_unicode_ci
+□ PRIMARY KEY: CHAR(36) UUID
+□ Índices em: ativo, order, created_at (conforme necessário)
+□ Reserved keywords com backticks (`order`, `group`, `key`, etc)
+□ Migration executada: tabela existe no banco
+</code></pre>
+
+<hr />
+
+<h2 id="passo0:preparaÇÃo">PASSO 0: PREPARAÇÃO</h2>
+
+<pre><code>□ Classe verificada: nome único em /admin/controllers/
+□ Arquivo criado: /admin/controllers/[Recurso]Controller.php
+□ Nome do arquivo = nome da classe exatamente
+</code></pre>
+
+<hr />
+
+<h2 id="passo1:escolhertemplate">PASSO 1: ESCOLHER TEMPLATE</h2>
+
+<pre><code>□ Template ADMIN aberto: /docs/crud/templates/TEMPLATE-CRUD-ADMIN.md
+□ Estrutura base copiada para o controller
+</code></pre>
+
+<hr />
+
+<h2 id="passo2:implementarindex">PASSO 2: IMPLEMENTAR index()</h2>
+
+<pre><code>□ $this-&gt;requireAuth() adicionado
+□ Query com prepared statements
+□ ORDER BY implementado
+□ $this-&gt;render() chamado com dados
+</code></pre>
+
+<hr />
+
+<h2 id="passo3:implementarcreate">PASSO 3: IMPLEMENTAR create()</h2>
+
+<pre><code>□ $this-&gt;requireAuth() adicionado
+□ Dados relacionados buscados (se necessário)
+□ $this-&gt;render() chamado com dados
+</code></pre>
+
+<hr />
+
+<h2 id="crÍtico">PASSO 4: IMPLEMENTAR store()</h2>
+
+<h3 id="1csrfvalidation">[1] CSRF VALIDATION</h3>
+
+<pre><code>□ $this-&gt;validateCSRF() como PRIMEIRA linha do try
+□ CHECKPOINT CSRF aprovado
+</code></pre>
+
+<h3 id="2ratelimiting">[2] RATE LIMITING</h3>
+
+<pre><code>□ RateLimiter::check('recurso_create', $ip, 5, 60) ANTES de validações
+□ HTTP 429 retornado se bloqueado
+□ RateLimiter::increment() DEPOIS do insert bem-sucedido
+□ CHECKPOINT RATE LIMIT aprovado
+</code></pre>
+
+<h3 id="3sanitizaÇÃo">[3] SANITIZAÇÃO</h3>
+
+<pre><code>□ Todos inputs com Security::sanitize()
+□ Emails com strtolower()
+□ Passwords NÃO sanitizados (hash depois)
+</code></pre>
+
+<h3 id="4buploaddearquivosehouver">[4B] UPLOAD DE ARQUIVO (se houver)</h3>
+
+<pre><code>□ Validação de UPLOAD_ERR_OK
+□ Validação de tamanho (5MB)
+□ Validação de MIME type (finfo_file)
+□ Validação de extensão
+□ Diretório criado: /storage/uploads/[recurso]/
+□ Nome gerado: UUID + timestamp + extensão
+□ move_uploaded_file() executado
+□ chmod 0644 aplicado
+□ Path RELATIVO salvo no banco
+□ CHECKPOINT UPLOAD aprovado
+</code></pre>
+
+<h3 id="4validaÇÕes">[4] VALIDAÇÕES</h3>
+
+<pre><code>□ Campos obrigatórios: empty() checks
+□ Email: Security::validateEmail() + uniqueness
+□ Senha: Security::validatePasswordStrength()
+□ UUID: Security::isValidUUID() + existence
+□ Strings: strlen() min/max
+□ Slug: regex + uniqueness
+□ Arrays: is_array() + filtrados
+</code></pre>
+
+<h3 id="5create">[5] CREATE</h3>
+
+<pre><code>□ $id = Security::generateUUID()
+□ Dados preparados (apenas sanitizados/validados)
+□ $this-&gt;db()-&gt;insert() com prepared statements
+□ SEM concatenação de strings em SQL
+</code></pre>
+
+<h3 id="6auditlog">[6] AUDIT LOG</h3>
+
+<pre><code>□ Logger::getInstance()-&gt;audit('CREATE_[RECURSO]', user_id, [...])
+□ Nome: CREATE_[RECURSO] (maiúsculas, singular)
+□ Array tem: resource_id, table, contexto
+□ CHECKPOINT LOGGER aprovado
+</code></pre>
+
+<h3 id="7incrementratelimit">[7] INCREMENT RATE LIMIT</h3>
+
+<pre><code>□ RateLimiter::increment('recurso_create', $ip, 60) APÓS insert
+</code></pre>
+
+<h3 id="8feedbackredirect">[8] FEEDBACK &amp; REDIRECT</h3>
+
+<pre><code>□ $this-&gt;success() com mensagem
+□ $this-&gt;redirect() para listagem
+</code></pre>
+
+<h3 id="9exceptionhandling">[9] EXCEPTION HANDLING</h3>
+
+<pre><code>□ catch (Exception $e) implementado
+□ Logger::warning('[CREATE]_FAILED') no catch
+□ $this-&gt;error() com mensagem
+□ Redirect de volta para create
+</code></pre>
+
+<hr />
+
+<h2 id="passo5:implementaredit">PASSO 5: IMPLEMENTAR edit()</h2>
+
+<pre><code>□ $this-&gt;requireAuth() adicionado
+□ Security::isValidUUID($id) validado
+□ Registro buscado e verificado se existe
+□ Dados relacionados buscados (se necessário)
+□ $this-&gt;render() chamado com registro
+</code></pre>
+
+<hr />
+
+<h2 id="crÍtico">PASSO 6: IMPLEMENTAR update()</h2>
+
+<pre><code>□ [1] CSRF validation ✓
+□ [2] UUID validation ANTES de queries ✓
+□ [3] Rate limiting (10 em 60s) ✓
+□ [4] Sanitização ✓
+□ [4B] Upload (se houver): deletar arquivo antigo ✓
+□ [5] Validações (email uniqueness EXCLUI próprio) ✓
+□ [6] UPDATE com prepared statements ✓
+□ [7] Logger::audit('UPDATE_[RECURSO]') com fields_updated ✓
+□ [8] RateLimiter::increment() ✓
+□ [9] Feedback + redirect ✓
+□ [10] Exception handling ✓
+</code></pre>
+
+<hr />
+
+<h2 id="crÍtico">PASSO 7: IMPLEMENTAR destroy()</h2>
+
+<pre><code>□ [1] CSRF validation ✓
+□ [2] UUID validation ✓
+□ [3] Rate limiting (5 em 60s) ✓
+□ [4] Registro buscado e guardado (para logger) ✓
+□ [5] Validações adicionais (não pode deletar X?) ✓
+□ [6A] Deletar arquivo físico (se upload) ✓
+□ [6B] DELETE com prepared statements ✓
+□ [7] Logger::audit('DELETE_[RECURSO]') com SNAPSHOT ✓
+□ [8] RateLimiter::increment() ✓
+□ [9] Feedback + redirect ✓
+□ [10] Exception handling ✓
+</code></pre>
+
+<hr />
+
+<h2 id="passo8:criarviews">PASSO 8: CRIAR VIEWS</h2>
+
+<pre><code>□ Diretório criado: mkdir -p /admin/views/[recurso]/
+□ Arquivo criado: index.php
+□ Arquivo criado: create.php
+□ Arquivo criado: edit.php
+□ chmod 644 executado em TODOS arquivos
+□ Outputs com htmlspecialchars()
+□ CSRF token nos forms (create.php, edit.php)
+</code></pre>
+
+<hr />
+
+<h2 id="bloqueio">GATE PASSO 8: VERIFICAÇÃO FINAL</h2>
+
+<p><strong>⛔ NÃO PROSSIGA PARA PASSO 9 ATÉ COMPLETAR 100%</strong></p>
+
+<h3 id="checkpoint13:segurançacrítica">Checkpoint 1/3: Segurança Crítica</h3>
+
+<pre><code>□ CSRF validation em store/update/destroy?
+□ RateLimiter::check() + increment() em store/update/destroy?
+□ Logger::audit() em store/update/destroy?
+□ Prepared statements em TODAS queries?
+□ Nenhuma concatenação de SQL?
+□ Reserved keywords com backticks?
+</code></pre>
+
+<h3 id="checkpoint23:validaçõesefeedback">Checkpoint 2/3: Validações e Feedback</h3>
+
+<pre><code>□ Empty checks para obrigatórios?
+□ Email: formato + uniqueness?
+□ Senha: força (create) + opcional (update)?
+□ UUID: validation + existence?
+□ Strings: min/max?
+□ Try/catch em todos métodos?
+□ Logger::warning() nos catches?
+□ Mensagens de sucesso/erro?
+</code></pre>
+
+<h3 id="checkpoint33:estruturaenomenclatura">Checkpoint 3/3: Estrutura e Nomenclatura</h3>
+
+<pre><code>□ 6 métodos implementados?
+□ Herança: extends BaseController?
+□ Auth em TODOS métodos?
+□ Nomes de ação: CREATE_*, UPDATE_*, DELETE_* (singular, maiúsculas)?
+□ RateLimiter keys consistentes?
+</code></pre>
+
+<p><strong>❌ SE ALGUM CHECKPOINT FALHOU: VOLTE E CORRIJA</strong></p>
+
+<p><strong>✅ SE TODOS PASSARAM: LIBERADO PARA PASSO 9</strong></p>
+
+<hr />
+
+<h2 id="passo9:adicionarroutes">PASSO 9: ADICIONAR ROUTES</h2>
+
+<pre><code>□ Arquivo correto: /routes/admin.php
+□ Rota 1: GET /admin/[recurso] → index()
+□ Rota 2: GET /admin/[recurso]/create → create()
+□ Rota 3: POST /admin/[recurso] → store()
+□ Rota 4: GET /admin/[recurso]/:id/edit → edit($id)
+□ Rota 5: POST /admin/[recurso]/:id → update($id)
+□ Rota 6: POST /admin/[recurso]/:id/delete → destroy($id)
+□ Todas com Auth::require()
+□ Parâmetros $id passados corretamente
+</code></pre>
+
+<hr />
+
+<h2 id="passo11:admincrudcompleto">PASSO 11: ADMIN CRUD COMPLETO</h2>
+
+<pre><code>□ Controller em /admin/controllers/ ✓
+□ 6 métodos funcionando ✓
+□ Views em /admin/views/ ✓
+□ Rotas em /routes/admin.php ✓
+□ CRUD 100% funcional ✓
+</code></pre>
+
+<hr />
+
+<h2 id="passo11b:frontenddisplayopcional">PASSO 11B: FRONTEND DISPLAY (OPCIONAL)</h2>
+
+<p><strong>Só preencher se resposta da pergunta 6 foi SIM</strong></p>
+
+<pre><code>□ Controller criado: /frontend/controllers/Frontend[Recurso]Controller.php
+□ Método index() implementado (read-only)
+□ Método api() implementado (JSON)
+□ View criada: /frontend/views/[recurso]/index.php
+□ chmod 644 na view
+□ Rotas adicionadas em /routes/public.php
+□ Integrado na página: home.php (ou outra)
+□ Testado: dados aparecem corretamente
+</code></pre>
+
+<hr />
+
+<h2 id="bloqueiofinal">PASSO 12: TESTES OBRIGATÓRIOS</h2>
+
+<p><strong>⛔ NÃO ENTREGUE SEM PASSAR NOS 4 TESTES</strong></p>
+
+<h3 id="🧪teste1:funcionalidadebásica">🧪 TESTE 1: Funcionalidade Básica</h3>
+
+<pre><code>□ GET /admin/[recurso] → 200 OK, lista aparece
+□ GET /admin/[recurso]/create → 200 OK, form aparece
+□ POST create → registro criado no banco
+□ GET /admin/[recurso]/[id]/edit → 200 OK, form com dados
+□ POST edit → registro atualizado no banco
+□ POST delete → registro removido do banco
+</code></pre>
+
+<h3 id="🔒teste2:segurança">🔒 TESTE 2: Segurança</h3>
+
+<pre><code>□ Remover CSRF token → submit bloqueado
+□ 10 submits rápidos → rate limit bloqueou
+□ SELECT * FROM logs_audit → registros CREATE/UPDATE/DELETE existem
+□ SQL injection test ('); DROP TABLE--) → bloqueado
+</code></pre>
+
+<h3 id="📁teste3:permissões">📁 TESTE 3: Permissões</h3>
+
+<pre><code>□ ls -la /admin/views/[recurso]/*.php → todos 644
+□ Se não: chmod 644 /admin/views/[recurso]/*.php
+□ Testar no browser: sem erro 500
+</code></pre>
+
+<h3 id="📊teste4:auditoria">📊 TESTE 4: Auditoria</h3>
+
+<pre><code>□ SELECT * FROM logs_audit WHERE action LIKE 'CREATE_%' ORDER BY created_at DESC LIMIT 5
+□ Logs têm: user_id, ip, resource_id, table
+□ Logs de DELETE têm snapshot de dados deletados
+</code></pre>
+
+<hr />
+
+<h2 id="validaÇÃoautomÁticaopcional">VALIDAÇÃO AUTOMÁTICA (OPCIONAL)</h2>
+
+<pre><code class="bash">□ php /scripts/validate-crud.php [RecursoController]
+□ Score: 100% (7/7 checks)
+</code></pre>
+
+<hr />
+
+<h2 id="entregafinal">ENTREGA FINAL</h2>
+
+<pre><code>□ TODOS os checkboxes acima estão marcados ✓
+□ TODOS os testes passaram ✓
+□ TODOS os gates foram aprovados ✓
+□ CRUD testado no browser ✓
+□ Código commitado ✓
+</code></pre>
+
+<hr />
+
+<h2 id="🎉pronto">🎉 PRONTO!</h2>
+
+<p><strong>Se TODOS os itens estão ✓, seu CRUD está pronto para produção.</strong></p>
+
+<p><strong>Score final:</strong> _____ / _____ checks (objetivo: 100%)</p>
+
+</body>
+</html>
+

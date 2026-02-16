@@ -1,0 +1,14 @@
+  User-agent: *
+  Disallow: /admin/
+  Disallow: /api/
+  Disallow: /storage/logs/
+  Disallow: /storage/cache/
+  Disallow: /core/
+  Disallow: /config/
+  Disallow: /vendor/
+  Allow: /storage/uploads/
+  Allow: /frontend/
+  Allow: /modules/
+  Allow: /assets/
+
+  Sitemap: http://localhost:5757/aegis/sitemap.xml

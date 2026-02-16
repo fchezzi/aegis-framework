@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="🔐sistemadepermissõesaegis">🔐 Sistema de Permissões AEGIS</h1>
+
+<blockquote>
+<p><strong>Quando usar este doc:</strong> Tarefas envolvendo MemberAuth, grupos, permissões de acesso, ENABLE_MEMBERS</p>
+</blockquote>
+
+<blockquote>
+<p><strong>Para Auth admin:</strong> Ver REGRAS.md #6 (Auth::require() obrigatório)</p>
+</blockquote>
+
+<hr />
+
+<h2 id="📊visãogeral:doissistemas">📊 Visão Geral: Dois Sistemas</h2>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Tipo </th>
+	<th> Classe </th>
+	<th> Tabela </th>
+	<th> Login </th>
+	<th> Documentação </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>Admin</strong> </td>
+	<td> <code>Auth</code> </td>
+	<td> <code>users</code> </td>
+	<td> <code>/admin/login</code> </td>
+	<td> REGRAS.md #6 </td>
+</tr>
+<tr>
+	<td> <strong>Member</strong> </td>
+	<td> <code>MemberAuth</code> </td>
+	<td> <code>members</code> </td>
+	<td> <code>/login</code> </td>
+	<td> Este documento </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>IMPORTANTE:</strong> <code>users</code> é a tabela de admins (REGRAS.md #2)</p>
+
+<hr />
+
+<h2 id="👥memberauthfrontendmembers">👥 MemberAuth (Frontend/Members)</h2>
+
+<h3 id="apicompleta">API Completa</h3>
+
+<pre><code class="php">MemberAuth::require();     // Exige login, redireciona para /login
+MemberAuth::check();       // bool - está logado?
+MemberAuth::member();      // ['id', 'email', 'name', 'group_id'] ou null
+MemberAuth::login($email, $pass);
+MemberAuth::logout();
+</code></pre>
+
+<h3 id="exemplo:páginaprotegida">Exemplo: Página Protegida</h3>
+
+<pre><code class="php">// frontend/pages/dashboard.php
+&lt;?php
+MemberAuth::require();  // Bloqueia se não estiver logado
+
+$member = MemberAuth::member();
+?&gt;
+&lt;h1&gt;Bem-vindo, &lt;?= htmlspecialchars($member['name']) ?&gt;!&lt;/h1&gt;
+</code></pre>
+
+<h3 id="exemplo:controllerfrontend">Exemplo: Controller Frontend</h3>
+
+<pre><code class="php">class ProfileController {
+    public function edit() {
+        MemberAuth::require();
+
+        $member = MemberAuth::member();
+        $memberId = $member['id'];
+
+        // código...
+    }
+}
+</code></pre>
+
+<hr />
+
+<h2 id="🔑sistemadepermissõesgranulares">🔑 Sistema de Permissões Granulares</h2>
+
+<p><strong>Pré-requisito:</strong> <code>ENABLE_MEMBERS = true</code> em <code>_config.php</code></p>
+
+<h3 id="apidepermissões">API de Permissões</h3>
+
+<pre><code class="php">// Verificação
+Permission::canAccess($memberId, $pageId);
+Permission::getAccessiblePages($memberId);
+
+// Conceder
+Permission::grantIndividual($memberId, $pageId);
+Permission::grantGroup($groupId, $pageId);
+
+// Remover
+Permission::removeIndividual($memberId, $pageId);
+Permission::removeGroup($groupId, $pageId);
+</code></pre>
+
+<h3 id="ordemdeprecedênciacrÍtico">Ordem de Precedência (CRÍTICO)</h3>
+
+<p><strong>Verificação acontece NESTA ordem:</strong></p>
+
+<ol>
+<li>✅ <strong>is_public = 1</strong> na tabela <code>pages</code> → TODOS acessam</li>
+<li>✅ <strong>&#8220;public&#8221;: true</strong> em <code>module.json</code> → TODOS acessam</li>
+<li>❌ <strong>Member NÃO logado</strong> → Bloqueia</li>
+<li>✅ <strong>Permissão individual</strong> (<code>member_permissions</code>) → Libera</li>
+<li>✅ <strong>Permissão de grupo</strong> (<code>group_permissions</code>) → Libera</li>
+<li>❌ <strong>Nenhum match</strong> → Bloqueia</li>
+</ol>
+
+<p><strong>Regra de ouro:</strong> Público &gt; Individual &gt; Grupo &gt; Bloquear</p>
+
+<hr />
+
+<h2 id="🎯gruposdepermissão">🎯 Grupos de Permissão</h2>
+
+<h3 id="estruturadetabelas">Estrutura de Tabelas</h3>
+
+<pre><code>groups (id, name, description)
+  └─ members (id, email, group_id) FK
+  └─ group_permissions (group_id, page_id)
+</code></pre>
+
+<h3 id="fluxocompleto:criargrupoeditores">Fluxo Completo: Criar Grupo &#8220;Editores&#8221;</h3>
+
+<pre><code class="sql">-- 1. Criar grupo
+INSERT INTO groups (id, name, description)
+VALUES (Core::generateUUID(), 'Editores', 'Podem editar artigos');
+
+-- 2. Conceder permissão ao grupo
+INSERT INTO group_permissions (group_id, page_id)
+SELECT
+    (SELECT id FROM groups WHERE name = 'Editores'),
+    (SELECT id FROM pages WHERE slug = 'artigos');
+
+-- 3. Adicionar member ao grupo
+UPDATE members
+SET group_id = (SELECT id FROM groups WHERE name = 'Editores')
+WHERE email = 'editor@exemplo.com';
+</code></pre>
+
+<p><strong>Resultado:</strong> Todos members do grupo &#8220;Editores&#8221; acessam página &#8220;artigos&#8221;</p>
+
+<h3 id="viaphpcódigo">Via PHP (Código)</h3>
+
+<pre><code class="php">$db = DB::connect();
+
+// 1. Criar grupo
+$groupId = Core::generateUUID();
+$db-&gt;insert('groups', [
+    'id' =&gt; $groupId,
+    'name' =&gt; 'Editores',
+    'description' =&gt; 'Podem editar artigos'
+]);
+
+// 2. Conceder permissão
+$pageId = $db-&gt;select('pages', ['slug' =&gt; 'artigos'], 1)['id'];
+Permission::grantGroup($groupId, $pageId);
+
+// 3. Adicionar member
+$db-&gt;update('members', ['group_id' =&gt; $groupId], ['email' =&gt; 'editor@exemplo.com']);
+</code></pre>
+
+<hr />
+
+<h2 id="🌍páginaspúblicasvsprivadas">🌍 Páginas Públicas vs Privadas</h2>
+
+<h3 id="tornarpúblico2formas">Tornar Público (2 formas)</h3>
+
+<p><strong>Forma 1: Página estática (tabela pages)</strong></p>
+
+<pre><code class="sql">UPDATE pages SET is_public = 1 WHERE slug = 'sobre';
+</code></pre>
+
+<p><strong>Forma 2: Módulo (module.json)</strong></p>
+
+<pre><code class="json">{
+  &quot;name&quot;: &quot;Blog&quot;,
+  &quot;public&quot;: true
+}
+</code></pre>
+
+<p><strong>REGRA #9:</strong> Módulos → <code>module.json</code>. Páginas → tabela <code>pages</code>. NUNCA misturar.</p>
+
+<hr />
+
+<h2 id="🚫sistemasemmembersenable_membersfalse">🚫 Sistema SEM Members (ENABLE_MEMBERS = false)</h2>
+
+<p><strong>Comportamento:</strong></p>
+
+<pre><code class="php">define('ENABLE_MEMBERS', false);
+</code></pre>
+
+<ul>
+<li>❌ <code>/login</code> não funciona</li>
+<li>✅ TODO frontend é público automaticamente</li>
+<li>✅ MemberAuth::require() não bloqueia nada</li>
+<li>✅ Apenas admins fazem login (<code>/admin</code>)</li>
+<li>✅ Funciona como site institucional</li>
+</ul>
+
+<p><strong>Quando usar:</strong> Sites corporativos, portfólios, landing pages (sem área de membros)</p>
+
+<hr />
+
+<h2 id="🔍integraçãocommenubuilder">🔍 Integração com MenuBuilder</h2>
+
+<p><strong>MenuBuilder.php verifica automaticamente:</strong></p>
+
+<pre><code class="php">// Pseudocódigo
+if ($page['is_public'] == 1) {
+    return true;  // Mostrar para todos
+}
+
+if ($module['public'] == true) {
+    return true;  // Mostrar para todos
+}
+
+if (!MemberAuth::check()) {
+    return false;  // Esconder se não logado
+}
+
+if (Permission::canAccess($memberId, $pageId)) {
+    return true;  // Verificou permissão
+}
+
+return false;  // Bloquear
+</code></pre>
+
+<p><strong>Resultado:</strong> Menu se adapta automaticamente ao contexto do usuário</p>
+
+<hr />
+
+<h2 id="🛠️troubleshooting">🛠️ Troubleshooting</h2>
+
+<h3 id="membertempermissãomasnãoacessa">&#8220;Member tem permissão mas não acessa&#8221;</h3>
+
+<pre><code class="php">// Debug checklist
+var_dump(MemberAuth::check());  // true?
+var_dump(MemberAuth::member()['id']);  // UUID correto?
+
+$db = DB::connect();
+$perm = $db-&gt;select('member_permissions', [
+    'member_id' =&gt; $memberId,
+    'page_id' =&gt; $pageId
+]);
+var_dump($perm);  // array não vazio?
+</code></pre>
+
+<h3 id="enable_membersfalsemaspedelogin">&#8220;ENABLE_MEMBERS = false mas pede login&#8221;</h3>
+
+<p><strong>Causa:</strong> <code>MemberAuth::require()</code> hardcoded em página que deveria ser pública</p>
+
+<p><strong>Solução:</strong> Remover <code>MemberAuth::require()</code> dessa página</p>
+
+<hr />
+
+<h2 id="📋checklistdeuso">📋 Checklist de Uso</h2>
+
+<p><strong>Criar sistema de permissões:</strong></p>
+
+<pre><code>□ Verificar ENABLE_MEMBERS = true em _config.php
+□ Criar grupos via SQL ou painel admin
+□ Atribuir members aos grupos (UPDATE members SET group_id)
+□ Conceder permissões (Permission::grantGroup ou SQL)
+</code></pre>
+
+<p><strong>Proteger página frontend:</strong></p>
+
+<pre><code>□ Adicionar MemberAuth::require() no topo da página
+□ OU configurar permissão via grupo/individual
+</code></pre>
+
+<p><strong>Tornar conteúdo público:</strong></p>
+
+<pre><code>□ Páginas: UPDATE pages SET is_public = 1
+□ Módulos: &quot;public&quot;: true em module.json
+</code></pre>
+
+<hr />
+
+<h2 id="📚referênciascruzadas">📚 Referências Cruzadas</h2>
+
+<ul>
+<li><strong>Auth admin:</strong> REGRAS.md #6</li>
+<li><strong>Módulos vs Páginas:</strong> REGRAS.md #9</li>
+<li><strong>Tabela users (não admins):</strong> REGRAS.md #2</li>
+<li><strong>Páginas públicas no menu:</strong> known-issues.md #3</li>
+</ul>
+
+<hr />
+
+<p><strong>Versão:</strong> 3.0.0
+<strong>Data:</strong> 2026&#8211;02&#8211;14
+<strong>Changelog:</strong> Removidas redundâncias com REGRAS.md e known-issues.md, focado em MemberAuth e sistema de permissões granulares</p>
+
+</body>
+</html>
+

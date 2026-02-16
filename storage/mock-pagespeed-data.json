@@ -1,0 +1,46 @@
+{
+  "webhook_secret": "bfe48065-3ab7-442c-b6c6-a9ac467a3c19",
+  "url": "https://exemplo.com.br",
+  "strategy": "mobile",
+  "analyzed_at": "2026-02-10 09:00:00",
+  "lighthouse_version": "13.0.1",
+  "fetch_time_ms": 4200,
+  "performance_score": 92,
+  "lab_lcp": "1.234",
+  "lab_fcp": "0.876",
+  "lab_cls": 0.015,
+  "lab_inp": 0,
+  "lab_si": "2.100",
+  "lab_tti": "3.200",
+  "lab_tbt": 120,
+  "field_lcp": 1500,
+  "field_fcp": 900,
+  "field_cls": 0.02,
+  "field_inp": 200,
+  "field_category": "FAST",
+  "opportunities": [
+    {
+      "title": "Eliminar recursos que impedem a renderização",
+      "description": "Recursos bloqueando a primeira renderização da página",
+      "savings_lcp": 850,
+      "savings_fcp": 400
+    },
+    {
+      "title": "Reduzir JavaScript não utilizado",
+      "description": "Reduza o tempo de análise, compilação e execução de JavaScript",
+      "savings_lcp": 620,
+      "savings_fcp": 310
+    },
+    {
+      "title": "Veicular imagens em formatos de última geração",
+      "description": "Formatos como WebP e AVIF são menores e mais rápidos",
+      "savings_lcp": 450,
+      "savings_fcp": 0
+    }
+  ],
+  "diagnostics": {
+    "dom_size": 1234,
+    "requests_count": 35,
+    "transfer_size": 1850000
+  }
+}

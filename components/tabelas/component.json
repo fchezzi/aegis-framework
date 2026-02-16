@@ -1,0 +1,257 @@
+{
+  "name": "tabelas",
+  "title": "Tabela de Dados",
+  "description": "Tabela responsiva e estilizada para exibição de dados tabulares",
+  "version": "1.0.0",
+  "min_size": 3,
+  "max_size": 6,
+  "fields": {
+    "filter_group": {
+      "type": "text",
+      "label": "Grupo do Filtro",
+      "required": false,
+      "default": "default",
+      "help": "Nome do grupo. Só responde a filtros do mesmo grupo (ex: videos, cards-1, etc)"
+    },
+    "data_source": {
+      "type": "select",
+      "label": "Fonte de Dados",
+      "required": false,
+      "options": ["static", "dynamic", "database", "database_condicional"],
+      "default": "static",
+      "help": "Static: JSON fixo | Dynamic: API | Database: tabela do banco | Database Condicional: tabela com filtro adicional"
+    },
+    "data_source_url": {
+      "type": "text",
+      "label": "URL da API",
+      "required": false,
+      "default": "/api/table-data.php",
+      "help": "URL do endpoint que retorna os dados. Use /api/table-data.php para integração com filtros.",
+      "show_if": {
+        "data_source": "dynamic"
+      }
+    },
+    "table": {
+      "type": "select",
+      "label": "Tabela (fonte de dados)",
+      "required": false,
+      "default": "pages",
+      "data_source": "tables",
+      "help": "Tabela do banco de dados (necessário para filtros funcionarem)",
+      "show_if": {
+        "data_source": "dynamic"
+      }
+    },
+    "value_field": {
+      "type": "select",
+      "label": "Campo de Filtro (dropdown)",
+      "required": false,
+      "default": "id",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Campo usado pelo filtro dropdown (ex: canal, categoria)",
+      "show_if": {
+        "data_source": "dynamic"
+      }
+    },
+    "date_field": {
+      "type": "select",
+      "label": "Campo de Data",
+      "required": false,
+      "default": "created_at",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Campo de data usado pelo filtro (ex: video_published, created_at)",
+      "show_if": {
+        "data_source": "dynamic"
+      }
+    },
+    "database_table": {
+      "type": "select",
+      "label": "Tabela do Banco",
+      "required": false,
+      "default": "pages",
+      "data_source": "tables",
+      "help": "Escolha a tabela (ex: tbl_youtube_videos)",
+      "show_if": {
+        "data_source": ["database", "database_condicional"]
+      }
+    },
+    "database_columns": {
+      "type": "text",
+      "label": "Colunas (separadas por vírgula)",
+      "required": false,
+      "default": "title,slug",
+      "help": "Ex: titulo,views,likes,data_publicacao",
+      "show_if": {
+        "data_source": ["database", "database_condicional"]
+      }
+    },
+    "filter_value_column": {
+      "type": "text",
+      "label": "Coluna para Filtrar (dropdown)",
+      "required": false,
+      "default": "",
+      "help": "Nome da coluna desta tabela que será filtrada pelo dropdown (ex: canal_id). Deixe vazio se não usar filtro.",
+      "show_if": {
+        "data_source": ["database", "database_condicional"]
+      }
+    },
+    "filter_date_column": {
+      "type": "text",
+      "label": "Coluna para Filtrar (data)",
+      "required": false,
+      "default": "",
+      "help": "Nome da coluna desta tabela que será filtrada por data (ex: data, video_published). Deixe vazio se não usar filtro de data.",
+      "show_if": {
+        "data_source": ["database", "database_condicional"]
+      }
+    },
+    "hidden_columns": {
+      "type": "text",
+      "label": "Colunas Escondidas",
+      "required": false,
+      "default": "",
+      "help": "Colunas que devem ser buscadas do banco mas NÃO exibidas na tabela (separadas por vírgula). Ex: canal,id",
+      "show_if": {
+        "data_source": ["database", "database_condicional"]
+      }
+    },
+    "order_by": {
+      "type": "text",
+      "label": "Ordenar por (coluna)",
+      "required": false,
+      "default": "",
+      "help": "Nome da coluna para ordenação (ex: data_publicacao)",
+      "show_if": {
+        "data_source": ["database", "database_condicional"]
+      }
+    },
+    "order_direction": {
+      "type": "select",
+      "label": "Direção da Ordenação",
+      "required": false,
+      "options": ["ASC", "DESC"],
+      "default": "DESC",
+      "help": "ASC: crescente | DESC: decrescente",
+      "show_if": {
+        "data_source": ["database", "database_condicional"]
+      }
+    },
+    "limit": {
+      "type": "number",
+      "label": "Limite de Linhas",
+      "required": false,
+      "min": 1,
+      "max": 1000,
+      "default": 50,
+      "help": "Quantas linhas carregar (máx: 1000)",
+      "show_if": {
+        "data_source": ["database", "database_condicional"]
+      }
+    },
+    "title": {
+      "type": "text",
+      "label": "Título da Tabela",
+      "required": false,
+      "max_length": 100,
+      "default": ""
+    },
+    "columns": {
+      "type": "textarea",
+      "label": "Nomes das Colunas (JSON array)",
+      "required": false,
+      "default": "[\"Coluna 1\", \"Coluna 2\", \"Coluna 3\"]",
+      "help": "Array JSON com nomes para exibição (ex: [\"Título\", \"Views\", \"Likes\"]). No modo Database, pode deixar vazio para usar nomes das colunas do banco."
+    },
+    "rows": {
+      "type": "textarea",
+      "label": "Linhas (JSON array de arrays)",
+      "required": true,
+      "default": "[[\"Dado 1.1\", \"Dado 1.2\", \"Dado 1.3\"], [\"Dado 2.1\", \"Dado 2.2\", \"Dado 2.3\"]]",
+      "help": "Array JSON de arrays, cada um representando uma linha",
+      "show_if": {
+        "data_source": "static"
+      }
+    },
+    "style": {
+      "type": "select",
+      "label": "Estilo da Tabela",
+      "required": false,
+      "options": ["default", "striped", "bordered", "compact"],
+      "default": "default"
+    },
+    "header_color": {
+      "type": "select",
+      "label": "Cor do Cabeçalho",
+      "required": false,
+      "options": ["primary", "secondary", "success", "dark"],
+      "default": "primary"
+    },
+    "sortable": {
+      "type": "select",
+      "label": "Tabela Ordenável",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "no"
+    },
+    "searchable": {
+      "type": "select",
+      "label": "Campo de Busca",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "no"
+    },
+    "pagination": {
+      "type": "select",
+      "label": "Paginação",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "no"
+    },
+    "rows_per_page": {
+      "type": "number",
+      "label": "Linhas por Página",
+      "required": false,
+      "min": 5,
+      "max": 100,
+      "default": 10,
+      "show_if": {
+        "pagination": "yes"
+      }
+    },
+    "condition_column": {
+      "type": "select",
+      "label": "Coluna da Condição Adicional",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "database_table",
+      "help": "Coluna para filtro fixo (ex: video_show, programa, status)",
+      "show_if": {
+        "data_source": "database_condicional"
+      }
+    },
+    "condition_operator": {
+      "type": "select",
+      "label": "Operador da Condição",
+      "required": false,
+      "options": ["=", "!=", ">", "<", ">=", "<=", "LIKE"],
+      "default": "=",
+      "help": "Operador de comparação",
+      "show_if": {
+        "data_source": "database_condicional"
+      }
+    },
+    "condition_value": {
+      "type": "text",
+      "label": "Valor da Condição",
+      "required": false,
+      "default": "",
+      "help": "Valor fixo para filtrar (ex: Morde e Assopra, ativo, 2024)",
+      "show_if": {
+        "data_source": "database_condicional"
+      }
+    }
+  }
+}

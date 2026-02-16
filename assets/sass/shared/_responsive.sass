@@ -1,0 +1,75 @@
+// Responsive System
+// Mobile-first approach (min-width)
+// Prioridade: MOBILE FIRST
+
+// =========================================
+// BREAKPOINTS
+// =========================================
+// Mobile → Desktop (crescente)
+
+$xs: 360px			// Mini phones
+$sm: 480px			// Phones
+$md: 768px			// Tablets
+$lg: 1024px			// Desktop
+$xl: 1440px			// Desktop wide
+$xxl: 1920px		// 4K monitors
+
+// =========================================
+// MIXINS
+// =========================================
+
+// Min-width (mobile-first - PADRÃO)
+// Uso: @include min($md) { ... }
+@mixin min($size)
+	@media (min-width: $size)
+		@content
+
+// Max-width (casos específicos)
+// Uso: @include max($md) { ... }
+@mixin max($size)
+	@media (max-width: $size - 1px)
+		@content
+
+// Between (intervalo específico)
+// Uso: @include between($sm, $lg) { ... }
+@mixin between($min, $max)
+	@media (min-width: $min) and (max-width: $max - 1px)
+		@content
+
+// =========================================
+// ALIASES AEGIS (compatibilidade)
+// =========================================
+
+@mixin responsive-min($size)
+	@media (min-width: $size)
+		@content
+
+@mixin responsive-max($size)
+	@media (max-width: $size - 1px)
+		@content
+
+@mixin responsive-between($min, $max)
+	@media (min-width: $min) and (max-width: $max - 1px)
+		@content
+
+$phones: $sm
+$phonesWide: $sm
+$phtablet: $md
+$tabletSmall: $md
+$tablet: $md
+$tabletWide: $lg
+$desktop: $xl
+$desktopWide: $xl
+$desktopMegaWide: $xxl
+
+// =========================================
+// EXEMPLO DE USO
+// =========================================
+// .m-home__hero
+//   padding: 40px 16px           // mobile base (sem media query)
+//
+//   @include min($md)            // tablet up
+//     padding: 60px 20px
+//
+//   @include min($xl)            // desktop up
+//     padding: 100px 40px

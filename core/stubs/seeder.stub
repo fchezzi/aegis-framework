@@ -1,0 +1,58 @@
+<?php
+/**
+ * {{CLASS_NAME}}
+ * Seeder para popular tabela {{TABLE}}
+ *
+ * Execute com: php aegis db:seed {{CLASS_NAME}}
+ */
+
+class {{CLASS_NAME}} {
+
+    /**
+     * Executar seeder
+     */
+    public function run() {
+        $this->output('Populando tabela {{TABLE}}...');
+
+        $items = $this->getData();
+
+        foreach ($items as $item) {
+            // Verificar se já existe
+            $exists = DB::table('{{TABLE}}')
+                ->where('id', $item['id'])
+                ->first();
+
+            if (!$exists) {
+                DB::insert('{{TABLE}}', $item);
+                $this->output("  + Inserido: {$item['id']}");
+            } else {
+                $this->output("  = Já existe: {$item['id']}");
+            }
+        }
+
+        $this->output('Concluído!');
+    }
+
+    /**
+     * Dados para inserir
+     */
+    protected function getData() {
+        return [
+            [
+                'id' => Security::generateUUID(),
+                // Adicione os campos aqui
+                'created_at' => date('Y-m-d H:i:s')
+            ],
+            // Adicione mais registros...
+        ];
+    }
+
+    /**
+     * Output helper
+     */
+    protected function output($message) {
+        if (php_sapi_name() === 'cli') {
+            echo $message . "\n";
+        }
+    }
+}

@@ -1,0 +1,35 @@
+// Layout Dashboard Members
+// Grid fixo: Header (70px) + Breadcrumb (50px) + Main (restante)
+
+@use 'sass:color'
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+// HEADER FIXO
+.l-header
+	position: fixed
+	top: 0
+	left: 0
+	width: 100%
+	z-index: 1032
+	background: $bgdashheader
+	padding: 3px 0
+	display: flex
+	align-items: center
+
+	body:not(.dark) &
+		background: $bgdashheaderdark
+
+.l-main
+	width: 100%
+	margin: 110px 0 0 0
+	height: calc( 100vh - 110px )
+	padding: 0
+	background: $bgdashmain
+	grid-area: unset
+	display: flex
+
+	body:not(.dark) &
+		background: $bgdashmaindark

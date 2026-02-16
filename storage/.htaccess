@@ -1,0 +1,8 @@
+# Permitir acesso a arquivos estáticos
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|pdf|txt|csv|xlsx|xls|doc|docx)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Adicionar MIME type para SVG
+AddType image/svg+xml .svg

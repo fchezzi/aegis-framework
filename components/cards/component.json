@@ -1,0 +1,523 @@
+{
+  "name": "cards",
+  "title": "Cards",
+  "description": "Cards dinâmicos (métrica, estatística, etc)",
+  "version": "2.0.0",
+  "min_size": 1,
+  "max_size": 6,
+  "fields": {
+    "filter_group": {
+      "type": "text",
+      "label": "Grupo do Filtro",
+      "required": true,
+      "default": "default",
+      "help": "Nome do grupo. Componentes do mesmo grupo trabalham juntos (ex: grupo-youtube, grupo-instagram)"
+    },
+    "card_type": {
+      "type": "select",
+      "label": "Tipo de Card",
+      "required": false,
+      "options": ["", "metrica", "dados_mensais", "metrica_condicional"],
+      "default": "metrica",
+      "help": "Métrica = soma/média | Dados Mensais = valor do mês | Métrica Condicional = soma/média com filtro adicional | Métrica Multi-Tabela = soma/média de múltiplas tabelas"
+    },
+    "title": {
+      "type": "text",
+      "label": "Título do Card",
+      "required": true,
+      "default": "Total",
+      "help": "Título exibido no card (ex: Total de Views, Média de Likes)",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional"]
+      }
+    },
+    "table": {
+      "type": "select",
+      "label": "Fonte 1 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "help": "Primeira fonte de dados",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_1_column": {
+      "type": "select",
+      "label": "Fonte 1 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_1_table",
+      "help": "Coluna para calcular",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_1_date_field": {
+      "type": "select",
+      "label": "Fonte 1 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_1_table",
+      "help": "Campo de data para filtrar",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_2_table": {
+      "type": "select",
+      "label": "Fonte 2 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_2_column": {
+      "type": "select",
+      "label": "Fonte 2 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_2_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_2_date_field": {
+      "type": "select",
+      "label": "Fonte 2 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_2_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_3_table": {
+      "type": "select",
+      "label": "Fonte 3 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_3_column": {
+      "type": "select",
+      "label": "Fonte 3 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_3_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_3_date_field": {
+      "type": "select",
+      "label": "Fonte 3 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_3_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_4_table": {
+      "type": "select",
+      "label": "Fonte 4 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_4_column": {
+      "type": "select",
+      "label": "Fonte 4 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_4_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_4_date_field": {
+      "type": "select",
+      "label": "Fonte 4 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_4_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_5_table": {
+      "type": "select",
+      "label": "Fonte 5 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_5_column": {
+      "type": "select",
+      "label": "Fonte 5 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_5_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_5_date_field": {
+      "type": "select",
+      "label": "Fonte 5 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_5_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_6_table": {
+      "type": "select",
+      "label": "Fonte 6 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_6_column": {
+      "type": "select",
+      "label": "Fonte 6 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_6_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_6_date_field": {
+      "type": "select",
+      "label": "Fonte 6 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_6_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_7_table": {
+      "type": "select",
+      "label": "Fonte 7 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_7_column": {
+      "type": "select",
+      "label": "Fonte 7 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_7_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_7_date_field": {
+      "type": "select",
+      "label": "Fonte 7 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_7_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_8_table": {
+      "type": "select",
+      "label": "Fonte 8 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_8_column": {
+      "type": "select",
+      "label": "Fonte 8 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_8_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_8_date_field": {
+      "type": "select",
+      "label": "Fonte 8 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_8_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_9_table": {
+      "type": "select",
+      "label": "Fonte 9 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_9_column": {
+      "type": "select",
+      "label": "Fonte 9 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_9_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_9_date_field": {
+      "type": "select",
+      "label": "Fonte 9 - Campo de Data",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_9_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_10_table": {
+      "type": "select",
+      "label": "Fonte 10 - Tabela",
+      "required": false,
+      "default": "",
+      "data_source": "tables",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "source_10_column": {
+      "type": "select",
+      "label": "Fonte 10 - Coluna",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "source_10_table",
+      "show_if": {
+        "card_type": "metrica_multi_table"
+      }
+    },
+    "table": {
+      "type": "select",
+      "label": "Tabela (fonte de dados)",
+      "required": true,
+      "default": "tbl_youtube",
+      "data_source": "tables",
+      "help": "Tabela de onde os dados serão extraídos",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional"]
+      }
+    },
+    "column": {
+      "type": "select",
+      "label": "Coluna para calcular",
+      "required": true,
+      "default": "id",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Coluna que será usada no cálculo (ex: video_views, id)",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional"]
+      }
+    },
+    "operation": {
+      "type": "select",
+      "label": "Operação",
+      "required": true,
+      "options": ["SUM", "COUNT", "AVG", "MAX", "MIN"],
+      "default": "SUM",
+      "help": "SUM=Somar, COUNT=Contar, AVG=Média, MAX=Maior, MIN=Menor",
+      "show_if": {
+        "card_type": ["metrica", "metrica_condicional", "metrica_multi_table"]
+      }
+    },
+    "icon": {
+      "type": "text",
+      "label": "Ícone",
+      "required": false,
+      "default": "trending-up",
+      "help": "Nome do ícone do Lucide Icons (ex: trending-up, eye, users, video, heart, dollar-sign). Ver lista completa: https://lucide.dev/icons/",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional", "metrica_multi_table"]
+      }
+    },
+    "icon_color": {
+      "type": "select",
+      "label": "Cor do Ícone",
+      "required": false,
+      "options": ["purple", "blue", "green", "orange", "red", "pink"],
+      "default": "purple",
+      "help": "Cor do fundo do ícone",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional", "metrica_multi_table"]
+      }
+    },
+    "layout": {
+      "type": "select",
+      "label": "Layout do Card",
+      "required": false,
+      "options": ["default", "split"],
+      "default": "default",
+      "help": "default=Layout original | split=Layout dividido (35% ícone/valor + 65% título/detalhes)",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional", "metrica_multi_table"]
+      }
+    },
+    "date_field_single": {
+      "type": "select",
+      "label": "Campo de Data (para filtros)",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Campo de data usado para filtrar por período (ex: video_published, created_at)",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional"]
+      }
+    },
+    "filter_value_field": {
+      "type": "select",
+      "label": "Campo para Filtro de Canal/Dropdown",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Campo usado para filtrar por canal/categoria (ex: canal_id, category)",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional"]
+      }
+    },
+    "compare_period": {
+      "type": "select",
+      "label": "Comparar com período anterior?",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "yes",
+      "help": "Mostrar percentual de variação comparando com período anterior",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional", "metrica_multi_table"]
+      }
+    },
+    "format": {
+      "type": "select",
+      "label": "Formato do número",
+      "required": false,
+      "options": ["number", "decimal", "currency"],
+      "default": "number",
+      "help": "number=1.234, decimal=1.234,56, currency=$1.234,56",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional", "metrica_multi_table"]
+      }
+    },
+    "show_link": {
+      "type": "select",
+      "label": "Mostrar link 'Ver Detalhes'?",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "no",
+      "help": "Exibir link de ação no rodapé do card",
+      "show_if": {
+        "card_type": ["metrica", "dados_mensais", "metrica_condicional", "metrica_multi_table"]
+      }
+    },
+    "link_url": {
+      "type": "text",
+      "label": "URL do Link",
+      "required": false,
+      "default": "#",
+      "help": "URL do link 'Ver Detalhes' (ex: /relatorio)",
+      "show_if": {
+        "show_link": "yes"
+      }
+    },
+    "link_text": {
+      "type": "text",
+      "label": "Texto do Link",
+      "required": false,
+      "default": "Ver Detalhes",
+      "help": "Texto do link (ex: Ver Relatório, Ver Todos)",
+      "show_if": {
+        "show_link": "yes"
+      }
+    },
+    "condition_column": {
+      "type": "select",
+      "label": "Coluna da Condição Adicional",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Coluna que será usada no filtro adicional (ex: programa, status, categoria)",
+      "show_if": {
+        "card_type": "metrica_condicional"
+      }
+    },
+    "condition_operator": {
+      "type": "select",
+      "label": "Operador da Condição",
+      "required": false,
+      "options": ["=", "!=", ">", "<", ">=", "<=", "LIKE"],
+      "default": "=",
+      "help": "= (igual), != (diferente), > (maior), < (menor), >= (maior ou igual), <= (menor ou igual), LIKE (contém)",
+      "show_if": {
+        "card_type": "metrica_condicional"
+      }
+    },
+    "condition_value": {
+      "type": "text",
+      "label": "Valor da Condição",
+      "required": false,
+      "default": "",
+      "help": "Valor a ser comparado (ex: Morde e Assopra, ativo, 2024). Para LIKE use % como curinga (ex: %Morde%)",
+      "show_if": {
+        "card_type": "metrica_condicional"
+      }
+    }
+  }
+}

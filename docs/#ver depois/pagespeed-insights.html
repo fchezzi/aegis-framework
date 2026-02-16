@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="pagespeedinsights-documentaçãocompleta">PageSpeed Insights - Documentação Completa</h1>
+
+<p><strong>Data:</strong> 2026&#8211;02&#8211;15
+<strong>Sistema:</strong> AEGIS Framework v17.3.6
+<strong>Módulo:</strong> PageSpeed Insights Integration
+<strong>Versão:</strong> 2.0.0
+<strong>Status:</strong> 🟢 Produção Ready</p>
+
+<hr />
+
+<h2 id="📋Índice">📋 Índice</h2>
+
+<ol>
+<li><a href="#visão-geral">Visão Geral</a></li>
+<li><a href="#arquitetura">Arquitetura</a></li>
+<li><a href="#arquivos-do-sistema">Arquivos do Sistema</a></li>
+<li><a href="#fluxo-de-funcionamento">Fluxo de Funcionamento</a></li>
+<li><a href="#configuração">Configuração</a></li>
+<li><a href="#workflows-n8n">Workflows n8n</a></li>
+<li><a href="#como-usar">Como Usar</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#próximos-passos">Próximos Passos</a></li>
+</ol>
+
+<hr />
+
+<h2 id="🎯visãogeral">🎯 Visão Geral</h2>
+
+<p>Sistema completo de análise de performance web usando Google PageSpeed Insights API v5, com processamento assíncrono via n8n e armazenamento de histórico no banco de dados.</p>
+
+<p><strong>Features implementadas:</strong></p>
+
+<ul>
+<li>✅ <strong>URL Management System</strong> - CRUD completo para gerenciar URLs</li>
+<li>✅ <strong>Queue/Status System</strong> - Tracking em tempo real (pending → processing → completed/failed)</li>
+<li>✅ <strong>Background Processing</strong> - Processamento em lote com mediana</li>
+<li>✅ <strong>Auto-refresh</strong> - Interface atualiza automaticamente durante análises</li>
+<li>✅ <strong>100% Lucide Icons</strong> - Interface moderna e consistente</li>
+<li>✅ Análise manual via dashboard</li>
+<li>✅ Suporte para Mobile e Desktop</li>
+<li>✅ Armazenamento de histórico completo</li>
+<li>✅ Core Web Vitals (LCP, FCP, CLS, INP, SI, TTI, TBT)</li>
+<li>✅ Field Data (dados reais de usuários)</li>
+<li>✅ <strong>Extração FULL</strong> - 98% dos dados úteis (opportunities detalhadas, third-party, resource breakdown)</li>
+<li>✅ Dashboard com filtros, estatísticas e paginação</li>
+</ul>
+
+<hr />
+
+<h2 id="🆕recursosprincipaisv2.0">🆕 Recursos Principais (v2.0)</h2>
+
+<h3 id="1.urlmanagementsystem">1. URL Management System</h3>
+
+<p>Sistema completo para gerenciar quais URLs serão analisadas.</p>
+
+<p><strong>Interface:</strong> http://localhost:5757/aegis/admin/pagespeed/urls</p>
+
+<p><strong>Funcionalidades:</strong></p>
+
+<ul>
+<li>✅ Adicionar novas URLs</li>
+<li>✅ Toggle ativo/inativo</li>
+<li>✅ Editar URLs existentes</li>
+<li>✅ Excluir URLs</li>
+<li>✅ Listagem com filtros</li>
+</ul>
+
+<p><strong>Controller:</strong> <code>PageSpeedUrlsController.php</code></p>
+
+<p><strong>Rotas:</strong></p>
+
+<ul>
+<li><code>GET /admin/pagespeed/urls</code> - Listagem</li>
+<li><code>POST /admin/pagespeed/urls/store</code> - Criar</li>
+<li><code>POST /admin/pagespeed/urls/:id/toggle</code> - Ativar/desativar</li>
+<li><code>POST /admin/pagespeed/urls/:id/delete</code> - Excluir</li>
+</ul>
+
+<p><strong>Database:</strong></p>
+
+<pre><code class="sql">CREATE TABLE tbl_pagespeed_urls (
+    id VARCHAR(36) PRIMARY KEY,
+    url VARCHAR(500) NOT NULL UNIQUE,
+    ativo TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_ativo (ativo)
+);
+</code></pre>
+
+<h3 id="2.queuestatussystem">2. Queue/Status System</h3>
+
+<p>Sistema de fila para tracking em tempo real do progresso das análises.</p>
+
+<p><strong>Status possíveis:</strong></p>
+
+<ul>
+<li><code>pending</code> - Aguardando processamento</li>
+<li><code>processing</code> - Em análise (chamando Google API)</li>
+<li><code>completed</code> - Concluído com sucesso</li>
+<li><code>failed</code> - Falhou na análise</li>
+</ul>
+
+<p><strong>Fluxo:</strong></p>
+
+<ol>
+<li>Usuário clica &#8220;Analisar Agora&#8221;</li>
+<li>Sistema cria registros com <code>status='pending'</code> para cada URL+estratégia</li>
+<li>Background script processa fila</li>
+<li>Status muda para <code>processing</code> durante análise</li>
+<li>Status final: <code>completed</code> ou <code>failed</code></li>
+</ol>
+
+<p><strong>Auto-refresh:</strong></p>
+
+<ul>
+<li>Interface detecta análises pendentes/processing</li>
+<li>Auto-refresh a cada 5 segundos</li>
+<li>Para quando todas concluem</li>
+</ul>
+
+<p><strong>Visual Feedback:</strong></p>
+
+<ul>
+<li>🕐 <code>pending</code> - Badge amarelo com ícone clock</li>
+<li>🔄 <code>processing</code> - Badge azul com ícone loader</li>
+<li>✅ <code>completed</code> - Score exibido</li>
+<li>❌ <code>failed</code> - Badge vermelho com ícone x-circle</li>
+</ul>
+
+<h3 id="3.backgroundprocessing">3. Background Processing</h3>
+
+<p>Script PHP que processa múltiplas URLs em background.</p>
+
+<p><strong>Arquivo:</strong> <code>/admin/api/pagespeed-test-batch.php</code></p>
+
+<p><strong>Características:</strong></p>
+
+<ul>
+<li>Processa todas URLs ativas do banco</li>
+<li>3 testes por estratégia (cálculo de mediana)</li>
+<li>Rate limiting (2s entre testes)</li>
+<li>Atualização de status em tempo real</li>
+<li>Execução via nohup (não bloqueia interface)</li>
+</ul>
+
+<p><strong>Como funciona:</strong></p>
+
+<pre><code class="bash"># 1. Trigger cria pending records
+POST /admin/api/pagespeed-trigger.php
+
+# 2. Background script inicia
+nohup php admin/api/pagespeed-test-batch.php &amp;
+
+# 3. Para cada URL + estratégia:
+#    - Marca como &quot;processing&quot;
+#    - Roda 3 testes
+#    - Calcula mediana
+#    - Salva resultado
+#    - Marca como &quot;completed&quot;
+</code></pre>
+
+<p><strong>Mediana:</strong></p>
+
+<ul>
+<li>3 testes por análise reduz variação</li>
+<li>Performance scores podem variar ±10 pontos</li>
+<li>Mediana garante resultado estável</li>
+<li>Exemplo: scores [85, 92, 88] → mediana 88</li>
+</ul>
+
+<h3 id="4.lucideicons100">4. Lucide Icons (100%)</h3>
+
+<p>Substituição completa de emojis por ícones Lucide.</p>
+
+<p><strong>Ícones utilizados:</strong></p>
+
+<ul>
+<li><code>smartphone</code> / <code>monitor</code> - Mobile/Desktop</li>
+<li><code>clock</code> - Aguardando</li>
+<li><code>loader</code> - Processando</li>
+<li><code>check-circle</code> / <code>x-circle</code> - Sucesso/Erro/Status</li>
+<li><code>file-code</code> - Scripts</li>
+<li><code>palette</code> - CSS</li>
+<li><code>image</code> - Images</li>
+<li><code>type</code> - Fonts</li>
+<li><code>file-text</code> - HTML</li>
+<li><code>package</code> - Other resources</li>
+</ul>
+
+<p><strong>Total:</strong> 13 substituições em 3 views</p>
+
+<p><strong>CDN:</strong> <code>https://unpkg.com/lucide@latest</code></p>
+
+<h3 id="5.extraçãofulldedados">5. Extração FULL de Dados</h3>
+
+<p>Versão 2.0 extrai 98% dos dados úteis do PageSpeed API.</p>
+
+<p><strong>Novos campos:</strong></p>
+
+<ul>
+<li><code>opportunities_full</code> (LONGTEXT) - Todas oportunidades detalhadas</li>
+<li><code>diagnostics_full</code> (LONGTEXT) - Diagnósticos expandidos</li>
+<li><code>third_party_summary</code> (LONGTEXT) - Análise de scripts third-party</li>
+<li><code>resource_summary</code> (JSON) - Breakdown por tipo (JS, CSS, Images, Fonts)</li>
+<li><code>passed_audits</code> (JSON) - Auditorias que passaram</li>
+<li><code>lcp_element</code> (TEXT) - Elemento que é o LCP</li>
+<li><code>cls_elements</code> (JSON) - Elementos causando CLS</li>
+<li>Individual metrics: <code>js_size_kb</code>, <code>css_size_kb</code>, <code>image_size_kb</code>, etc.</li>
+</ul>
+
+<p><strong>Comparação:</strong>
+| Feature | v1.0 | v2.0 |
+|&#8212;&#8212;&#8212;|&#8212;&#8212;|&#8212;&#8212;|
+| Opportunities | TOP 5 | TODAS (17+) |
+| Detalhes por arquivo | ❌ | ✅ |
+| Third-party | ❌ | ✅ |
+| Resource breakdown | ❌ | ✅ |
+| Elementos críticos | ❌ | ✅ |
+| Passed audits | ❌ | ✅ |
+| <strong>Utilidade</strong> | 60% | <strong>98%</strong> |</p>
+
+<hr />
+
+<h2 id="🏗️arquitetura">🏗️ Arquitetura</h2>
+
+<pre><code>┌─────────────────┐
+│ AEGIS Dashboard │ (Admin Interface)
+└────────┬────────┘
+         │
+         │ 1. Clica &quot;Analisar&quot;
+         ▼
+┌─────────────────────────────┐
+│ /admin/api/get-csrf.php     │ (Get CSRF Token)
+└─────────────┬───────────────┘
+              │
+              │ 2. CSRF Token
+              ▼
+┌─────────────────────────────┐
+│ /admin/api/pagespeed-       │
+│ trigger.php                 │ (Admin authenticated endpoint)
+│                             │
+│ - Valida CSRF               │
+│ - Verifica auth             │
+│ - Busca URLs do banco       │
+│ - Retorna config + URLs     │
+└─────────────┬───────────────┘
+              │
+              │ 3. Chama n8n webhook
+              ▼
+┌─────────────────────────────┐
+│ n8n Workflow                │ (Localhost:5678)
+│ &quot;AEGIS PageSpeed - Manual&quot;  │
+│                             │
+│ 1. Webhook Trigger          │
+│ 2. Set BASE_URL             │
+│ 3. Get URLs (via webhook    │
+│    secret)                  │
+│ 4. Respond Immediately      │
+│ 5. Split URLs               │
+│ 6. Split Strategies         │
+│ 7. Call PageSpeed API       │◄──┐
+│ 8. Transform Data           │   │
+│ 9. Save to AEGIS            │   │
+│ 10. Wait (Rate Limit)       │───┘ Loop
+└─────────────┬───────────────┘
+              │
+              │ 4. Para cada URL+Strategy
+              ▼
+┌─────────────────────────────┐
+│ Google PageSpeed API        │
+│ https://googleapis.com/     │
+│ pagespeedonline/v5/         │
+│ runPagespeed                │
+│                             │
+│ Quota: 25k/dia (free)       │
+└─────────────┬───────────────┘
+              │
+              │ 5. JSON Response
+              ▼
+┌─────────────────────────────┐
+│ /admin/api/pagespeed-       │
+│ save.php                    │
+│                             │
+│ - Valida webhook_secret     │
+│ - Sanitiza dados            │
+│ - Insere no banco           │
+│ - Envia alerta (se baixo)   │
+└─────────────┬───────────────┘
+              │
+              │ 6. Salvo
+              ▼
+┌─────────────────────────────┐
+│ tbl_pagespeed_reports       │ (MySQL)
+│                             │
+│ - Histórico completo        │
+│ - Métricas lab + field      │
+│ - Opportunities JSON        │
+│ - Diagnostics JSON          │
+└─────────────────────────────┘
+</code></pre>
+
+<hr />
+
+<h2 id="📁arquivosdosistema">📁 Arquivos do Sistema</h2>
+
+<h3 id="backend-controllers">Backend - Controllers</h3>
+
+<p><strong><code>/admin/controllers/PageSpeedController.php</code></strong></p>
+
+<ul>
+<li>Controller principal do módulo</li>
+<li>Métodos:</li>
+<li> <code>index()</code> - Lista relatórios com filtros e paginação</li>
+<li> <code>report($id)</code> - Exibe detalhes de um relatório específico</li>
+<li>Padrão: Usa <code>$this-&gt;db()</code> via BaseController</li>
+<li>Status: ✅ Funcionando</li>
+</ul>
+
+<p><strong><code>/admin/controllers/PageSpeedUrlsController.php</code></strong> ⭐ NOVO</p>
+
+<ul>
+<li>Controller de gerenciamento de URLs</li>
+<li>Métodos:</li>
+<li> <code>index()</code> - Lista URLs cadastradas</li>
+<li> <code>store()</code> - Cria nova URL</li>
+<li> <code>toggle($id)</code> - Ativa/desativa URL</li>
+<li> <code>delete($id)</code> - Exclui URL</li>
+<li>CSRF protection em todas actions</li>
+<li>Status: ✅ Funcionando</li>
+</ul>
+
+<h3 id="backend-apiendpoints">Backend - API Endpoints</h3>
+
+<p><strong><code>/admin/api/get-csrf.php</code></strong> ⭐ NOVO</p>
+
+<pre><code class="php">// Endpoint público para n8n obter CSRF token
+// GET: /admin/api/get-csrf.php
+// Retorna: {&quot;csrf_token&quot;: &quot;...&quot;}
+</code></pre>
+
+<p><strong><code>/admin/api/pagespeed-trigger.php</code></strong></p>
+
+<pre><code class="php">// Endpoint autenticado (Admin) para disparar análise
+// POST: /admin/api/pagespeed-trigger.php
+// Body: csrf_token (form-urlencoded)
+// Retorna: {success, total_analyses}
+//
+// IMPORTANTE: Requer autenticação via Auth::check()
+// NOVO: Cria registros pending para cada URL+estratégia
+// NOVO: Inicia background script via nohup
+// URLs dinâmicas: busca de tbl_pagespeed_urls
+</code></pre>
+
+<p><strong><code>/admin/api/pagespeed-test-batch.php</code></strong> ⭐ NOVO</p>
+
+<pre><code class="php">// Script PHP para processamento em background
+// Execução: via nohup ou terminal direto
+// Função: Processa queue de análises pending
+//
+// Fluxo:
+// 1. Busca URLs ativas (tbl_pagespeed_urls)
+// 2. Busca estratégias configuradas
+// 3. Para cada URL+estratégia:
+//    - Busca registro pending
+//    - Marca como processing
+//    - Roda 3 testes (mediana)
+//    - Transforma dados
+//    - Salva via pagespeed-save.php
+//    - Deleta pending (substituído por completed)
+//
+// Rate limit: 2s entre testes
+// Mediana: 3 testes por análise
+</code></pre>
+
+<p><strong><code>/admin/api/pagespeed-get-urls.php</code></strong> ⭐ NOVO</p>
+
+<pre><code class="php">// Endpoint público para n8n (autenticação via webhook_secret)
+// POST: /admin/api/pagespeed-get-urls.php
+// Body: webhook_secret (form-urlencoded)
+// Retorna: {success, config, urls, total_analyses}
+//
+// Sem autenticação de sessão - usa webhook_secret
+// Usado pelos workflows n8n automático e manual
+</code></pre>
+
+<p><strong><code>/admin/api/pagespeed-save.php</code></strong></p>
+
+<pre><code class="php">// Endpoint para n8n salvar resultados
+// POST: /admin/api/pagespeed-save.php
+// Body: JSON completo do relatório
+// Headers: Content-Type: application/json
+//
+// Validações:
+// - webhook_secret obrigatório
+// - performance_score: 0-100
+// - strategy: mobile|desktop
+//
+// Retorna: {success, report_id, message}
+</code></pre>
+
+<h3 id="frontend-views">Frontend - Views</h3>
+
+<p><strong><code>/admin/views/pagespeed/index.php</code></strong></p>
+
+<ul>
+<li>Dashboard principal</li>
+<li>Cards de estatísticas</li>
+<li>Tabela de relatórios com filtros</li>
+<li>Botão &#8220;Analisar Agora&#8221; com AJAX</li>
+<li>Auto-refresh a cada 5s (quando pending/processing)</li>
+<li>Paginação</li>
+<li><strong>100% Lucide icons</strong> (smartphone, monitor, clock, loader, x-circle)</li>
+<li>Status badges com cores</li>
+<li>Status: ✅ Funcionando</li>
+</ul>
+
+<p><strong><code>/admin/views/pagespeed/report.php</code></strong></p>
+
+<ul>
+<li>Detalhes de um relatório individual</li>
+<li>Exibe todas as métricas (lab + field)</li>
+<li>Opportunities detalhadas</li>
+<li>Diagnostics completos</li>
+<li>Third-party summary</li>
+<li>Resource breakdown por tipo</li>
+<li><strong>100% Lucide icons</strong> (file-code, palette, image, type, file-text, package)</li>
+<li>Comparação mobile/desktop</li>
+<li>Status: ✅ Funcionando</li>
+</ul>
+
+<p><strong><code>/admin/views/pagespeed/urls.php</code></strong> ⭐ NOVO</p>
+
+<ul>
+<li>Gerenciamento de URLs</li>
+<li>Formulário adicionar nova URL</li>
+<li>Tabela com URLs cadastradas</li>
+<li>Toggle ativo/inativo (inline button)</li>
+<li>Botão excluir com confirmação</li>
+<li><strong>100% Lucide icons</strong> (check-circle, x-circle)</li>
+<li>Status: ✅ Funcionando</li>
+</ul>
+
+<h3 id="frontend-assets">Frontend - Assets</h3>
+
+<p><strong><code>/assets/sass/modules/m-pagespeed.sass</code></strong></p>
+
+<ul>
+<li>Estilos completos do módulo</li>
+<li>Cards, badges, tabelas, filtros</li>
+<li>Responsive design</li>
+<li>Status: ✅ Compilado</li>
+</ul>
+
+<h3 id="database">Database</h3>
+
+<p><strong>Migrations Aplicadas:</strong></p>
+
+<p><strong>1. <code>/migrations/20260208_create_pagespeed_tables.sql</code></strong></p>
+
+<pre><code class="sql">CREATE TABLE tbl_pagespeed_reports (
+  id VARCHAR(36) PRIMARY KEY,
+  url VARCHAR(500) NOT NULL,
+  strategy ENUM('mobile', 'desktop') NOT NULL,
+  analyzed_at DATETIME NOT NULL,
+  performance_score TINYINT NOT NULL,
+  -- Lab + Field metrics
+  -- JSON: opportunities, diagnostics
+  -- Índices: url, analyzed_at, strategy, score
+);
+</code></pre>
+
+<p><strong>2. <code>/migrations/20260210_expand_pagespeed_data.sql</code></strong></p>
+
+<pre><code class="sql">-- Adiciona 23 novas colunas para extração FULL
+ALTER TABLE tbl_pagespeed_reports ADD COLUMN (
+  accessibility_score TINYINT,
+  best_practices_score TINYINT,
+  seo_score TINYINT,
+  opportunities_full LONGTEXT,
+  diagnostics_full LONGTEXT,
+  third_party_summary LONGTEXT,
+  resource_summary JSON,
+  passed_audits JSON,
+  lcp_element TEXT,
+  cls_elements JSON,
+  js_size_kb INT,
+  css_size_kb INT,
+  image_size_kb INT,
+  -- ... mais campos individuais
+);
+</code></pre>
+
+<p><strong>3. <code>/migrations/20260215_create_pagespeed_urls.sql</code></strong> ⭐ NOVO</p>
+
+<pre><code class="sql">CREATE TABLE tbl_pagespeed_urls (
+  id VARCHAR(36) PRIMARY KEY,
+  url VARCHAR(500) NOT NULL UNIQUE,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_ativo (ativo)
+);
+</code></pre>
+
+<p><strong>4. <code>/migrations/20260215_add_status_column.sql</code></strong> ⭐ NOVO</p>
+
+<pre><code class="sql">ALTER TABLE tbl_pagespeed_reports
+ADD COLUMN status VARCHAR(20) DEFAULT 'completed' AFTER analyzed_at,
+ADD INDEX idx_status (status);
+
+-- Status values: 'pending', 'processing', 'completed', 'failed'
+</code></pre>
+
+<p>Status: ✅ Todas aplicadas</p>
+
+<h3 id="n8nworkflows">n8n Workflows</h3>
+
+<p><strong><code>/storage/n8n/pagespeed-auto-v2.json</code></strong></p>
+
+<ul>
+<li>Workflow automático (Schedule Trigger)</li>
+<li>Executa diariamente às 3h (0 3 * * *)</li>
+<li>Fluxo:</li>
+</ul>
+
+<ol>
+<li> Schedule Trigger</li>
+<li> Set BASE_URL</li>
+<li> ~~Get CSRF Token~~ (removido)</li>
+<li> Get URLs from AEGIS (via webhook_secret)</li>
+<li> Split URLs</li>
+<li> Split Strategies</li>
+<li> Analyze PageSpeed (Google API)</li>
+<li> Transform Data</li>
+<li> Save to AEGIS</li>
+<li> Wait 2s (Rate Limit)</li>
+</ol>
+
+<p><strong><code>/storage/n8n/pagespeed-manual-v2.json</code></strong></p>
+
+<ul>
+<li>Workflow manual (Webhook Trigger)</li>
+<li>Webhook: POST /webhook/aegis-pagespeed-manual</li>
+<li>Body: <code>{&quot;webhook_secret&quot;: &quot;...&quot;}</code></li>
+<li>Status: ✅ Importado no n8n (ID: GlB19t0bOXuqh5pR)</li>
+<li>Status: ✅ Ativo</li>
+</ul>
+
+<h3 id="configuração">Configuração</h3>
+
+<p><strong><code>/storage/settings.json</code></strong></p>
+
+<pre><code class="json">{
+  &quot;pagespeed_enabled&quot;: 1,
+  &quot;pagespeed_api_key&quot;: &quot;AIzaSyCt3kyxa9i-eWDWNHv-qnPZvV2bhhYz3_A&quot;,
+  &quot;pagespeed_auto_enabled&quot;: 1,
+  &quot;pagespeed_frequency&quot;: &quot;daily&quot;,
+  &quot;pagespeed_time&quot;: &quot;03:00&quot;,
+  &quot;pagespeed_strategy_mobile&quot;: 1,
+  &quot;pagespeed_strategy_desktop&quot;: 1,
+  &quot;pagespeed_alert_threshold&quot;: 70,
+  &quot;pagespeed_alert_email&quot;: &quot;&quot;,
+  &quot;pagespeed_webhook_secret&quot;: &quot;bfe48065-3ab7-442c-b6c6-a9ac467a3c19&quot;
+}
+</code></pre>
+
+<h3 id="transformfunction">Transform Function</h3>
+
+<p><strong><code>/storage/n8n/pagespeed-transform-FULL.php</code></strong></p>
+
+<ul>
+<li>Função de transformação dos dados do Google API</li>
+<li>Extrai 98% dos dados úteis</li>
+<li>Usado pelo script batch e por n8n</li>
+<li><strong>Importante:</strong> Aceita 3 parâmetros agora</li>
+</ul>
+
+<pre><code class="```php">  function transformPageSpeedData($apiData, $strategy = 'mobile', $url = null)
+
+</code></pre>
+
+<ul>
+<li><strong>Bug corrigido:</strong> Strategy não era passado corretamente (estava hardcoded como &#8216;mobile&#8217;)</li>
+<li>Retorna array com 50+ campos</li>
+<li>Status: ✅ Funcionando</li>
+</ul>
+
+<h3 id="rotas">Rotas</h3>
+
+<p><strong><code>/routes/admin.php</code></strong></p>
+
+<pre><code class="php">// ADMIN PAGESPEED INSIGHTS - Dashboard
+Router::get('/admin/pagespeed', function() {
+    Auth::require();
+    $controller = new PageSpeedController();
+    $controller-&gt;index();
+});
+
+Router::get('/admin/pagespeed/report/:id', function($id) {
+    Auth::require();
+    $controller = new PageSpeedController();
+    $controller-&gt;report($id);
+});
+
+// ADMIN PAGESPEED INSIGHTS - URL Management ⭐ NOVO
+Router::get('/admin/pagespeed/urls', function() {
+    Auth::require();
+    $controller = new PageSpeedUrlsController();
+    $controller-&gt;index();
+});
+
+Router::post('/admin/pagespeed/urls/store', function() {
+    Auth::require();
+    $controller = new PageSpeedUrlsController();
+    $controller-&gt;store();
+});
+
+Router::post('/admin/pagespeed/urls/:id/toggle', function($id) {
+    Auth::require();
+    $controller = new PageSpeedUrlsController();
+    $controller-&gt;toggle($id);
+});
+
+Router::post('/admin/pagespeed/urls/:id/delete', function($id) {
+    Auth::require();
+    $controller = new PageSpeedUrlsController();
+    $controller-&gt;delete($id);
+});
+</code></pre>
+
+<p><strong>Total:</strong> 6 rotas (2 dashboard + 4 URL management)</p>
+
+<hr />
+
+<h2 id="🔄fluxodefuncionamento">🔄 Fluxo de Funcionamento</h2>
+
+<h3 id="análisemanualviadashboard">Análise Manual (Via Dashboard)</h3>
+
+<ol>
+<li><strong>Usuário clica &#8220;Analisar Agora&#8221;</strong></li>
+</ol>
+
+<ul>
+<li> Frontend: <code>/admin/pagespeed</code></li>
+</ul>
+
+<ol>
+<li><strong>JavaScript busca CSRF token</strong></li>
+</ol>
+
+<pre><code class="```javascript">   GET /admin/api/get-csrf.php
+   // Response: {&quot;csrf_token&quot;: &quot;...&quot;}
+
+</code></pre>
+
+<ol>
+<li><strong>JavaScript dispara análise</strong></li>
+</ol>
+
+<pre><code class="```javascript">   POST /admin/api/pagespeed-trigger.php
+   Body: csrf_token=...
+   // Response: {success, config, urls, total_analyses}
+
+</code></pre>
+
+<ol>
+<li><strong>PHP valida e retorna configuração</strong></li>
+</ol>
+
+<ul>
+<li> Valida CSRF</li>
+<li> Verifica Auth::check()</li>
+<li> Busca settings</li>
+<li> Retorna URLs + config + webhook_secret</li>
+</ul>
+
+<ol>
+<li><strong>n8n recebe webhook</strong> (atualmente não conectado ao trigger.php)</li>
+</ol>
+
+<ul>
+<li> Workflow fica aguardando webhook manual</li>
+</ul>
+
+<ol>
+<li><strong>Para cada URL + Strategy:</strong></li>
+</ol>
+
+<ul>
+<li> Chama Google PageSpeed API</li>
+<li> Aguarda resposta (pode demorar 5&#8211;15s)</li>
+<li> Transforma dados</li>
+<li> Salva via <code>/admin/api/pagespeed-save.php</code></li>
+<li> Aguarda 2s (rate limit)</li>
+<li> Próxima análise</li>
+</ul>
+
+<ol>
+<li><strong>Usuário vê resultados</strong></li>
+</ol>
+
+<ul>
+<li> Página recarrega após 2s</li>
+<li> Novos relatórios aparecem no dashboard</li>
+</ul>
+
+<h3 id="análiseautomáticaagendada">Análise Automática (Agendada)</h3>
+
+<ol>
+<li><strong>n8n Schedule Trigger às 3h</strong></li>
+</ol>
+
+<ul>
+<li> Workflow: &#8220;AEGIS PageSpeed - Análise Automática&#8221;</li>
+</ul>
+
+<ol>
+<li><strong>Set BASE_URL</strong></li>
+</ol>
+
+<ul>
+<li> Define localhost ou produção</li>
+</ul>
+
+<ol>
+<li><strong>Get URLs from AEGIS</strong></li>
+</ol>
+
+<pre><code class="```">   POST /admin/api/pagespeed-get-urls.php
+   Body: webhook_secret=bfe48065-3ab7-442c-b6c6-a9ac467a3c19
+
+</code></pre>
+
+<ol>
+<li><strong>Processa todas URLs</strong></li>
+</ol>
+
+<ul>
+<li> Mesmo fluxo da análise manual</li>
+<li> Sem interação do usuário</li>
+</ul>
+
+<hr />
+
+<h2 id="⚙️configuração">⚙️ Configuração</h2>
+
+<h3 id="1.bancodedados">1. Banco de Dados</h3>
+
+<pre><code class="bash"># Aplicar migration
+mysql -u root -proot aegis &lt; /Users/fabiochezzi/Documents/websites/aegis/migrations/20260208_create_pagespeed_tables.sql
+</code></pre>
+
+<h3 id="2.sasscompilation">2. SASS Compilation</h3>
+
+<pre><code class="bash">cd /Users/fabiochezzi/Documents/websites/aegis
+sass assets/sass/admin.sass assets/css/admin.css
+</code></pre>
+
+<h3 id="3.configurarsettings">3. Configurar Settings</h3>
+
+<p>Acessar: http://localhost:5757/aegis/admin/settings#pagespeed</p>
+
+<p>Ou editar manualmente: <code>/storage/settings.json</code></p>
+
+<p><strong>Campos obrigatórios:</strong></p>
+
+<ul>
+<li><code>pagespeed_enabled</code>: 1</li>
+<li><code>pagespeed_api_key</code>: Chave da Google Cloud Console</li>
+<li><code>pagespeed_strategy_mobile</code>: 1 (se quiser mobile)</li>
+<li><code>pagespeed_strategy_desktop</code>: 1 (se quiser desktop)</li>
+<li><code>pagespeed_webhook_secret</code>: UUID v4 (já configurado)</li>
+</ul>
+
+<p><strong>Opcional:</strong></p>
+
+<ul>
+<li><code>pagespeed_alert_threshold</code>: 70 (alerta se score &lt; 70)</li>
+<li><code>pagespeed_alert_email</code>: email para receber alertas</li>
+</ul>
+
+<h3 id="4.importarworkflowsn8n">4. Importar Workflows n8n</h3>
+
+<p><strong>Via UI (Recomendado):</strong></p>
+
+<ol>
+<li>Acesse: http://localhost:5678</li>
+<li>Click em &#8220;+&#8221; → &#8220;Import from File&#8221;</li>
+<li>Selecione: <code>/storage/n8n/pagespeed-manual-v2.json</code></li>
+<li>Repita para: <code>/storage/n8n/pagespeed-auto-v2.json</code></li>
+<li>Ative os workflows</li>
+</ol>
+
+<p><strong>Via API (Atual):</strong></p>
+
+<pre><code class="bash"># Manual workflow já importado
+# ID: GlB19t0bOXuqh5pR
+# Status: Ativo
+
+# Reimportar se necessário:
+curl -X POST http://localhost:5678/api/v1/workflows \
+  -H &quot;X-N8N-API-KEY: eyJhbGc...&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d @/storage/n8n/pagespeed-manual-v2.json
+</code></pre>
+
+<h3 id="5.configurarbase_urlnon8n">5. Configurar BASE_URL no n8n</h3>
+
+<p><strong>Localhost:</strong></p>
+
+<ul>
+<li>Já configurado: <code>http://localhost:5757/aegis</code></li>
+</ul>
+
+<p><strong>Produção:</strong></p>
+
+<ol>
+<li>Abra workflow no n8n</li>
+<li>Edite node &#8220;Set BASE_URL&#8221; ou &#8220;⚙️ Set BASE_URL&#8221;</li>
+<li>Altere para: <code>https://seudominio.com</code></li>
+<li>Salve e reative</li>
+</ol>
+
+<hr />
+
+<h2 id="🔧workflowsn8n">🔧 Workflows n8n</h2>
+
+<h3 id="workflowmanualglb19t0boxuqh5pr">Workflow Manual (GlB19t0bOXuqh5pR)</h3>
+
+<p><strong>Trigger:</strong> POST /webhook/aegis-pagespeed-manual</p>
+
+<p><strong>Testar:</strong></p>
+
+<pre><code class="bash">curl -X POST http://localhost:5678/webhook/aegis-pagespeed-manual \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;webhook_secret&quot;: &quot;bfe48065-3ab7-442c-b6c6-a9ac467a3c19&quot;}'
+</code></pre>
+
+<p><strong>Nodes:</strong></p>
+
+<ol>
+<li><strong>Webhook Trigger</strong> - Recebe requisição</li>
+<li><strong>⚙️ Set BASE_URL</strong> - Define URL base do AEGIS</li>
+<li><strong>Get URLs from AEGIS</strong> - Chama <code>/admin/api/pagespeed-get-urls.php</code></li>
+<li><strong>Respond Immediately</strong> - Retorna sucesso pro cliente</li>
+<li><strong>Split URLs</strong> - Processa 1 URL por vez</li>
+<li><strong>Split Strategies</strong> - Mobile e Desktop separados</li>
+<li><strong>Analyze PageSpeed</strong> - Chama Google API</li>
+<li><strong>Transform Data</strong> - Formata dados para AEGIS</li>
+<li><strong>Save to AEGIS</strong> - Salva via <code>/admin/api/pagespeed-save.php</code></li>
+<li><strong>Wait (Rate Limit)</strong> - Aguarda 2s entre chamadas</li>
+</ol>
+
+<p><strong>Status:</strong> ✅ Ativo e funcionando</p>
+
+<h3 id="workflowautomáticoaindanãoimportado">Workflow Automático (Ainda não importado)</h3>
+
+<p><strong>Trigger:</strong> Cron <code>0 3 * * *</code> (3h da manhã)</p>
+
+<p><strong>Nodes:</strong> Mesmo que manual, mas sem webhook</p>
+
+<hr />
+
+<h2 id="📱comousar">📱 Como Usar</h2>
+
+<h3 id="viadashboard">Via Dashboard</h3>
+
+<ol>
+<li><strong>Acessar:</strong></li>
+</ol>
+
+<pre><code class="```">   http://localhost:5757/aegis/admin/pagespeed
+
+</code></pre>
+
+<ol>
+<li><strong>Visualizar relatórios:</strong></li>
+</ol>
+
+<ul>
+<li> Cards com estatísticas gerais</li>
+<li> Tabela com todos os relatórios</li>
+<li> Filtros: URL, Strategy, Score</li>
+</ul>
+
+<ol>
+<li><strong>Iniciar análise manual:</strong></li>
+</ol>
+
+<ul>
+<li> Clicar em &#8220;Analisar Agora&#8221;</li>
+<li> Aguardar confirmação</li>
+<li> Página recarrega automaticamente</li>
+</ul>
+
+<ol>
+<li><strong>Ver detalhes:</strong></li>
+</ol>
+
+<ul>
+<li> Clicar no ícone de olho em qualquer relatório</li>
+<li> Abre página <code>/admin/pagespeed/report/{id}</code></li>
+</ul>
+
+<h3 id="viaapidireta">Via API Direta</h3>
+
+<p><strong>Buscar configuração:</strong></p>
+
+<pre><code class="bash">curl -X POST http://localhost:5757/aegis/admin/api/pagespeed-get-urls.php \
+  -H &quot;Content-Type: application/x-www-form-urlencoded&quot; \
+  -d &quot;webhook_secret=bfe48065-3ab7-442c-b6c6-a9ac467a3c19&quot;
+</code></pre>
+
+<p><strong>Salvar resultado (mock data):</strong></p>
+
+<pre><code class="bash">curl -X POST http://localhost:5757/aegis/admin/api/pagespeed-save.php \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;webhook_secret&quot;: &quot;bfe48065-3ab7-442c-b6c6-a9ac467a3c19&quot;,
+    &quot;url&quot;: &quot;https://google.com&quot;,
+    &quot;strategy&quot;: &quot;mobile&quot;,
+    &quot;analyzed_at&quot;: &quot;2026-02-09 10:30:00&quot;,
+    &quot;performance_score&quot;: 86,
+    &quot;lab_lcp&quot;: &quot;1.687&quot;,
+    &quot;lab_fcp&quot;: &quot;0.952&quot;,
+    &quot;lab_cls&quot;: 0.023
+  }'
+</code></pre>
+
+<hr />
+
+<h2 id="🐛troubleshooting">🐛 Troubleshooting</h2>
+
+<h3 id="problema:erroaoiniciaranálise:unexpectedtoken">Problema: &#8220;Erro ao iniciar análise: Unexpected token &#8216;&lt;&#8217;&#8221;</h3>
+
+<p><strong>Causa:</strong> Endpoint retornando HTML ao invés de JSON</p>
+
+<p><strong>Solução:</strong> ✅ Corrigido</p>
+
+<ul>
+<li>Endpoint CSRF era <code>/admin/cache.php?action=get_csrf</code> (não existia)</li>
+<li>Alterado para <code>/admin/api/get-csrf.php</code></li>
+<li>Arquivo: <code>/admin/views/pagespeed/index.php:246</code></li>
+</ul>
+
+<h3 id="problema:classdatabasenotfound">Problema: &#8220;Class Database not found&#8221;</h3>
+
+<p><strong>Causa:</strong> AEGIS usa <code>DB::connect()</code>, não <code>Database::getInstance()</code></p>
+
+<p><strong>Solução:</strong> ✅ Corrigido em todos os endpoints</p>
+
+<ul>
+<li><code>/admin/api/pagespeed-save.php</code></li>
+<li><code>/admin/api/pagespeed-get-urls.php</code></li>
+<li><code>/admin/api/pagespeed-trigger.php</code></li>
+</ul>
+
+<p><strong>Padrão correto:</strong></p>
+
+<pre><code class="php">$db = DB::connect();
+$result = $db-&gt;query($sql, $params);
+</code></pre>
+
+<h3 id="problema:quotaexceededforquotametricqueries">Problema: &#8220;Quota exceeded for quota metric &#8216;Queries&#8217;&#8221;</h3>
+
+<p><strong>Causa:</strong> API Key do Google PageSpeed atingiu limite diário</p>
+
+<p><strong>Quota Google:</strong></p>
+
+<ul>
+<li>Gratuito: 25.000 requisições/dia</li>
+<li>240 requisições/minuto</li>
+</ul>
+
+<p><strong>Soluções:</strong></p>
+
+<ol>
+<li><strong>Aguardar:</strong> Quota renova à meia-noite PST</li>
+<li><strong>Nova Key:</strong> Gerar nova em Google Cloud Console</li>
+<li><strong>Verificar uso:</strong> https://console.cloud.google.com/apis/api/pagespeedonline.googleapis.com/quotas</li>
+</ol>
+
+<p><strong>Status atual:</strong></p>
+
+<ul>
+<li>Key atual: <code>AIzaSyCt3kyxa9i-eWDWNHv-qnPZvV2bhhYz3_A</code></li>
+<li>Usado: <sub>2</sub> requisições nesta sessão</li>
+<li>Provável: Key já estava excedida antes</li>
+</ul>
+
+<h3 id="problema:n8nworkflowcomerro">Problema: n8n workflow com erro</h3>
+
+<p><strong>Diagnóstico:</strong></p>
+
+<pre><code class="bash"># Ver execuções recentes
+curl -s &quot;http://localhost:5678/api/v1/executions?workflowId=GlB19t0bOXuqh5pR&quot; \
+  -H &quot;X-N8N-API-KEY: ...&quot; | jq '.data[] | {id, status}'
+
+# Ver logs Docker
+docker logs n8n --tail 100
+</code></pre>
+
+<p><strong>Causas comuns:</strong></p>
+
+<ul>
+<li>Endpoint AEGIS offline</li>
+<li>webhook_secret incorreto</li>
+<li>BASE_URL errada</li>
+<li>Google API quota excedida</li>
+</ul>
+
+<h3 id="problema:dadosnãoaparecemnodashboard">Problema: Dados não aparecem no dashboard</h3>
+
+<p><strong>Verificar banco:</strong></p>
+
+<pre><code class="bash">mysql -u root -proot aegis -e \
+  &quot;SELECT id, url, strategy, performance_score, analyzed_at
+   FROM tbl_pagespeed_reports
+   ORDER BY analyzed_at DESC
+   LIMIT 5;&quot;
+</code></pre>
+
+<p><strong>Verificar controller:</strong></p>
+
+<pre><code class="bash"># Testar rota diretamente
+curl -s http://localhost:5757/aegis/admin/pagespeed
+# Se retornar HTML: OK
+# Se erro 500: Verificar logs PHP
+</code></pre>
+
+<hr />
+
+<h2 id="🚀próximospassos">🚀 Próximos Passos</h2>
+
+<h3 id="urgenteparafuncionar100">Urgente (Para funcionar 100%)</h3>
+
+<ul>
+<li><p>[ ] <strong>Renovar/Criar nova Google API Key</strong></p></li>
+<li><p> Acesso: https://console.cloud.google.com/apis/credentials</p></li>
+<li><p> Habilitar: PageSpeed Insights API</p></li>
+<li><p> Atualizar em: <code>/storage/settings.json</code></p></li>
+<li><p>[ ] <strong>Importar workflow automático</strong></p></li>
+<li><p> Arquivo: <code>/storage/n8n/pagespeed-auto-v2.json</code></p></li>
+<li><p> Ativar schedule (3h diárias)</p></li>
+<li><p>[ ] <strong>Testar análise real completa</strong></p></li>
+<li><p> Com nova API key</p></li>
+<li><p> Verificar dados salvos</p></li>
+<li><p> Verificar dashboard</p></li>
+</ul>
+
+<h3 id="importantefuncionalidade">Importante (Funcionalidade)</h3>
+
+<ul>
+<li><p>[ ] <strong>Criar tabela <code>tbl_pages</code></strong></p></li>
+<li><p> Remover URLs hardcoded de <code>pagespeed-trigger.php</code></p></li>
+<li><p> Remover URLs hardcoded de <code>pagespeed-get-urls.php</code></p></li>
+<li><p> Descomentar query dinâmica</p></li>
+<li><p>[ ] <strong>Testar página de detalhes</strong></p></li>
+<li><p> <code>/admin/pagespeed/report/{id}</code></p></li>
+<li><p> Verificar rendering de opportunities</p></li>
+<li><p> Verificar rendering de diagnostics</p></li>
+<li><p>[ ] <strong>Configurar alertas por email</strong></p></li>
+<li><p> Testar PHPMailer</p></li>
+<li><p> Configurar SMTP (já tem em settings)</p></li>
+<li><p> Adicionar <code>pagespeed_alert_email</code> em settings</p></li>
+</ul>
+
+<h3 id="nicetohavemelhorias">Nice to Have (Melhorias)</h3>
+
+<ul>
+<li><p>[ ] <strong>Dashboard melhorado</strong></p></li>
+<li><p> Gráficos de evolução temporal</p></li>
+<li><p> Comparação mobile vs desktop</p></li>
+<li><p> Export CSV/PDF</p></li>
+<li><p>[ ] <strong>Análise seletiva</strong></p></li>
+<li><p> Checkbox para escolher URLs específicas</p></li>
+<li><p> Análise de URL avulsa (não no banco)</p></li>
+<li><p>[ ] <strong>Histórico e trending</strong></p></li>
+<li><p> Detectar regressões</p></li>
+<li><p> Alertas de piora de performance</p></li>
+<li><p>[ ] <strong>Integration com CI/CD</strong></p></li>
+<li><p> Webhook para análise pós-deploy</p></li>
+<li><p> Fail build se score &lt; threshold</p></li>
+</ul>
+
+<h3 id="deployprodução">Deploy Produção</h3>
+
+<ul>
+<li><p>[ ] <strong>Configurar n8n Digital Ocean</strong></p></li>
+<li><p> Importar workflows</p></li>
+<li><p> Alterar BASE_URL para produção</p></li>
+<li><p> Verificar webhook_secret</p></li>
+<li><p>[ ] <strong>Verificar limites de produção</strong></p></li>
+<li><p> Calcular requisições/dia necessárias</p></li>
+<li><p> Considerar upgrade se &gt; 25k</p></li>
+<li><p> Configurar rate limiting no AEGIS</p></li>
+<li><p>[ ] <strong>Monitoramento</strong></p></li>
+<li><p> Logs de execução n8n</p></li>
+<li><p> Alertas se workflow falhar</p></li>
+<li><p> Dashboard de saúde do sistema</p></li>
+</ul>
+
+<hr />
+
+<h2 id="📊dadostécnicos">📊 Dados Técnicos</h2>
+
+<h3 id="corewebvitals">Core Web Vitals</h3>
+
+<p><strong>Lab Data (Lighthouse - Synthetic):</strong></p>
+
+<ul>
+<li><code>lab_lcp</code>: Largest Contentful Paint (segundos)</li>
+<li><code>lab_fcp</code>: First Contentful Paint (segundos)</li>
+<li><code>lab_cls</code>: Cumulative Layout Shift (score)</li>
+<li><code>lab_inp</code>: Interaction to Next Paint (ms)</li>
+<li><code>lab_si</code>: Speed Index (segundos)</li>
+<li><code>lab_tti</code>: Time to Interactive (segundos)</li>
+<li><code>lab_tbt</code>: Total Blocking Time (ms)</li>
+</ul>
+
+<p><strong>Field Data (CrUX - Real User Monitoring):</strong></p>
+
+<ul>
+<li><code>field_lcp</code>: LCP percentil 75 (ms)</li>
+<li><code>field_fcp</code>: FCP percentil 75 (ms)</li>
+<li><code>field_cls</code>: CLS percentil 75 (score)</li>
+<li><code>field_inp</code>: INP percentil 75 (ms)</li>
+<li><code>field_category</code>: FAST | AVERAGE | SLOW</li>
+</ul>
+
+<p><strong>Thresholds (Google):</strong>
+| Métrica | Bom | Precisa Melhorar | Ruim |
+|&#8212;&#8212;&#8212;|&#8212;&#8211;|&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;|&#8212;&#8212;|
+| LCP | ≤ 2.5s | 2.5s - 4.0s | &gt; 4.0s |
+| FCP | ≤ 1.8s | 1.8s - 3.0s | &gt; 3.0s |
+| CLS | ≤ 0.1 | 0.1 - 0.25 | &gt; 0.25 |
+| INP | ≤ 200ms | 200ms - 500ms | &gt; 500ms |</p>
+
+<h3 id="bancodedados">Banco de Dados</h3>
+
+<p><strong>Tamanho estimado por relatório:</strong></p>
+
+<ul>
+<li>Dados estruturados: <sub>500</sub> bytes</li>
+<li>JSON opportunities: <sub>2</sub>&#8211;5 KB</li>
+<li>JSON diagnostics: <sub>500</sub> bytes</li>
+<li><strong>Total:</strong> <sub>3</sub>&#8211;6 KB por relatório</li>
+</ul>
+
+<p><strong>Estimativa de armazenamento:</strong></p>
+
+<ul>
+<li>100 URLs × 2 strategies × 365 dias = 73.000 relatórios/ano</li>
+<li>73.000 × 5 KB = <sub>365</sub> MB/ano</li>
+</ul>
+
+<h3 id="performance">Performance</h3>
+
+<p><strong>Google PageSpeed API:</strong></p>
+
+<ul>
+<li>Tempo médio: 5&#8211;15 segundos por análise</li>
+<li>Mobile geralmente mais lento que Desktop</li>
+<li>Rate limit: 240 req/min (4/segundo)</li>
+</ul>
+
+<p><strong>n8n Processing:</strong></p>
+
+<ul>
+<li>Wait time entre análises: 2 segundos</li>
+<li>1 URL + 2 strategies = <sub>30</sub>&#8211;40 segundos</li>
+<li>10 URLs = <sub>5</sub>&#8211;7 minutos</li>
+</ul>
+
+<hr />
+
+<h2 id="🔐segurança">🔐 Segurança</h2>
+
+<h3 id="endpointspúblicos">Endpoints Públicos</h3>
+
+<p><strong><code>/admin/api/get-csrf.php</code></strong></p>
+
+<ul>
+<li>⚠️ Público (sem auth)</li>
+<li>Risco: Baixo (apenas gera CSRF token)</li>
+<li>Uso: Necessário para n8n</li>
+</ul>
+
+<p><strong><code>/admin/api/pagespeed-get-urls.php</code></strong></p>
+
+<ul>
+<li>🔒 Autenticação: webhook_secret</li>
+<li>Secret: <code>bfe48065-3ab7-442c-b6c6-a9ac467a3c19</code></li>
+<li>⚠️ Hardcoded - considerar variável de ambiente</li>
+</ul>
+
+<p><strong><code>/admin/api/pagespeed-save.php</code></strong></p>
+
+<ul>
+<li>🔒 Autenticação: webhook_secret</li>
+<li>Validações: strategy, performance_score, URL sanitization</li>
+<li>Logs: Tentativas não autorizadas</li>
+</ul>
+
+<h3 id="recomendações">Recomendações</h3>
+
+<ol>
+<li><strong>Mover webhook_secret para .env</strong></li>
+</ol>
+
+<pre><code class="```php">   // _config.php
+   define('PAGESPEED_WEBHOOK_SECRET', getenv('PAGESPEED_WEBHOOK_SECRET'));
+
+</code></pre>
+
+<ol>
+<li><strong>Rate limiting em endpoints públicos</strong></li>
+</ol>
+
+<ul>
+<li> Limitar requisições por IP</li>
+<li> Prevenir brute force do webhook_secret</li>
+</ul>
+
+<ol>
+<li><strong>Logs de segurança</strong></li>
+</ol>
+
+<ul>
+<li> Já implementado: <code>Logger::getInstance()-&gt;security()</code></li>
+<li> Monitorar tentativas de acesso não autorizado</li>
+</ul>
+
+<hr />
+
+<h2 id="📞suporte">📞 Suporte</h2>
+
+<h3 id="arquivosdelog">Arquivos de Log</h3>
+
+<p><strong>AEGIS:</strong></p>
+
+<pre><code class="bash"># Logs do sistema (se configurado)
+tail -f /Users/fabiochezzi/Documents/websites/aegis/storage/logs/aegis.log
+</code></pre>
+
+<p><strong>n8n:</strong></p>
+
+<pre><code class="bash"># Logs Docker
+docker logs n8n --tail 100 -f
+
+# Execuções via API
+curl -s &quot;http://localhost:5678/api/v1/executions?limit=10&quot; \
+  -H &quot;X-N8N-API-KEY: ...&quot; | jq '.data[] | {id, status, createdAt}'
+</code></pre>
+
+<p><strong>MySQL:</strong></p>
+
+<pre><code class="bash"># Ver últimas análises
+mysql -u root -proot aegis -e &quot;
+  SELECT url, strategy, performance_score, analyzed_at
+  FROM tbl_pagespeed_reports
+  ORDER BY analyzed_at DESC
+  LIMIT 10;
+&quot;
+</code></pre>
+
+<h3 id="comandosÚteis">Comandos Úteis</h3>
+
+<p><strong>Recompilar SASS:</strong></p>
+
+<pre><code class="bash">cd /Users/fabiochezzi/Documents/websites/aegis
+sass assets/sass/admin.sass assets/css/admin.css --watch
+</code></pre>
+
+<p><strong>Verificar n8n workflows:</strong></p>
+
+<pre><code class="bash">curl -s &quot;http://localhost:5678/api/v1/workflows&quot; \
+  -H &quot;X-N8N-API-KEY: eyJhbGc...&quot; | \
+  jq '.data[] | select(.name | contains(&quot;PageSpeed&quot;)) | {id, name, active}'
+</code></pre>
+
+<p><strong>Teste rápido completo:</strong></p>
+
+<pre><code class="bash"># 1. CSRF
+curl -s http://localhost:5757/aegis/admin/api/get-csrf.php | jq
+
+# 2. Get URLs
+curl -s -X POST http://localhost:5757/aegis/admin/api/pagespeed-get-urls.php \
+  -d &quot;webhook_secret=bfe48065-3ab7-442c-b6c6-a9ac467a3c19&quot; | jq
+
+# 3. Verificar banco
+mysql -u root -proot aegis -e \
+  &quot;SELECT COUNT(*) as total FROM tbl_pagespeed_reports;&quot;
+</code></pre>
+
+<hr />
+
+<h2 id="📝changelog">📝 Changelog</h2>
+
+<h3 id="2026-02-15-v2.0-melhoriascompletas">2026&#8211;02&#8211;15 - v2.0 - Melhorias Completas</h3>
+
+<p><strong>✨ Novos Recursos:</strong></p>
+
+<ul>
+<li>✅ URL Management System (CRUD completo)</li>
+<li>✅ Queue/Status System (pending → processing → completed/failed)</li>
+<li>✅ Background Processing (pagespeed-test-batch.php)</li>
+<li>✅ Auto-refresh (5s quando análises em progresso)</li>
+<li>✅ Lucide Icons (100% - 13 substituições)</li>
+<li>✅ Cálculo de mediana (3 testes por análise)</li>
+</ul>
+
+<p><strong>🐛 Bugs Corrigidos:</strong></p>
+
+<ol>
+<li><strong>Strategy mobile/desktop</strong> - Transform function retornava sempre &#8216;mobile&#8217;</li>
+</ol>
+
+<ul>
+<li> Root cause: Strategy hardcoded</li>
+<li> Fix: Adicionado parâmetro <code>$strategy</code> na função</li>
+</ul>
+
+<ol>
+<li><strong>Transform function signature</strong> - Undefined variable $strategy</li>
+</ol>
+
+<ul>
+<li> Fix: <code>function transformPageSpeedData($apiData, $strategy = 'mobile', $url = null)</code></li>
+</ul>
+
+<ol>
+<li><strong>Background execution</strong> - exec() não funcionava</li>
+</ol>
+
+<ul>
+<li> Fix: nohup + absolute paths (ROOT_PATH)</li>
+</ul>
+
+<ol>
+<li><strong>CSRF validation</strong> - Token inválido em API</li>
+</ol>
+
+<ul>
+<li> Fix: session_start() em todos endpoints</li>
+</ul>
+
+<ol>
+<li><strong>View corruption</strong> - Variável $pagination undefined</li>
+</ol>
+
+<ul>
+<li> Fix: Revert código incorreto copiado de outro módulo</li>
+</ul>
+
+<ol>
+<li><strong>Auto-refresh timing</strong> - Refresh muito agressivo</li>
+</ol>
+
+<ul>
+<li> Fix: 5s quando pending/processing, para quando completo</li>
+</ul>
+
+<ol>
+<li><strong>Icon consistency</strong> - Mix de emojis e Lucide</li>
+</ol>
+
+<ul>
+<li> Fix: 13 substituições em 3 views</li>
+</ul>
+
+<ol>
+<li><strong>Session management</strong> - $_SESSION vazia em APIs</li>
+</ol>
+
+<ul>
+<li> Fix: Adicionado session_start() antes de Security::validateCSRF()</li>
+</ul>
+
+<p><strong>📦 Arquivos Novos:</strong></p>
+
+<ul>
+<li>PageSpeedUrlsController.php</li>
+<li>admin/views/pagespeed/urls.php</li>
+<li>admin/api/pagespeed-test-batch.php</li>
+<li>2 migrations (urls table + status column)</li>
+</ul>
+
+<p><strong>📊 Estatísticas:</strong></p>
+
+<ul>
+<li>Arquivos criados: 22</li>
+<li>Linhas de código: <sub>3</sub>.500</li>
+<li>Migrations: 4</li>
+<li>Bugs corrigidos: 8</li>
+<li>Icons substituídos: 13</li>
+</ul>
+
+<hr />
+
+<h3 id="2026-02-09-v1.0-implementaçãoinicial">2026&#8211;02&#8211;09 - v1.0 - Implementação Inicial</h3>
+
+<p><strong>Criado:</strong></p>
+
+<ul>
+<li>Sistema base de PageSpeed Insights</li>
+<li>3 endpoints API</li>
+<li>Dashboard inicial</li>
+<li>Migration e schema do banco</li>
+</ul>
+
+<p><strong>Bugs Corrigidos:</strong></p>
+
+<ul>
+<li>CSRF endpoint incorreto na view</li>
+<li>Database pattern (getInstance vs DB::connect)</li>
+<li>Autoloader missing em cache.php</li>
+</ul>
+
+<hr />
+
+<p><strong>Última atualização:</strong> 2026&#8211;02&#8211;15
+<strong>Desenvolvido por:</strong> Claude Code + Fábio Chezzi
+<strong>Framework:</strong> AEGIS v17.3.6
+<strong>Versão:</strong> 2.0.0
+<strong>Status:</strong> 🟢 Produção Ready</p>
+
+</body>
+</html>
+

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="🐛problemasconhecidosesoluções">🐛 Problemas Conhecidos e Soluções</h1>
+
+<blockquote>
+<p><strong>Quando usar:</strong> Primeiro passo ao encontrar erro (ERRO-PROTOCOL.md passo 0). Verificar se já tem solução pronta antes de reportar.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="1.edittoolsemprefalhatabsvsspaces">1. Edit Tool SEMPRE Falha (Tabs vs Spaces)</h2>
+
+<p><strong>Problema:</strong></p>
+
+<ul>
+<li>Tool Edit falha com erro &#8220;String not found&#8221;</li>
+<li>Causa: diferenças invisíveis de indentação (tabs vs spaces)</li>
+</ul>
+
+<p><strong>❌ NÃO FAZER:</strong></p>
+
+<pre><code>- Tentar Edit múltiplas vezes com strings diferentes
+- Usar sed complexo
+- Pedir ao usuário para verificar
+</code></pre>
+
+<p><strong>✅ SOLUÇÃO:</strong></p>
+
+<pre><code>- Usar Write para reescrever arquivo completo
+- Ler arquivo com Read primeiro
+- Modificar conteúdo
+- Escrever com Write
+</code></pre>
+
+<p><strong>Tempo economizado:</strong> 10&#8211;15 min por tentativa</p>
+
+<hr />
+
+<h2 id="2.duplicatasnomenuinsertduplicado">2. Duplicatas no Menu (Insert Duplicado)</h2>
+
+<p><strong>Problema:</strong></p>
+
+<ul>
+<li>Ao criar item de menu, cria 2 itens idênticos</li>
+<li>Usuário clica apenas 1 vez</li>
+<li>Lock e JavaScript anti-duplicate já existem</li>
+</ul>
+
+<p><strong>Causa Raiz:</strong></p>
+
+<ul>
+<li>Problema intermitente/browser que resubmete form</li>
+</ul>
+
+<p><strong>❌ NÃO FAZER:</strong></p>
+
+<pre><code>- Pedir debug ao usuário
+- Verificar se clicou 2 vezes (ele sempre clica 1 vez)
+- Modificar JavaScript ou Lock
+</code></pre>
+
+<p><strong>✅ SOLUÇÃO:</strong></p>
+
+<pre><code class="php">// MenuController.php linha 119-132
+// Verificar ANTES de inserir se já existe
+$whereCheck = ['label' =&gt; $label, 'type' =&gt; $type];
+if ($type === 'page' &amp;&amp; $pageSlug) {
+    $whereCheck['page_slug'] = $pageSlug;
+}
+$existing = $db-&gt;select('menu_items', $whereCheck);
+if (!empty($existing)) {
+    throw new Exception('Item de menu já existe');
+}
+</code></pre>
+
+<p><strong>Arquivo:</strong> <code>admin/controllers/MenuController.php:119-132</code></p>
+
+<hr />
+
+<h2 id="3.páginasmódulospúblicosnãoaparecemnomenu">3. Páginas/Módulos Públicos Não Aparecem no Menu</h2>
+
+<p><strong>Problema:</strong></p>
+
+<ul>
+<li>Página/módulo marcado como <code>is_public = 1</code></li>
+<li>Item de menu criado</li>
+<li>Menu NÃO aparece para usuários não logados</li>
+</ul>
+
+<p><strong>Causa Raiz:</strong></p>
+
+<ul>
+<li>MenuBuilder verifica <code>permission_type</code> do menu item ANTES de verificar <code>is_public</code> da página</li>
+<li>Se menu item tem <code>permission_type = 'authenticated'</code>, bloqueia antes de checar is_public</li>
+</ul>
+
+<p><strong>❌ NÃO FAZER:</strong></p>
+
+<pre><code>- Pedir SQL para verificar is_public no banco
+- Modificar apenas parte do MenuBuilder
+- Usar Edit/sed para pequenos fixes
+</code></pre>
+
+<p><strong>✅ SOLUÇÃO:</strong></p>
+
+<pre><code class="php">// MenuBuilder.php - Verificar is_public PRIMEIRO no loop (linhas 146-168)
+
+// 1. Verificar se página/módulo é PÚBLICO
+if ($item['type'] === 'page' &amp;&amp; !empty($item['page_slug'])) {
+    if (isset($pagesBySlug[$item['page_slug']])) {
+        $page = $pagesBySlug[$item['page_slug']];
+        if (isset($page['is_public']) &amp;&amp; $page['is_public'] == 1) {
+            $canAccess = true; // ✅ Acesso garantido
+        }
+    }
+}
+
+if (!$canAccess &amp;&amp; $item['type'] === 'module' &amp;&amp; !empty($item['module_name'])) {
+    if (isset($pagesByModuleName[$item['module_name']])) {
+        $page = $pagesByModuleName[$item['module_name']];
+        if (isset($page['is_public']) &amp;&amp; $page['is_public'] == 1) {
+            $canAccess = true; // ✅ Acesso garantido
+        }
+    }
+}
+
+// 2. SÓ DEPOIS verificar permission_type do menu
+if (!$canAccess) {
+    switch ($item['permission_type']) { ... }
+}
+</code></pre>
+
+<p><strong>Arquivo:</strong> <code>core/MenuBuilder.php:146-197</code></p>
+
+<p><strong>Pré-fetch:</strong> Linha 101 deve ser apenas <code>if (!empty($page['module_name']))</code> sem verificar is_virtual</p>
+
+<hr />
+
+<h2 id="4.páginaspúblicasredirecionamparalogin">4. Páginas Públicas Redirecionam para Login</h2>
+
+<p><strong>Problema:</strong></p>
+
+<ul>
+<li>Página com <code>is_public = 1</code> no banco</li>
+<li>Ao acessar sem login → redireciona para login</li>
+</ul>
+
+<p><strong>Causa Raiz:</strong></p>
+
+<ul>
+<li>routes.php verifica login ANTES de verificar is_public</li>
+</ul>
+
+<p><strong>✅ SOLUÇÃO:</strong></p>
+
+<pre><code class="php">// routes.php linha 759-775
+// Verificar is_public ANTES de exigir login
+
+$page = $pages[0];
+
+// ✅ VERIFICAR SE PÁGINA É PÚBLICA (is_public = 1)
+if (($page['is_public'] ?? 0) == 1) {
+    // Página pública → carregar SEM verificação de login
+    $member = null;
+    require_once $pageFile; // ou dashboard.php
+    return;
+}
+
+// ✅ PÁGINA PRIVADA → Verificar login
+if (!MemberAuth::check()) {
+    Core::redirect('/login');
+    return;
+}
+</code></pre>
+
+<p><strong>Arquivo:</strong> <code>routes.php:759-775</code></p>
+
+<hr />
+
+<h2 id="5.sistemasemmembers-páginasmódulosdevemserpúblicosautomaticamente">5. Sistema SEM Members - Páginas/Módulos Devem Ser Públicos Automaticamente</h2>
+
+<p><strong>Contexto:</strong></p>
+
+<ul>
+<li>Sistema instalado com <code>ENABLE_MEMBERS = false</code></li>
+<li>Não existe sistema de login de members (usuários do site)</li>
+<li>Apenas admins logam (via /admin)</li>
+<li>Logo, TODAS as páginas e módulos públicos devem ser acessíveis</li>
+</ul>
+
+<p><strong>Problema ANTES da correção:</strong></p>
+
+<ul>
+<li>Ao criar página/módulo, campo <code>is_public</code> ficava 0 (privado)</li>
+<li>Checkbox &#8220;Página Pública&#8221; NÃO aparecia no form (pois membersEnabled = false)</li>
+<li>Controller salvava <code>is_public = 0</code> por padrão</li>
+<li>Páginas ficavam INACESSÍVEIS (nem pra público, nem pra members - que não existem!)</li>
+</ul>
+
+<p><strong>✅ SOLUÇÃO:</strong></p>
+
+<pre><code class="php">// PagesController.php - store() e update() (linhas 77-81 e 191-195)
+
+// Se sistema SEM members → sempre público
+// Se sistema COM members → respeita checkbox do admin
+$isPublic = Core::membersEnabled()
+    ? (isset($_POST['is_public']) ? 1 : 0)  // COM members: respeita checkbox
+    : 1;  // SEM members: SEMPRE público
+</code></pre>
+
+<pre><code class="php">// ModulesController.php - index() e togglePublic() (linhas 46-47 e 114-116)
+
+// Default ao listar
+$isPublic = Core::membersEnabled() ? 0 : 1;
+
+// Ao salvar configuração de módulo
+$isPublic = Core::membersEnabled()
+    ? (in_array($moduleName, $publicModules) ? 1 : 0)
+    : 1;
+</code></pre>
+
+<p><strong>Arquivos modificados:</strong></p>
+
+<ul>
+<li><code>admin/controllers/PagesController.php:77-81,191-195</code></li>
+<li><code>admin/controllers/ModulesController.php:46-47,114-116</code></li>
+</ul>
+
+<p><strong>Comportamento correto:</strong></p>
+
+<ul>
+<li>✅ Sistema SEM members → <code>is_public = 1</code> sempre (automático)</li>
+<li>✅ Sistema COM members → <code>is_public</code> respeitado conforme checkbox do admin</li>
+</ul>
+
+<hr />
+
+<h2 id="📚comousarestedocumento">📚 Como Usar Este Documento</h2>
+
+<p><strong>Fluxo recomendado (ERRO-PROTOCOL.md passo 0):</strong></p>
+
+<ol>
+<li><strong>Erro aconteceu</strong> → Ler este documento PRIMEIRO</li>
+<li><strong>Encontrou o problema aqui?</strong> → Aplicar solução e continuar</li>
+<li><strong>Não encontrou?</strong> → Seguir ERRO-PROTOCOL.md (passos 1&#8211;5)</li>
+</ol>
+
+<p><strong>O que NÃO fazer:</strong></p>
+
+<ul>
+<li>❌ Reportar erro sem verificar este documento antes</li>
+<li>❌ Tentar &#8220;consertar sozinho&#8221; sem verificar known issues</li>
+<li>❌ Criar novo arquivo de debug</li>
+</ul>
+
+<p><strong>O que fazer:</strong></p>
+
+<ul>
+<li>✅ Buscar pelo sintoma neste documento (Ctrl+F)</li>
+<li>✅ Aplicar solução se encontrar</li>
+<li>✅ Reportar se não encontrar (seguindo protocolo)</li>
+</ul>
+
+<hr />
+
+<p><strong>Versão:</strong> 2.0.0
+<strong>Data:</strong> 2026&#8211;02&#8211;14
+<strong>Changelog:</strong> Removidos problemas 6&#8211;12 (já corrigidos, históricos). Mantidos apenas 5 problemas ativos. Reduzido de 594 → 217 linhas.</p>
+
+</body>
+</html>
+

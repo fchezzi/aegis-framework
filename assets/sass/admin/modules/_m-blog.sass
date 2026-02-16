@@ -1,0 +1,44 @@
+// ========================================
+// BLOG - Gerenciamento de posts e categorias
+// ========================================
+
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+.m-blogbody
+  background: #fafbfc
+  font-family: $font-text
+
+.m-blog
+  // Table
+  &__table
+    width: 100%
+    background: white
+    border-radius: $radius-md
+    overflow: hidden
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05)
+    border-collapse: collapse
+
+    thead
+      background: $color-main 
+
+      th
+        padding: 12px
+        text-align: left
+        color: white
+        font-weight: 600
+        font-family: $font-title
+        font-size: 14px
+
+    tbody
+      td
+        padding: 12px
+        border-bottom: 1px solid $gray-10
+        font-size: 14px
+        color: $gray-70
+        font-family: $font-text
+
+      tr:hover
+        background: $gray-05

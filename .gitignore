@@ -1,0 +1,247 @@
+# =====================================================
+# AEGIS Framework - .gitignore
+# Version: 2.0 - Auditoria Completa 2026-02-16
+# =====================================================
+
+# ========================================
+# CONFIG & CREDENTIALS (CRÍTICO!)
+# ========================================
+# Arquivos de configuração com senhas/tokens
+.env
+.env.*
+!.env.example
+_config.php
+_config.*.php
+!_config.example.php
+_config.php.backup*
+credentials.json
+.htpasswd
+
+# API Keys e Tokens
+*secret*
+*.key
+*.pem
+*.p12
+*.pfx
+
+# ========================================
+# DEBUG & TEMPORARY FILES
+# ========================================
+# Pasta debug/ completa (scripts temporários de diagnóstico)
+/debug/
+debug/
+
+# Arquivos temporários de debug na raiz e subpastas
+*.log
+test*.php
+show*.php
+debug*.php
+!debug_banner.php
+!debug-*.php
+erro*.php
+diagnostico*.php
+fix-*.php
+force-*.php
+cleanup*.php
+clear-*.php
+login-direct.php
+dashboard-direct.php
+DEBUG_*.txt
+cleanup_debug.sh
+*.backup
+*.broken
+*.bak
+*~
+
+# Scripts shell temporários
+check
+fix
+temp-*
+
+# ========================================
+# STORAGE (user uploads, cache, logs)
+# ========================================
+storage/logs/*
+!storage/logs/.gitkeep
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/cache/*
+!storage/cache/.gitkeep
+storage/settings.json
+storage/temp/*
+
+# ========================================
+# DEPLOY & BUILD
+# ========================================
+# Pacotes de deploy
+deploys/*.tar.gz
+deploys/*.zip
+deploys/temp-*
+
+# Build artifacts
+dist/
+build/
+*.map
+
+# ========================================
+# BACKUPS & DATABASE
+# ========================================
+backup-*
+*.sql
+*.sqlite
+*.sqlite-journal
+*.db
+*.dump
+
+# ========================================
+# DEPENDENCIES & PACKAGE MANAGERS
+# ========================================
+# Composer
+vendor/
+composer.lock
+composer.phar
+!composer.phar.sig
+
+# NPM/Node
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Bower
+bower_components/
+
+# ========================================
+# OS FILES
+# ========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ========================================
+# IDE & EDITORS
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.project
+.settings/
+nbproject/
+*.sublime-*
+*.code-workspace
+
+# CodeKit (11MB+ arquivo local)
+config.codekit3
+*.codekit3
+
+# ========================================
+# COMPILED ASSETS
+# ========================================
+# CSS compilado do SASS (mantém apenas SASS)
+assets/css/*.css
+assets/css/**/*.css
+!assets/css/.gitkeep
+*.css.map
+
+# Minified files
+*.min.js.map
+*.min.css.map
+
+# ========================================
+# HTML FILES (generated from .md)
+# ========================================
+# Allow docs/*.html (documentation)
+/*.html
+/database/*.html
+/frontend/templates/*.html
+/admin/views/debug/*.html
+
+# ========================================
+# UPLOADS & MEDIA
+# ========================================
+uploads/*
+!uploads/.htaccess
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Large media files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.psd
+*.ai
+
+# ========================================
+# TESTING
+# ========================================
+coverage/
+.phpunit.result.cache
+phpunit.xml
+!phpunit.xml.dist
+
+# ========================================
+# DOCUMENTATION (temporary/personal)
+# ========================================
+# Notas pessoais e rascunhos
+docs/notas-*.md
+docs/TODO-*.md
+docs/_*.md
+*.draft.md
+
+# ========================================
+# MISC
+# ========================================
+.htaccess.backup
+error_log
+php_errors.log
+*.err
+
+# Arquivos temporários do PHP
+*.php~
+*.phps
+
+# Arquivos compactados temporários
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+!deploys/.gitkeep
+
+# Lock files
+*.lock
+!composer.lock.example
+
+# ========================================
+# SECURITY
+# ========================================
+# Prevenir commit de arquivos com senhas comuns
+*password*.txt
+*senha*.txt
+*credentials*.txt
+*token*.txt
+auth.json
+oauth.json
+
+# ========================================
+# PERFORMANCE & MONITORING
+# ========================================
+# Relatórios de performance
+lighthouse-*.json
+pagespeed-*.json
+performance-*.log
+
+# ========================================
+# END OF .gitignore
+# ========================================

@@ -1,0 +1,55 @@
+<?php
+/**
+ * {{CLASS_NAME}}
+ * {{DESCRIPTION}}
+ *
+ * @example
+ * Queue::push({{CLASS_NAME}}::class, $data);
+ * {{CLASS_NAME}}::dispatch($data);
+ */
+
+class {{CLASS_NAME}} extends Job {
+
+    /**
+     * Número máximo de tentativas
+     */
+    public $tries = 3;
+
+    /**
+     * Timeout em segundos
+     */
+    public $timeout = 60;
+
+    /**
+     * Fila para este job
+     */
+    public $queue = '{{QUEUE}}';
+
+    /**
+     * Processar o job
+     *
+     * @param array $data Dados do job
+     * @return mixed
+     */
+    public function handle(array $data) {
+        // Implementar lógica do job
+        Logger::info("{{CLASS_NAME}} processando", $data);
+
+        // ...
+
+        return true;
+    }
+
+    /**
+     * Handler de falha
+     *
+     * @param array $data
+     * @param Exception $e
+     */
+    public function failed(array $data, Exception $e) {
+        Logger::error("{{CLASS_NAME}} falhou", [
+            'data' => $data,
+            'error' => $e->getMessage()
+        ]);
+    }
+}

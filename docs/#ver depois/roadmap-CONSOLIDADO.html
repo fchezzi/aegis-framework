@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="🚀aegis-roadmapconsolidadodemelhorias">🚀 AEGIS - Roadmap Consolidado de Melhorias</h1>
+
+<blockquote>
+<p>Documento ÚNICO consolidando roadmap estratégico + guia prático de instalação
+Criado em: 15/02/2026</p>
+</blockquote>
+
+<hr />
+
+<h2 id="📊statusatual">📊 STATUS ATUAL</h2>
+
+<p><strong>Versão:</strong> 17.3.6</p>
+
+<p><strong>Já implementado:</strong></p>
+
+<ul>
+<li>✅ Google Tag Manager</li>
+<li>✅ Favicons customizáveis</li>
+<li>✅ Credenciais FTP</li>
+<li>✅ Sistema de Settings completo</li>
+<li>✅ Módulo Artigos + Email + RD Station</li>
+<li>✅ <strong>PageSpeed Insights v2.0 (COMPLETO - 15/02/2026)</strong></li>
+<li> Sistema de URLs dinâmicas (CRUD)</li>
+<li> Queue/Status system (pending → processing → completed/failed)</li>
+<li> Background processing com mediana</li>
+<li> 100% Lucide icons (13 substituições)</li>
+<li> Extração FULL de dados (98% úteis)</li>
+<li> 2 tabelas, 4 migrations, 22 arquivos, 6 rotas</li>
+<li> <strong>Documentação completa:</strong> <code>pagespeed-insights.md</code>, <code>pagespeed-summary.md</code>, <code>pagespeed-quickstart.md</code></li>
+</ul>
+
+<hr />
+
+<h2 id="🔖pontodeparada15022026">🔖 PONTO DE PARADA (15/02/2026)</h2>
+
+<p><strong>Status Atual:</strong></p>
+
+<ul>
+<li>✅ PageSpeed Insights v2.0 <strong>100% finalizado e operacional</strong></li>
+<li>✅ Roadmap consolidado documentado (este arquivo)</li>
+</ul>
+
+<p><strong>Próxima Implementação:</strong></p>
+
+<ul>
+<li><strong>TIER 1 / Semana 1</strong> → <strong>Uptime Monitoring (UptimeRobot)</strong> - 5min</li>
+<li><strong>Decisão pendente:</strong> Como verificar no painel se está configurado</li>
+<li> Opção 1: Widget com webhook (dados reais via webhook)</li>
+<li> Opção 2: API do UptimeRobot (dados ao vivo)</li>
+<li> Opção 3: Indicador simples on/off (básico)</li>
+</ul>
+
+<p><strong>Para retomar:</strong></p>
+
+<pre><code>Continuar implementação AEGIS TIER 1 - Uptime Monitoring
+Decidir entre: webhook, API ou indicador simples no painel
+</code></pre>
+
+<hr />
+
+<h2 id="🎯prÓximasimplementaÇÕesordemdeexecução">🎯 PRÓXIMAS IMPLEMENTAÇÕES (Ordem de Execução)</h2>
+
+<h3 id="semana1-tier14h-5h-80dovalor"><strong>SEMANA 1 - TIER 1</strong> (4h-5h - 80% do valor)</h3>
+
+<pre><code>[ ] 1.  Uptime Monitoring      →  5min   (UptimeRobot - CRÍTICO)
+[ ] 2.  HTTPS/SSL              →  2min   (Verificação - CRÍTICO)
+[ ] 3.  GTM/GA4 Validação      →  3min   (Confirmar funcionando)
+[ ] 4.  robots.txt             →  5min   (Criar arquivo)
+[ ] 5.  Security Headers       → 40min   (bootstrap.php - ALTO)
+[ ] 6.  Sitemap Automático     → 30min   (sitemap.xml.php)
+[ ] 7.  PHPStan                → 10min   (Análise estática)
+[ ] 8.  Backup Automático n8n  →  1-2h   (MySQL + arquivos - CRÍTICO)
+[ ] 9.  Relatórios IA          →  2-3h   (Dashboard diário - ALTO)
+</code></pre>
+
+<p><strong>TOTAL:</strong> 4h-5h | <strong>Resultado:</strong> Site monitorado 24/7, backup funcionando, primeiro relatório IA</p>
+
+<hr />
+
+<h3 id="semana2-tier212h-14h-15dovalor"><strong>SEMANA 2 - TIER 2</strong> (12h-14h - +15% do valor)</h3>
+
+<pre><code>[ ] 10. Rate Limiting          →  2h     (Classe + proteção brute force)
+[ ] 11. Search Console API     →  5-6h   (Queries, posições, CWV)
+[ ] 12. Google Analytics API   →  4-5h   (Tráfego, widgets dashboard)
+</code></pre>
+
+<p><strong>TOTAL:</strong> 12h-14h | <strong>Resultado:</strong> SEO rastreado, Analytics sincronizado, proteção contra bots</p>
+
+<hr />
+
+<h3 id="semana3-tier36h-7h-5dovalor"><strong>SEMANA 3 - TIER 3</strong> (6h-7h - +5% do valor)</h3>
+
+<pre><code>[ ] 13. Logger Melhorado       →  3h     (Logs estruturados MySQL)
+[ ] 14. Cruzamento Dados IA    →  2h     (GA + GSC + PageSpeed insights)
+[ ] 15. PHP_CodeSniffer        → 15min   (Padrão código PSR-12)
+[ ] 16. Microsoft Clarity      → 10min   (Heatmaps + session recording)
+[ ] 17. Pa11y                  → 30min   (Acessibilidade WCAG)
+</code></pre>
+
+<p><strong>TOTAL:</strong> 6h-7h | <strong>Resultado:</strong> Logs pesquisáveis, oportunidades IA detectadas, qualidade código</p>
+
+<hr />
+
+<h3 id="semana4-tier43h-4h-opcional"><strong>SEMANA 4 - TIER 4</strong> (3h-4h - Opcional)</h3>
+
+<pre><code>[ ] 18. Event Tracking GA4     →  2h     (Conversões, downloads, scroll)
+[ ] 19. CDN Cloudflare         → 15min   (Cache global - se alto tráfego)
+[ ] 20. Documentação Completa  →  2h     (Admin guides + docs técnicos)
+[ ] 21. Testes End-to-End      →  1h     (Validação completa integrada)
+</code></pre>
+
+<p><strong>TOTAL:</strong> 3h-4h | <strong>Resultado:</strong> Sistema documentado, testado, pronto para produção</p>
+
+<hr />
+
+<h3 id="📊resumogeral">📊 RESUMO GERAL</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Semana </th>
+	<th> TIER </th>
+	<th> Itens </th>
+	<th> Tempo </th>
+	<th> Impacto </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>Semana 1</strong> </td>
+	<td> TIER 1 </td>
+	<td> 9 itens </td>
+	<td> 4&#8211;5h </td>
+	<td> <strong>80%</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Semana 2</strong> </td>
+	<td> TIER 2 </td>
+	<td> 3 itens </td>
+	<td> 12&#8211;14h </td>
+	<td> <strong>+15%</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Semana 3</strong> </td>
+	<td> TIER 3 </td>
+	<td> 5 itens </td>
+	<td> 6&#8211;7h </td>
+	<td> <strong>+5%</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Semana 4</strong> </td>
+	<td> TIER 4 </td>
+	<td> 4 itens </td>
+	<td> 3&#8211;4h </td>
+	<td> Nice to have </td>
+</tr>
+<tr>
+	<td> <strong>TOTAL</strong> </td>
+	<td> - </td>
+	<td> <strong>21 itens</strong> </td>
+	<td> <strong>25&#8211;30h</strong> </td>
+	<td> <strong>100%</strong> </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Custo total:</strong> $0&#8211;0.12/mês
+<strong>Economia vs WordPress:</strong> $400&#8211;800/ano por projeto</p>
+
+<hr />
+
+<h2 id="📋resumoexecutivo">📋 RESUMO EXECUTIVO</h2>
+
+<h3 id="🎯visãogeral">🎯 Visão Geral</h3>
+
+<p><strong>Objetivo:</strong> Transformar AEGIS em framework com monitoramento completo, automação inteligente e custo zero.</p>
+
+<p><strong>Prazo:</strong> 4 semanas (25&#8211;30h desenvolvimento)
+<strong>Custo:</strong> $0&#8211;0.12/mês por projeto
+<strong>ROI:</strong> Economia de $400&#8211;800/ano vs plugins pagos + 5&#8211;10h/mês de tempo</p>
+
+<p><strong>Organização:</strong> Pareto 80/20 (TIER 1 = 80% do valor em 20% do tempo)</p>
+
+<hr />
+
+<h2 id="📋listacompletaconsolidada">📋 LISTA COMPLETA CONSOLIDADA</h2>
+
+<h3 id="🔴tier1:essencial4h-5h-80dovalor">🔴 TIER 1: ESSENCIAL (4h-5h - 80% do valor)</h3>
+
+<p><strong>Semana 1 - Fundação Crítica</strong></p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> # </th>
+	<th> Item </th>
+	<th> Tempo </th>
+	<th> Impacto </th>
+	<th> Status </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 1 </td>
+	<td> Uptime Monitoring </td>
+	<td> 5min </td>
+	<td> CRÍTICO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 2 </td>
+	<td> Security Headers </td>
+	<td> 40min </td>
+	<td> ALTO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 3 </td>
+	<td> Backup Automático </td>
+	<td> 1&#8211;2h </td>
+	<td> CRÍTICO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 4 </td>
+	<td> Relatórios IA </td>
+	<td> 2&#8211;3h </td>
+	<td> ALTO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 5 </td>
+	<td> HTTPS/SSL </td>
+	<td> 2min </td>
+	<td> CRÍTICO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 6 </td>
+	<td> GTM/GA4 Validação </td>
+	<td> 3min </td>
+	<td> ALTO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 7 </td>
+	<td> robots.txt </td>
+	<td> 5min </td>
+	<td> MÉDIO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 8 </td>
+	<td> Sitemap Automático </td>
+	<td> 30min </td>
+	<td> ALTO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 9 </td>
+	<td> PHPStan </td>
+	<td> 10min </td>
+	<td> MÉDIO </td>
+	<td> [ ] </td>
+</tr>
+</tbody>
+
+<tbody>
+<tr>
+	<td><strong>TOTAL TIER 1:</strong> 4h-5h </td>
+	<td> <strong>Impacto:</strong> 80% do valor</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h3 id="🟠tier2:importante12h-14h-15dovalor">🟠 TIER 2: IMPORTANTE (12h-14h - +15% do valor)</h3>
+
+<p><strong>Semana 2 - Segurança + SEO Base</strong></p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> # </th>
+	<th> Item </th>
+	<th> Tempo </th>
+	<th> Impacto </th>
+	<th> Status </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 10 </td>
+	<td> Rate Limiting </td>
+	<td> 2h </td>
+	<td> ALTO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 11 </td>
+	<td> Google Search Console API </td>
+	<td> 5&#8211;6h </td>
+	<td> ALTO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 12 </td>
+	<td> Google Analytics API </td>
+	<td> 4&#8211;5h </td>
+	<td> MÉDIO </td>
+	<td> [ ] </td>
+</tr>
+</tbody>
+
+<tbody>
+<tr>
+	<td><strong>TOTAL TIER 2:</strong> 12h-14h </td>
+	<td> <strong>Impacto:</strong> +15% do valor</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h3 id="🟡tier3:bomter6h-7h-5dovalor">🟡 TIER 3: BOM TER (6h-7h - +5% do valor)</h3>
+
+<p><strong>Semana 3 - SEO Completo + Logs</strong></p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> # </th>
+	<th> Item </th>
+	<th> Tempo </th>
+	<th> Impacto </th>
+	<th> Status </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 13 </td>
+	<td> Logger Melhorado </td>
+	<td> 3h </td>
+	<td> MÉDIO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 14 </td>
+	<td> Cruzamento de Dados IA </td>
+	<td> 2h </td>
+	<td> MÉDIO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 15 </td>
+	<td> PHP_CodeSniffer </td>
+	<td> 15min </td>
+	<td> BAIXO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 16 </td>
+	<td> Microsoft Clarity </td>
+	<td> 10min </td>
+	<td> BAIXO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 17 </td>
+	<td> Pa11y (Acessibilidade) </td>
+	<td> 30min </td>
+	<td> BAIXO </td>
+	<td> [ ] </td>
+</tr>
+</tbody>
+
+<tbody>
+<tr>
+	<td><strong>TOTAL TIER 3:</strong> 6h-7h </td>
+	<td> <strong>Impacto:</strong> +5% do valor</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h3 id="🟢tier4:opcional3h-4h-nicetohave">🟢 TIER 4: OPCIONAL (3h-4h - Nice to Have)</h3>
+
+<p><strong>Semana 4 - Extras + Finalização</strong></p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> # </th>
+	<th> Item </th>
+	<th> Tempo </th>
+	<th> Impacto </th>
+	<th> Status </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 18 </td>
+	<td> Event Tracking GA4 </td>
+	<td> 2h </td>
+	<td> BAIXO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 19 </td>
+	<td> CDN Cloudflare </td>
+	<td> 15min </td>
+	<td> BAIXO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 20 </td>
+	<td> Documentação Completa </td>
+	<td> 2h </td>
+	<td> MÉDIO </td>
+	<td> [ ] </td>
+</tr>
+<tr>
+	<td> 21 </td>
+	<td> Testes End-to-End </td>
+	<td> 1h </td>
+	<td> MÉDIO </td>
+	<td> [ ] </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>TOTAL TIER 4:</strong> 3h-4h</p>
+
+<hr />
+
+<h2 id="🚀implementaÇÃodetalhada">🚀 IMPLEMENTAÇÃO DETALHADA</h2>
+
+<h3 id="tier1:essencial4h-5h"><strong>TIER 1: ESSENCIAL (4h-5h)</strong></h3>
+
+<hr />
+
+<h4 id="1.uptimemonitoring5min-crÍtico"><strong>1. Uptime Monitoring</strong> (5min) - CRÍTICO</h4>
+
+<p><strong>Objetivo:</strong> Detectar site fora do ar antes do cliente reclamar</p>
+
+<p><strong>Opção A: UptimeRobot (RECOMENDADO)</strong></p>
+
+<ul>
+<li>✅ Grátis até 50 monitores</li>
+<li>Verifica a cada 5min</li>
+<li>Alertas: Email, SMS, Slack, Telegram, Webhook</li>
+<li>Dashboard com histórico de uptime (99.9%, etc)</li>
+</ul>
+
+<p><strong>Instalação:</strong></p>
+
+<pre><code class="bash"># 1. Acessar
+open https://uptimerobot.com
+
+# 2. Sign Up (grátis, 50 monitores)
+
+# 3. Add New Monitor:
+#    - Monitor Type: HTTP(s)
+#    - Friendly Name: AEGIS - [Nome do Projeto]
+#    - URL: https://seusite.com
+#    - Monitoring Interval: 5 minutes
+
+# 4. Alert Contacts:
+#    - Email: seu@email.com
+#    - Telegram (opcional): conectar bot
+
+# 5. Create Monitor
+</code></pre>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Monitor ativo (status verde)</li>
+<li>[ ] Testar: pausar servidor → alerta chega em 5min</li>
+<li>[ ] Email de alerta configurado</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 5min
+<strong>Custo:</strong> $0/mês
+<strong>Prioridade:</strong> CRÍTICA</p>
+
+<hr />
+
+<h4 id="2.securityheaders40min-alto"><strong>2. Security Headers</strong> (40min) - ALTO</h4>
+
+<p><strong>Objetivo:</strong> Proteger contra XSS, clickjacking, MIME sniffing</p>
+
+<p><strong>Implementação:</strong></p>
+
+<p><strong>Arquivo: <code>bootstrap.php</code> (adicionar no topo)</strong></p>
+
+<pre><code class="php">// Security Headers
+header(&quot;X-Frame-Options: SAMEORIGIN&quot;); // Anti-clickjacking
+header(&quot;X-Content-Type-Options: nosniff&quot;); // Anti-MIME sniffing
+header(&quot;X-XSS-Protection: 1; mode=block&quot;); // Anti-XSS (legacy browsers)
+header(&quot;Referrer-Policy: strict-origin-when-cross-origin&quot;);
+header(&quot;Permissions-Policy: geolocation=(), microphone=(), camera=()&quot;);
+
+// Content Security Policy (ajustar conforme necessário)
+$csp = &quot;default-src 'self'; &quot;;
+$csp .= &quot;script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://unpkg.com; &quot;;
+$csp .= &quot;style-src 'self' 'unsafe-inline'; &quot;;
+$csp .= &quot;img-src 'self' data: https:; &quot;;
+$csp .= &quot;font-src 'self' data:; &quot;;
+$csp .= &quot;connect-src 'self' https://www.google-analytics.com; &quot;;
+$csp .= &quot;frame-ancestors 'self';&quot;;
+
+header(&quot;Content-Security-Policy: &quot; . $csp);
+
+// HSTS (só em produção com HTTPS)
+if ($_SERVER['HTTPS'] ?? false) {
+    header(&quot;Strict-Transport-Security: max-age=31536000; includeSubDomains&quot;);
+}
+</code></pre>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] https://securityheaders.com score ≥ A</li>
+<li>[ ] Site funciona normalmente (GTM, fontes, imagens)</li>
+<li>[ ] Console sem erros CSP</li>
+<li>[ ] HSTS funcionando (só HTTPS)</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 10&#8211;30min (testar cuidadosamente)
+<strong>Custo:</strong> $0
+<strong>Prioridade:</strong> ALTA</p>
+
+<hr />
+
+<h4 id="3.backupautomático1-2h-crÍtico"><strong>3. Backup Automático</strong> (1&#8211;2h) - CRÍTICO</h4>
+
+<p><strong>Objetivo:</strong> Backup diário do banco + arquivos com histórico de 30 dias</p>
+
+<p><strong>Implementação n8n:</strong></p>
+
+<p><strong>Workflow diário (3h):</strong></p>
+
+<ol>
+<li><strong>MySQL Dump:</strong></li>
+</ol>
+
+<pre><code class="bash">mysqldump -u user -p'pass' database | gzip &gt; backup-$(date +%Y%m%d).sql.gz
+</code></pre>
+
+<ol>
+<li><strong>Tar arquivos:</strong></li>
+</ol>
+
+<pre><code class="bash">tar -czf files-$(date +%Y%m%d).tar.gz /path/to/aegis \
+  --exclude='storage/logs' \
+  --exclude='storage/cache' \
+  --exclude='node_modules'
+</code></pre>
+
+<ol>
+<li><strong>Upload destino:</strong></li>
+</ol>
+
+<ul>
+<li> Google Drive (API grátis, 15GB)</li>
+<li> Dropbox (API grátis, 2GB)</li>
+<li> AWS S3 (~$0.50/mês por projeto)</li>
+</ul>
+
+<ol>
+<li><strong>Limpeza:</strong></li>
+</ol>
+
+<pre><code class="bash">find /backups -name &quot;*.gz&quot; -mtime +30 -delete
+</code></pre>
+
+<ol>
+<li><strong>Notificação:</strong></li>
+</ol>
+
+<ul>
+<li> Sucesso: Log silencioso</li>
+<li> Falha: Alerta URGENTE</li>
+</ul>
+
+<p><strong>Nodes n8n:</strong></p>
+
+<pre><code>1. Cron (Every Day, 3:00)
+2. Execute Command (MySQL Dump)
+3. Execute Command (Tar Files)
+4. Google Drive Upload (db-*.sql.gz)
+5. Google Drive Upload (files-*.tar.gz)
+6. Execute Command (Cleanup old backups)
+7. Send Email/Telegram (Success notification)
+8. Error Workflow (Send URGENT alert)
+</code></pre>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Workflow criado e ativo</li>
+<li>[ ] Executar manual → arquivos criados</li>
+<li>[ ] Upload Google Drive OK</li>
+<li>[ ] <strong>CRÍTICO:</strong> Testar restauração (criar DB teste)</li>
+<li>[ ] Rotação 30 dias funciona</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 1&#8211;2h dev
+<strong>Custo:</strong> $0&#8211;0.50/mês (depende do destino)
+<strong>Prioridade:</strong> CRÍTICA</p>
+
+<hr />
+
+<h4 id="4.relatóriosiaautomáticos2-3h-alto"><strong>4. Relatórios IA Automáticos</strong> (2&#8211;3h) - ALTO</h4>
+
+<p><strong>Objetivo:</strong> Relatórios diários automáticos com insights de IA salvos no admin</p>
+
+<p><strong>Implementação:</strong></p>
+
+<p><strong>Tabela MySQL:</strong></p>
+
+<pre><code class="sql">CREATE TABLE ai_reports (
+    id CHAR(36) PRIMARY KEY,
+    type ENUM('daily', 'weekly', 'alert', 'custom') NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    summary TEXT,
+    content LONGTEXT,
+    severity ENUM('info', 'warning', 'critical') DEFAULT 'info',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_created (created_at),
+    INDEX idx_type (type),
+    INDEX idx_severity (severity)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+
+<p><strong>API Endpoint:</strong> <code>api/ai-reports.php</code></p>
+
+<pre><code class="php">&lt;?php
+require_once '../bootstrap.php';
+
+// Autenticação via webhook secret
+$secret = $_POST['webhook_secret'] ?? '';
+$expectedSecret = Settings::get('ai_webhook_secret');
+
+if ($secret !== $expectedSecret) {
+    http_response_code(401);
+    exit(json_encode(['error' =&gt; 'Unauthorized']));
+}
+
+$data = [
+    'id' =&gt; Core::generateUUID(),
+    'type' =&gt; $_POST['type'] ?? 'daily',
+    'title' =&gt; $_POST['title'] ?? '',
+    'summary' =&gt; $_POST['summary'] ?? '',
+    'content' =&gt; $_POST['content'] ?? '',
+    'severity' =&gt; $_POST['severity'] ?? 'info'
+];
+
+$db = DB::connect();
+$stmt = $db-&gt;prepare(&quot;
+    INSERT INTO ai_reports (id, type, title, summary, content, severity)
+    VALUES (?, ?, ?, ?, ?, ?)
+&quot;);
+
+$stmt-&gt;execute([
+    $data['id'],
+    $data['type'],
+    $data['title'],
+    $data['summary'],
+    $data['content'],
+    $data['severity']
+]);
+
+echo json_encode(['success' =&gt; true, 'id' =&gt; $data['id']]);
+</code></pre>
+
+<p><strong>n8n Workflow diário (8h):</strong></p>
+
+<pre><code>1. Cron (Every Day, 8:00)
+2. Execute Command (Claude Code CLI)
+   → Comando: claude --prompt &quot;Analise AEGIS e gere relatório markdown&quot;
+3. HTTP Request POST (api/ai-reports.php)
+   → Body: { webhook_secret, type, title, summary, content, severity }
+4. Send Email (resumo + link relatório completo)
+5. Send Telegram (opcional - resumo curto)
+</code></pre>
+
+<p><strong>Views Admin:</strong></p>
+
+<ul>
+<li><code>/admin/ai-reports</code> (lista com cards)</li>
+<li><code>/admin/ai-reports/view/:id</code> (relatório completo)</li>
+</ul>
+
+<p><strong>Dados do relatório:</strong></p>
+
+<ul>
+<li>Erros de logs (últimas 24h)</li>
+<li>PageSpeed das 5 páginas principais</li>
+<li>Conversões/visitas (se Analytics integrado)</li>
+<li>Problemas críticos identificados</li>
+<li>Sugestões de melhorias</li>
+</ul>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Relatório gerado automaticamente todo dia 8h</li>
+<li>[ ] Email recebido com resumo correto</li>
+<li>[ ] Admin (<code>/admin/ai-reports</code>) mostra últimos 30 relatórios</li>
+<li>[ ] Relatório individual abre corretamente</li>
+<li>[ ] Alertas funcionam (simular erro crítico e verificar notificação)</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 2&#8211;3h dev
+<strong>Custo:</strong> $0/mês (Claude Code local)
+<strong>Prioridade:</strong> ALTA</p>
+
+<hr />
+
+<h4 id="5.httpsssl2min-crÍtico"><strong>5. HTTPS/SSL</strong> (2min) - CRÍTICO</h4>
+
+<p><strong>Objetivo:</strong> Confirmar que site está com certificado SSL ativo</p>
+
+<p><strong>Passos:</strong></p>
+
+<ol>
+<li>Abrir navegador</li>
+<li>Acessar: <code>https://seusite.com</code></li>
+<li>Verificar cadeado verde no navegador</li>
+<li>Clicar no cadeado → Certificado válido?</li>
+</ol>
+
+<p><strong>Se não tiver HTTPS:</strong></p>
+
+<ul>
+<li>PARAR TUDO</li>
+<li>Instalar Let&#8217;s Encrypt (grátis)</li>
+<li>Configurar redirect HTTP → HTTPS</li>
+</ul>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] URL começa com <code>https://</code></li>
+<li>[ ] Navegador não mostra &#8220;Não seguro&#8221;</li>
+<li>[ ] Certificado válido (não expirado)</li>
+</ul>
+
+<hr />
+
+<h4 id="6.gtmga4validação3min-alto"><strong>6. GTM/GA4 Validação</strong> (3min) - ALTO</h4>
+
+<p><strong>Objetivo:</strong> Confirmar que Google Tag Manager e Analytics funcionam</p>
+
+<p><strong>Passos:</strong></p>
+
+<ol>
+<li>Abrir site no navegador</li>
+<li>F12 → Console</li>
+<li>Procurar mensagens GTM (sem erros)</li>
+<li>Google Analytics → Relatórios → Tempo Real</li>
+<li>Navegar no site e ver sessão aparecendo</li>
+</ol>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] GTM carrega sem erros (console limpo)</li>
+<li>[ ] GA4 mostra visita em Tempo Real</li>
+<li>[ ] dataLayer funcionando</li>
+</ul>
+
+<hr />
+
+<h4 id="7.robots.txt5min-mÉdio"><strong>7. robots.txt</strong> (5min) - MÉDIO</h4>
+
+<p><strong>Objetivo:</strong> Criar arquivo robots.txt para controlar indexação Google</p>
+
+<p><strong>Arquivo:</strong> <code>/public/robots.txt</code></p>
+
+<pre><code class="txt">User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /storage/logs/
+Disallow: /storage/cache/
+Allow: /storage/uploads/
+
+Sitemap: https://seusite.com/sitemap.xml
+</code></pre>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Acessar <code>https://seusite.com/robots.txt</code></li>
+<li>[ ] Arquivo aparece corretamente</li>
+<li>[ ] Testar no Google: https://www.google.com/webmasters/tools/robots-testing-tool</li>
+</ul>
+
+<hr />
+
+<h4 id="8.sitemapautomático30min-alto"><strong>8. Sitemap Automático</strong> (30min) - ALTO</h4>
+
+<p><strong>Objetivo:</strong> Sitemap.xml gerado automaticamente a partir do banco</p>
+
+<p><strong>Arquivo:</strong> <code>/public/sitemap.xml.php</code></p>
+
+<pre><code class="php">&lt;?php
+require_once '../bootstrap.php';
+
+header('Content-Type: application/xml; charset=utf-8');
+
+$db = DB::connect();
+
+// Páginas públicas
+$pages = $db-&gt;query(&quot;
+    SELECT slug, updated_at
+    FROM pages
+    WHERE ativo = 1
+    AND (seo_robots NOT LIKE '%noindex%' OR seo_robots IS NULL)
+    ORDER BY updated_at DESC
+&quot;)-&gt;fetchAll();
+
+// Módulos públicos
+$modules = [];
+foreach (glob(ROOT_PATH . 'modules/*/module.json') as $file) {
+    $config = json_decode(file_get_contents($file), true);
+    if ($config['public'] ?? false) {
+        $modules[] = [
+            'slug' =&gt; basename(dirname($file)),
+            'updated_at' =&gt; date('Y-m-d', filemtime($file))
+        ];
+    }
+}
+
+echo '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;';
+echo '&lt;urlset xmlns=&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;&gt;';
+
+// Homepage
+echo &quot;&lt;url&gt;&quot;;
+echo &quot;&lt;loc&gt;&quot; . htmlspecialchars(APP_URL) . &quot;&lt;/loc&gt;&quot;;
+echo &quot;&lt;priority&gt;1.0&lt;/priority&gt;&quot;;
+echo &quot;&lt;changefreq&gt;daily&lt;/changefreq&gt;&quot;;
+echo &quot;&lt;/url&gt;&quot;;
+
+// Páginas
+foreach ($pages as $page) {
+    echo &quot;&lt;url&gt;&quot;;
+    echo &quot;&lt;loc&gt;&quot; . htmlspecialchars(url('/' . $page['slug'])) . &quot;&lt;/loc&gt;&quot;;
+    echo &quot;&lt;lastmod&gt;&quot; . date('Y-m-d', strtotime($page['updated_at'])) . &quot;&lt;/lastmod&gt;&quot;;
+    echo &quot;&lt;priority&gt;0.8&lt;/priority&gt;&quot;;
+    echo &quot;&lt;changefreq&gt;weekly&lt;/changefreq&gt;&quot;;
+    echo &quot;&lt;/url&gt;&quot;;
+}
+
+// Módulos
+foreach ($modules as $module) {
+    echo &quot;&lt;url&gt;&quot;;
+    echo &quot;&lt;loc&gt;&quot; . htmlspecialchars(url('/' . $module['slug'])) . &quot;&lt;/loc&gt;&quot;;
+    echo &quot;&lt;lastmod&gt;{$module['updated_at']}&lt;/lastmod&gt;&quot;;
+    echo &quot;&lt;priority&gt;0.7&lt;/priority&gt;&quot;;
+    echo &quot;&lt;changefreq&gt;weekly&lt;/changefreq&gt;&quot;;
+    echo &quot;&lt;/url&gt;&quot;;
+}
+
+echo '&lt;/urlset&gt;';
+</code></pre>
+
+<p><strong>n8n workflow (semanal):</strong></p>
+
+<pre><code>Cron (domingo 2h):
+  → HTTP GET seusite.com/sitemap.xml.php
+  → Save file public/sitemap.xml
+  → Submit to Google Search Console (API)
+</code></pre>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] <code>/sitemap.xml</code> acessível e válido</li>
+<li>[ ] Todas páginas públicas listadas</li>
+<li>[ ] Módulos públicos listados</li>
+<li>[ ] Google Search Console aceita o sitemap</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 30min-1h dev
+<strong>Custo:</strong> $0
+<strong>Prioridade:</strong> ALTA (SEO)</p>
+
+<hr />
+
+<h4 id="9.phpstan10min-mÉdio"><strong>9. PHPStan</strong> (10min) - MÉDIO</h4>
+
+<p><strong>Objetivo:</strong> Análise estática, detectar bugs antes de acontecerem</p>
+
+<p><strong>Instalação:</strong></p>
+
+<pre><code class="bash">cd /Users/fabiochezzi/Documents/websites/aegis
+composer require --dev phpstan/phpstan
+</code></pre>
+
+<p><strong>Configuração:</strong> <code>/phpstan.neon</code></p>
+
+<pre><code class="neon">parameters:
+    level: 6
+    paths:
+        - core
+        - admin
+        - modules
+        - public
+    excludePaths:
+        - */vendor/*
+        - */storage/*
+    ignoreErrors:
+        - '#Call to an undefined method PDO::#'
+</code></pre>
+
+<p><strong>Rodar análise:</strong></p>
+
+<pre><code class="bash">vendor/bin/phpstan analyse
+</code></pre>
+
+<p><strong>Integrar git hook (opcional):</strong> <code>.git/hooks/pre-commit</code></p>
+
+<pre><code class="bash">#!/bin/bash
+vendor/bin/phpstan analyse --error-format=table
+if [ $? -ne 0 ]; then
+    echo &quot;❌ PHPStan encontrou erros. Commit bloqueado.&quot;
+    exit 1
+fi
+</code></pre>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] PHPStan instalado</li>
+<li>[ ] Roda sem erro fatal</li>
+<li>[ ] Identifica problemas reais</li>
+<li>[ ] Level 6 funcionando</li>
+</ul>
+
+<hr />
+
+<h3 id="tier2:importante12h-14h"><strong>TIER 2: IMPORTANTE (12h-14h)</strong></h3>
+
+<hr />
+
+<h4 id="10.ratelimiting2h-alto"><strong>10. Rate Limiting</strong> (2h) - ALTO</h4>
+
+<p><strong>Objetivo:</strong> Proteger contra bots, brute force, DDoS básico</p>
+
+<p><strong>Classe:</strong> <code>core/RateLimit.php</code></p>
+
+<pre><code class="php">&lt;?php
+/**
+ * RateLimit - Proteção contra brute force e DDoS
+ */
+class RateLimit {
+
+    public static function check($key, $maxAttempts = 10, $windowSeconds = 60) {
+        $db = DB::connect();
+
+        // Limpa expirados
+        $db-&gt;query(&quot;DELETE FROM rate_limits WHERE expires_at &lt; NOW()&quot;);
+
+        // Conta tentativas
+        $stmt = $db-&gt;prepare(&quot;
+            SELECT COUNT(*) FROM rate_limits
+            WHERE key_hash = ? AND expires_at &gt; NOW()
+        &quot;);
+        $keyHash = hash('sha256', $key);
+        $stmt-&gt;execute([$keyHash]);
+        $count = $stmt-&gt;fetchColumn();
+
+        if ($count &gt;= $maxAttempts) {
+            http_response_code(429);
+            exit(json_encode(['error' =&gt; 'Too many requests. Try again later.']));
+        }
+
+        // Registra tentativa
+        $expiresAt = date('Y-m-d H:i:s', time() + $windowSeconds);
+        $db-&gt;prepare(&quot;
+            INSERT INTO rate_limits (id, key_hash, expires_at)
+            VALUES (?, ?, ?)
+        &quot;)-&gt;execute([Core::generateUUID(), $keyHash, $expiresAt]);
+    }
+}
+</code></pre>
+
+<p><strong>Tabela:</strong></p>
+
+<pre><code class="sql">CREATE TABLE rate_limits (
+    id CHAR(36) PRIMARY KEY,
+    key_hash CHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    INDEX idx_key_expires (key_hash, expires_at)
+) ENGINE=InnoDB;
+</code></pre>
+
+<p><strong>Uso:</strong></p>
+
+<pre><code class="php">// Login admin
+RateLimit::check('admin_login:' . $_SERVER['REMOTE_ADDR'], 5, 300); // 5 tentativas / 5min
+
+// Login members
+RateLimit::check('member_login:' . $_SERVER['REMOTE_ADDR'], 10, 600); // 10 / 10min
+
+// Formulário contato
+RateLimit::check('contact_form:' . $_SERVER['REMOTE_ADDR'], 3, 3600); // 3 / 1h
+
+// APIs públicas
+RateLimit::check('api:' . $_SERVER['REMOTE_ADDR'], 100, 60); // 100 / 1min
+</code></pre>
+
+<p><strong>Locais críticos:</strong></p>
+
+<ul>
+<li><code>/admin/login</code> (admin/controllers/AuthController.php)</li>
+<li><code>/login</code> (members, se houver)</li>
+<li><code>/api/*</code> (todos endpoints públicos)</li>
+<li>Formulários de contato/lead</li>
+</ul>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Login bloqueado após X tentativas</li>
+<li>[ ] Mensagem de erro 429 clara</li>
+<li>[ ] Limite reseta após tempo configurado</li>
+<li>[ ] APIs públicas protegidas</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 2h dev
+<strong>Custo:</strong> $0
+<strong>Prioridade:</strong> ALTA</p>
+
+<hr />
+
+<h4 id="11.googlesearchconsoleapi5-6h-alto"><strong>11. Google Search Console API</strong> (5&#8211;6h) - ALTO</h4>
+
+<p><strong>Objetivo:</strong> Dados SEO (queries, posições, cliques) + Core Web Vitals</p>
+
+<p><strong>Etapa 1: Service Account (30min)</strong></p>
+
+<ol>
+<li>Google Cloud Console: https://console.cloud.google.com</li>
+<li>Criar projeto &#8220;AEGIS SEO&#8221;</li>
+<li>Ativar APIs:</li>
+</ol>
+
+<ul>
+<li> Search Console API</li>
+<li> PageSpeed Insights API</li>
+</ul>
+
+<ol>
+<li>Criar Service Account:</li>
+</ol>
+
+<ul>
+<li> Nome: &#8220;aegis-service-account&#8221;</li>
+<li> Baixar JSON de credenciais</li>
+</ul>
+
+<ol>
+<li>Adicionar Service Account no Search Console:</li>
+</ol>
+
+<ul>
+<li> https://search.google.com/search-console</li>
+<li> Settings → Users → Add User</li>
+<li> Email: <code>aegis-service-account@[project-id].iam.gserviceaccount.com</code></li>
+<li> Permission: Owner</li>
+</ul>
+
+<p><strong>Etapa 2: Tabelas MySQL (15min)</strong></p>
+
+<pre><code class="sql">-- Queries (palavras-chave)
+CREATE TABLE gsc_queries (
+    id CHAR(36) PRIMARY KEY,
+    query VARCHAR(512) NOT NULL,
+    date DATE NOT NULL,
+    clicks INT DEFAULT 0,
+    impressions INT DEFAULT 0,
+    ctr DECIMAL(5,4) DEFAULT 0,
+    position DECIMAL(5,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_date (date),
+    INDEX idx_query (query(191)),
+    INDEX idx_position (position)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Pages
+CREATE TABLE gsc_pages (
+    id CHAR(36) PRIMARY KEY,
+    page_url VARCHAR(512) NOT NULL,
+    date DATE NOT NULL,
+    clicks INT DEFAULT 0,
+    impressions INT DEFAULT 0,
+    ctr DECIMAL(5,4) DEFAULT 0,
+    position DECIMAL(5,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_date (date),
+    INDEX idx_url (page_url(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Core Web Vitals
+CREATE TABLE gsc_vitals (
+    id CHAR(36) PRIMARY KEY,
+    page_url VARCHAR(512) NOT NULL,
+    metric_type ENUM('LCP', 'FID', 'CLS') NOT NULL,
+    good_percent DECIMAL(5,2) DEFAULT 0,
+    needs_improvement_percent DECIMAL(5,2) DEFAULT 0,
+    poor_percent DECIMAL(5,2) DEFAULT 0,
+    device ENUM('DESKTOP', 'MOBILE') NOT NULL,
+    date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_date (date),
+    INDEX idx_url (page_url(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Errors (404s, etc)
+CREATE TABLE gsc_errors (
+    id CHAR(36) PRIMARY KEY,
+    page_url VARCHAR(512) NOT NULL,
+    error_type VARCHAR(100) NOT NULL,
+    severity ENUM('ERROR', 'WARNING') NOT NULL,
+    detected_at DATE NOT NULL,
+    resolved BOOLEAN DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_detected (detected_at),
+    INDEX idx_resolved (resolved)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+
+<p><strong>Etapa 3: Classe PHP (2&#8211;3h)</strong> - <code>/core/GoogleSearchConsole.php</code></p>
+
+<pre><code class="php">&lt;?php
+/**
+ * GoogleSearchConsole - Integração com API do Google Search Console
+ */
+class GoogleSearchConsole {
+
+    private $client;
+    private $service;
+    private $siteUrl;
+
+    public function __construct() {
+        $credentialsPath = ROOT_PATH . 'config/google-service-account.json';
+
+        if (!file_exists($credentialsPath)) {
+            throw new Exception('Google Service Account credentials not found');
+        }
+
+        // Usar biblioteca oficial Google
+        // composer require google/apiclient
+        $this-&gt;client = new Google_Client();
+        $this-&gt;client-&gt;setAuthConfig($credentialsPath);
+        $this-&gt;client-&gt;addScope(Google_Service_SearchConsole::WEBMASTERS_READONLY);
+
+        $this-&gt;service = new Google_Service_SearchConsole($this-&gt;client);
+        $this-&gt;siteUrl = APP_URL;
+    }
+
+    /**
+     * Sincronizar queries (últimos 7 dias)
+     */
+    public function syncQueries($startDate = null, $endDate = null) {
+        $startDate = $startDate ?? date('Y-m-d', strtotime('-7 days'));
+        $endDate = $endDate ?? date('Y-m-d', strtotime('-1 day'));
+
+        $request = new Google_Service_SearchConsole_SearchAnalyticsQueryRequest();
+        $request-&gt;setStartDate($startDate);
+        $request-&gt;setEndDate($endDate);
+        $request-&gt;setDimensions(['query', 'date']);
+        $request-&gt;setRowLimit(1000);
+
+        $response = $this-&gt;service-&gt;searchanalytics-&gt;query($this-&gt;siteUrl, $request);
+
+        $db = DB::connect();
+
+        foreach ($response-&gt;getRows() as $row) {
+            $query = $row-&gt;getKeys()[0];
+            $date = $row-&gt;getKeys()[1];
+            $clicks = $row-&gt;getClicks();
+            $impressions = $row-&gt;getImpressions();
+            $ctr = $row-&gt;getCtr();
+            $position = $row-&gt;getPosition();
+
+            $stmt = $db-&gt;prepare(&quot;
+                INSERT INTO gsc_queries (id, query, date, clicks, impressions, ctr, position)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    clicks = VALUES(clicks),
+                    impressions = VALUES(impressions),
+                    ctr = VALUES(ctr),
+                    position = VALUES(position)
+            &quot;);
+
+            $id = Core::generateUUID();
+            $stmt-&gt;execute([$id, $query, $date, $clicks, $impressions, $ctr, $position]);
+        }
+
+        return count($response-&gt;getRows());
+    }
+
+    /**
+     * Sincronizar páginas
+     */
+    public function syncPages($startDate = null, $endDate = null) {
+        $startDate = $startDate ?? date('Y-m-d', strtotime('-7 days'));
+        $endDate = $endDate ?? date('Y-m-d', strtotime('-1 day'));
+
+        $request = new Google_Service_SearchConsole_SearchAnalyticsQueryRequest();
+        $request-&gt;setStartDate($startDate);
+        $request-&gt;setEndDate($endDate);
+        $request-&gt;setDimensions(['page', 'date']);
+        $request-&gt;setRowLimit(1000);
+
+        $response = $this-&gt;service-&gt;searchanalytics-&gt;query($this-&gt;siteUrl, $request);
+
+        $db = DB::connect();
+
+        foreach ($response-&gt;getRows() as $row) {
+            $pageUrl = $row-&gt;getKeys()[0];
+            $date = $row-&gt;getKeys()[1];
+            $clicks = $row-&gt;getClicks();
+            $impressions = $row-&gt;getImpressions();
+            $ctr = $row-&gt;getCtr();
+            $position = $row-&gt;getPosition();
+
+            $stmt = $db-&gt;prepare(&quot;
+                INSERT INTO gsc_pages (id, page_url, date, clicks, impressions, ctr, position)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    clicks = VALUES(clicks),
+                    impressions = VALUES(impressions),
+                    ctr = VALUES(ctr),
+                    position = VALUES(position)
+            &quot;);
+
+            $id = Core::generateUUID();
+            $stmt-&gt;execute([$id, $pageUrl, $date, $clicks, $impressions, $ctr, $position]);
+        }
+
+        return count($response-&gt;getRows());
+    }
+}
+</code></pre>
+
+<p><strong>Etapa 4: API Endpoint (15min)</strong> - <code>/admin/api/sync-gsc.php</code></p>
+
+<pre><code class="php">&lt;?php
+require_once '../../bootstrap.php';
+
+Auth::require(); // Só admin pode sincronizar
+
+try {
+    $gsc = new GoogleSearchConsole();
+
+    $queriesCount = $gsc-&gt;syncQueries();
+    $pagesCount = $gsc-&gt;syncPages();
+
+    echo json_encode([
+        'success' =&gt; true,
+        'queries_synced' =&gt; $queriesCount,
+        'pages_synced' =&gt; $pagesCount
+    ]);
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' =&gt; false,
+        'error' =&gt; $e-&gt;getMessage()
+    ]);
+}
+</code></pre>
+
+<p><strong>Etapa 5: Views Admin (1&#8211;2h)</strong></p>
+
+<ul>
+<li><code>/admin/seo/overview</code> (visão geral)</li>
+<li><code>/admin/seo/keywords</code> (monitoramento queries)</li>
+<li><code>/admin/seo/vitals</code> (Core Web Vitals por página)</li>
+<li><code>/admin/seo/errors</code> (404s, problemas de indexação)</li>
+</ul>
+
+<p><strong>Automação n8n:</strong></p>
+
+<ul>
+<li>Cron diário (2h): Sincroniza dados de ontem</li>
+<li>Alertas automáticos:</li>
+<li> Página caiu &gt;5 posições</li>
+<li> Novas 404s detectadas</li>
+<li> Core Web Vitals degradados</li>
+</ul>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Service Account criado</li>
+<li>[ ] Credenciais JSON salvas</li>
+<li>[ ] Tabelas MySQL criadas</li>
+<li>[ ] Classe GoogleSearchConsole funciona</li>
+<li>[ ] API endpoint retorna dados</li>
+<li>[ ] Dados salvos no banco</li>
+<li>[ ] Views admin acessíveis</li>
+<li>[ ] Queries sincronizadas com posições corretas</li>
+<li>[ ] Core Web Vitals aparecem</li>
+<li>[ ] 404s detectadas aparecem</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 5&#8211;6h dev
+<strong>Custo:</strong> $0/mês (API grátis, ilimitada)
+<strong>Prioridade:</strong> ALTA</p>
+
+<hr />
+
+<h4 id="12.googleanalyticsapi4-5h-mÉdio"><strong>12. Google Analytics API</strong> (4&#8211;5h) - MÉDIO</h4>
+
+<p><strong>Objetivo:</strong> Métricas de tráfego salvas no MySQL + widgets no admin</p>
+
+<p><strong>Setup necessário:</strong></p>
+
+<ol>
+<li>Service Account Google Cloud (mesmas credenciais do GSC)</li>
+<li>Ativar Google Analytics Data API</li>
+<li>JSON de credenciais</li>
+<li>Property ID do GA4</li>
+</ol>
+
+<p><strong>Tabelas MySQL:</strong></p>
+
+<pre><code class="sql">-- Métricas diárias
+CREATE TABLE analytics_daily (
+    id CHAR(36) PRIMARY KEY,
+    date DATE NOT NULL,
+    sessions INT DEFAULT 0,
+    users INT DEFAULT 0,
+    pageviews INT DEFAULT 0,
+    bounce_rate DECIMAL(5,2) DEFAULT 0,
+    avg_duration DECIMAL(8,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_date (date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Performance por página
+CREATE TABLE analytics_pages (
+    id CHAR(36) PRIMARY KEY,
+    page_url VARCHAR(512) NOT NULL,
+    date DATE NOT NULL,
+    pageviews INT DEFAULT 0,
+    users INT DEFAULT 0,
+    avg_time DECIMAL(8,2) DEFAULT 0,
+    bounce_rate DECIMAL(5,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_date (date),
+    INDEX idx_url (page_url(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Origens de tráfego
+CREATE TABLE analytics_sources (
+    id CHAR(36) PRIMARY KEY,
+    source VARCHAR(255) NOT NULL,
+    medium VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    sessions INT DEFAULT 0,
+    users INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_date (date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+
+<p><strong>Classe:</strong> <code>/core/GoogleAnalytics.php</code> (2&#8211;3h de dev)</p>
+
+<p><strong>Widgets dashboard:</strong></p>
+
+<ul>
+<li>Usuários hoje (comparação vs ontem)</li>
+<li>Pageviews hoje</li>
+<li>Taxa de conversão</li>
+<li>Duração média</li>
+<li>Gráfico últimos 7 dias (Chart.js)</li>
+</ul>
+
+<p><strong>Páginas admin:</strong></p>
+
+<ul>
+<li><code>/admin/analytics/overview</code> (visão geral)</li>
+<li><code>/admin/analytics/pages</code> (páginas mais visitadas)</li>
+<li><code>/admin/analytics/sources</code> (origens de tráfego)</li>
+</ul>
+
+<p><strong>Automação n8n:</strong></p>
+
+<ul>
+<li>Cron diário (1h): Sincroniza métricas de ontem</li>
+<li>Cache 5min em widgets ao vivo</li>
+</ul>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Dados sincronizados nas últimas 24h</li>
+<li>[ ] Widgets dashboard mostram métricas corretas (comparar com GA4 web)</li>
+<li>[ ] Gráficos renderizam sem erro de console</li>
+<li>[ ] Comparação de períodos calcula diferenças corretamente</li>
+<li>[ ] Cache de 5min funcionando</li>
+<li>[ ] Páginas admin acessíveis</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 4&#8211;5h dev
+<strong>Custo:</strong> $0/mês (API grátis até 50k requests/dia)
+<strong>Prioridade:</strong> MÉDIA</p>
+
+<hr />
+
+<h3 id="tier3:bomter6h-7h"><strong>TIER 3: BOM TER (6h-7h)</strong></h3>
+
+<hr />
+
+<h4 id="13.loggermelhorado3h-mÉdio"><strong>13. Logger Melhorado</strong> (3h) - MÉDIO</h4>
+
+<p><strong>Objetivo:</strong> Logs estruturados, busca fácil, alertas automáticos</p>
+
+<p><strong>Classe:</strong> <code>core/Logger.php</code></p>
+
+<pre><code class="php">&lt;?php
+class Logger {
+    const CRITICAL = 'CRITICAL';
+    const ERROR = 'ERROR';
+    const WARNING = 'WARNING';
+    const INFO = 'INFO';
+
+    public static function log($level, $message, $context = []) {
+        $db = DB::connect();
+
+        $log = [
+            'id' =&gt; Core::generateUUID(),
+            'level' =&gt; $level,
+            'message' =&gt; $message,
+            'context' =&gt; json_encode($context),
+            'url' =&gt; $_SERVER['REQUEST_URI'] ?? 'CLI',
+            'method' =&gt; $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+            'user_id' =&gt; Auth::getUserId() ?? null,
+            'ip' =&gt; $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'user_agent' =&gt; $_SERVER['HTTP_USER_AGENT'] ?? 'CLI',
+            'created_at' =&gt; date('Y-m-d H:i:s')
+        ];
+
+        $stmt = $db-&gt;prepare(&quot;
+            INSERT INTO system_logs
+            (id, level, message, context, url, method, user_id, ip, user_agent, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        &quot;);
+
+        $stmt-&gt;execute([
+            $log['id'], $log['level'], $log['message'], $log['context'],
+            $log['url'], $log['method'], $log['user_id'], $log['ip'],
+            $log['user_agent'], $log['created_at']
+        ]);
+
+        if ($level === self::CRITICAL) {
+            self::sendAlert($log);
+        }
+    }
+
+    public static function critical($msg, $ctx = []) { self::log(self::CRITICAL, $msg, $ctx); }
+    public static function error($msg, $ctx = []) { self::log(self::ERROR, $msg, $ctx); }
+    public static function warning($msg, $ctx = []) { self::log(self::WARNING, $msg, $ctx); }
+    public static function info($msg, $ctx = []) { self::log(self::INFO, $msg, $ctx); }
+
+    private static function sendAlert($log) {
+        // n8n webhook ou email direto
+        $webhook = 'https://n8n.local/webhook/critical-log';
+        file_get_contents($webhook . '?' . http_build_query($log));
+    }
+}
+</code></pre>
+
+<p><strong>Tabela:</strong></p>
+
+<pre><code class="sql">CREATE TABLE system_logs (
+    id CHAR(36) PRIMARY KEY,
+    level ENUM('CRITICAL', 'ERROR', 'WARNING', 'INFO') NOT NULL,
+    message TEXT NOT NULL,
+    context JSON,
+    url VARCHAR(512),
+    method VARCHAR(10),
+    user_id CHAR(36),
+    ip VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_level (level),
+    INDEX idx_created (created_at),
+    INDEX idx_user (user_id)
+) ENGINE=InnoDB;
+</code></pre>
+
+<p><strong>View admin:</strong> <code>/admin/logs</code></p>
+
+<ul>
+<li>Filtros: level, data, usuário, URL</li>
+<li>Busca: &#8220;erro no módulo artigos&#8221;</li>
+<li>Export CSV</li>
+<li>Auto-delete &gt; 90 dias (cron)</li>
+</ul>
+
+<p><strong>Uso:</strong></p>
+
+<pre><code class="php">try {
+    // código
+} catch (Exception $e) {
+    Logger::error('Falha ao processar artigo', [
+        'artigo_id' =&gt; $id,
+        'exception' =&gt; $e-&gt;getMessage()
+    ]);
+}
+
+Logger::info('Usuário fez login', ['user_id' =&gt; $userId]);
+Logger::critical('Database connection failed');
+</code></pre>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Logs salvos no banco corretamente</li>
+<li>[ ] Filtros funcionam</li>
+<li>[ ] Busca funciona</li>
+<li>[ ] Export CSV funciona</li>
+<li>[ ] Alertas críticos disparam</li>
+<li>[ ] Auto-delete &gt; 90 dias funcionando</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 3h dev
+<strong>Custo:</strong> $0
+<strong>Prioridade:</strong> MÉDIA</p>
+
+<hr />
+
+<h4 id="14.cruzamentodedadosia2h-mÉdio"><strong>14. Cruzamento de Dados IA</strong> (2h) - MÉDIO</h4>
+
+<p><strong>Objetivo:</strong> Insights poderosos combinando GA + GSC + PageSpeed</p>
+
+<p><strong>Exemplos de queries:</strong></p>
+
+<p><strong>Oportunidades SEO:</strong></p>
+
+<pre><code class="sql">-- Páginas com muito tráfego GA mas pouco SEO (otimizar)
+SELECT ga.page_url, ga.users, gsc.clicks, gsc.position
+FROM analytics_pages ga
+LEFT JOIN gsc_pages gsc ON ga.page_url = gsc.page_url
+WHERE ga.users &gt; 500 AND gsc.clicks &lt; 100 AND gsc.position &gt; 10;
+</code></pre>
+
+<p><strong>Performance vs Conversão:</strong></p>
+
+<pre><code class="sql">-- Páginas lentas que afetam conversão
+SELECT ps.url, ps.performance_score, ga.bounce_rate, ga.avg_time
+FROM tbl_pagespeed_reports ps
+JOIN analytics_pages ga ON ps.url = ga.page_url
+WHERE ps.performance_score &lt; 50 AND ga.bounce_rate &gt; 60;
+</code></pre>
+
+<p><strong>IA analisa automaticamente e inclui no relatório:</strong></p>
+
+<pre><code class="markdown">## 💡 Oportunidades Detectadas
+
+1. **/servicos/premium** tem 1.200 visitas/mês (GA) mas só 45 vêm do Google (GSC).
+   Posição média: 18.2
+   **Ação:** Otimizar SEO → Potencial de +400 visitas orgânicas/mês
+
+2. **/artigos** tem PageSpeed 68/100 e bounce rate 72%.
+   **Ação:** Melhorar performance → Reduzir bounce rate ~15%
+</code></pre>
+
+<p><strong>Estimativa:</strong> 2h dev (queries + lógica IA)
+<strong>Prioridade:</strong> MÉDIA
+<strong>Dependências:</strong> GA + GSC + PageSpeed implementados</p>
+
+<hr />
+
+<h4 id="15.php_codesniffer15min-baixo"><strong>15. PHP_CodeSniffer</strong> (15min) - BAIXO</h4>
+
+<p><strong>Objetivo:</strong> Padrão de código consistente (PSR-12, etc)</p>
+
+<p><strong>Instalação:</strong></p>
+
+<pre><code class="bash">cd /Users/fabiochezzi/Documents/websites/aegis
+composer require --dev squizlabs/php_codesniffer
+</code></pre>
+
+<p><strong>Configuração:</strong> <code>/phpcs.xml</code></p>
+
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;ruleset name=&quot;AEGIS&quot;&gt;
+    &lt;description&gt;AEGIS Framework Code Standards&lt;/description&gt;
+
+    &lt;rule ref=&quot;PSR12&quot;/&gt;
+
+    &lt;file&gt;core&lt;/file&gt;
+    &lt;file&gt;admin&lt;/file&gt;
+    &lt;file&gt;modules&lt;/file&gt;
+
+    &lt;exclude-pattern&gt;*/vendor/*&lt;/exclude-pattern&gt;
+    &lt;exclude-pattern&gt;*/storage/*&lt;/exclude-pattern&gt;
+&lt;/ruleset&gt;
+</code></pre>
+
+<p><strong>Rodar verificação:</strong></p>
+
+<pre><code class="bash">vendor/bin/phpcs
+
+# Fix automático
+vendor/bin/phpcbf
+</code></pre>
+
+<p><strong>Integrar git hook:</strong> <code>.git/hooks/pre-commit</code></p>
+
+<pre><code class="bash">#!/bin/bash
+vendor/bin/phpcs --standard=PSR12
+if [ $? -ne 0 ]; then
+    echo &quot;❌ Code style violations. Run phpcbf to fix.&quot;
+    exit 1
+fi
+</code></pre>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] PHP_CodeSniffer instalado</li>
+<li>[ ] Roda sem erro fatal</li>
+<li>[ ] Identifica violações de estilo</li>
+<li>[ ] phpcbf corrige automaticamente</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 15min
+<strong>Custo:</strong> $0
+<strong>Prioridade:</strong> BAIXA</p>
+
+<hr />
+
+<h4 id="16.microsoftclarity10min-baixo"><strong>16. Microsoft Clarity</strong> (10min) - BAIXO</h4>
+
+<p><strong>Objetivo:</strong> Session recordings + heatmaps (ver o que usuário faz)</p>
+
+<p><strong>Setup:</strong></p>
+
+<ol>
+<li>Acessar: https://clarity.microsoft.com</li>
+<li>Sign up (grátis ilimitado)</li>
+<li>Add New Project:</li>
+</ol>
+
+<ul>
+<li> Name: AEGIS - [Nome Projeto]</li>
+<li> Website: https://seusite.com</li>
+</ul>
+
+<ol>
+<li>Copy tracking code</li>
+<li>Adicionar em <code>frontend/includes/_head.php</code> (após GTM):</li>
+</ol>
+
+<pre><code class="html">&lt;!-- Microsoft Clarity --&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src=&quot;https://www.clarity.ms/tag/&quot;+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, &quot;clarity&quot;, &quot;script&quot;, &quot;SEU_PROJECT_ID&quot;);
+&lt;/script&gt;
+</code></pre>
+
+<p><strong>Funcionalidades:</strong></p>
+
+<ul>
+<li>Gravação de sessões (usuário navegando)</li>
+<li>Heatmaps de cliques</li>
+<li>Scroll maps</li>
+<li>Rage clicks (usuário clicando repetido = frustração)</li>
+<li>Dead clicks (clicou mas nada aconteceu)</li>
+</ul>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Script instalado</li>
+<li>[ ] Clarity detectando visitas</li>
+<li>[ ] Sessões gravadas aparecem no dashboard</li>
+<li>[ ] Heatmaps gerando dados</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 10min
+<strong>Custo:</strong> $0/mês (grátis ilimitado)
+<strong>Prioridade:</strong> BAIXA (UX insights)</p>
+
+<hr />
+
+<h4 id="17.pa11yacessibilidade30min-baixo"><strong>17. Pa11y (Acessibilidade)</strong> (30min) - BAIXO</h4>
+
+<p><strong>Objetivo:</strong> Detectar problemas de acessibilidade (WCAG compliance)</p>
+
+<p><strong>Instalação:</strong></p>
+
+<pre><code class="bash">npm install -g pa11y
+</code></pre>
+
+<p><strong>Rodar teste:</strong></p>
+
+<pre><code class="bash">pa11y https://seusite.com
+
+# Teste completo
+pa11y https://seusite.com --standard WCAG2AA --reporter html &gt; report.html
+</code></pre>
+
+<p><strong>Automatizar (n8n workflow mensal):</strong></p>
+
+<pre><code>Cron (1º dia do mês):
+  → Execute Command: pa11y https://seusite.com --reporter json
+  → Parse JSON
+  → If errors &gt; 10:
+      → Send Email (lista de problemas)
+      → Create GitHub Issue (se integrado)
+</code></pre>
+
+<p><strong>Problemas comuns detectados:</strong></p>
+
+<ul>
+<li>Imagens sem atributo <code>alt</code></li>
+<li>Links sem texto descritivo</li>
+<li>Contraste de cores insuficiente</li>
+<li>Form labels ausentes</li>
+<li>Headings fora de ordem (H1 → H3, pulou H2)</li>
+</ul>
+
+<p><strong>Validação:</strong></p>
+
+<ul>
+<li>[ ] Pa11y instalado</li>
+<li>[ ] Roda sem erro</li>
+<li>[ ] Identifica problemas reais</li>
+<li>[ ] Relatório HTML legível</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 30min setup
+<strong>Custo:</strong> $0
+<strong>Prioridade:</strong> BAIXA (se cliente precisa compliance)</p>
+
+<hr />
+
+<h3 id="tier4:opcional3h-4h"><strong>TIER 4: OPCIONAL (3h-4h)</strong></h3>
+
+<hr />
+
+<h4 id="18.eventtrackingga42h-baixo"><strong>18. Event Tracking GA4</strong> (2h) - BAIXO</h4>
+
+<p><strong>Objetivo:</strong> Rastrear conversões importantes</p>
+
+<p><strong>Eventos importantes:</strong></p>
+
+<ul>
+<li>Lead gerado (formulário enviado)</li>
+<li>Artigo baixado</li>
+<li>Contato via WhatsApp</li>
+<li>Tempo em página &gt; 3min (engajamento)</li>
+<li>Scroll 75% (leu até o fim)</li>
+</ul>
+
+<p><strong>Google Tag Manager (já instalado):</strong></p>
+
+<pre><code class="javascript">// Formulário enviado
+document.querySelector('form').addEventListener('submit', function() {
+    gtag('event', 'generate_lead', {
+        'event_category': 'engagement',
+        'event_label': 'contact_form'
+    });
+});
+
+// Download artigo
+gtag('event', 'file_download', {
+    'file_name': 'artigo-cientifico.pdf',
+    'file_extension': 'pdf'
+});
+
+// Scroll tracking
+var scrolled75 = false;
+window.addEventListener('scroll', function() {
+    var scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    if (scrollPercent &gt; 75 &amp;&amp; !scrolled75) {
+        scrolled75 = true;
+        gtag('event', 'scroll', {
+            'event_category': 'engagement',
+            'percent_scrolled': 75
+        });
+    }
+});
+</code></pre>
+
+<p><strong>Análise no GA4:</strong></p>
+
+<ul>
+<li>Quais páginas geram mais leads</li>
+<li>Qual origem (SEO, social, direct) converte melhor</li>
+<li>Funil: visita → scroll → formulário → conversão</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 2h dev
+<strong>Custo:</strong> $0
+<strong>Prioridade:</strong> MÉDIA (se foco em conversão)</p>
+
+<hr />
+
+<h4 id="19.cdncloudflare15min-baixo"><strong>19. CDN Cloudflare</strong> (15min) - BAIXO</h4>
+
+<p><strong>Objetivo:</strong> Cache global, proteção DDoS, SSL grátis</p>
+
+<p><strong>Quando vale a pena:</strong></p>
+
+<ul>
+<li>✅ Tráfego &gt; 5k visitas/dia</li>
+<li>✅ Usuários em regiões distantes do servidor</li>
+<li>✅ Muitas imagens/assets pesados</li>
+<li>❌ Site local (só SP, por exemplo)</li>
+</ul>
+
+<p><strong>Setup:</strong></p>
+
+<pre><code class="bash"># 1. cloudflare.com → Add site
+# 2. Mudar DNS do domínio pros nameservers do Cloudflare
+# 3. Configurar:
+#    - SSL/TLS: Full
+#    - Cache: Everything
+#    - Auto Minify: CSS, JS, HTML
+#    - Brotli: ON
+#    - Rocket Loader: ON (testar, pode quebrar JS)
+</code></pre>
+
+<p><strong>Estimativa:</strong> 15min setup
+<strong>Custo:</strong> $0/mês (plano Free)
+<strong>Prioridade:</strong> BAIXA (avaliar após tráfego crescer)</p>
+
+<hr />
+
+<h4 id="20.documentaçãocompleta2h-mÉdio"><strong>20. Documentação Completa</strong> (2h) - MÉDIO</h4>
+
+<p><strong>Objetivo:</strong> Docs para admin e desenvolvedores</p>
+
+<p><strong>Criar:</strong></p>
+
+<p><strong>Admin Guides:</strong></p>
+
+<ul>
+<li><code>docs/admin-guide/analytics.md</code> - Como ler métricas, glossário</li>
+<li><code>docs/admin-guide/seo-reports.md</code> - Interpretar GSC, Core Web Vitals</li>
+<li><code>docs/admin-guide/alerts.md</code> - Tipos de alerta, priorização</li>
+<li><code>docs/admin-guide/backup-restore.md</code> - Procedimento de emergência</li>
+</ul>
+
+<p><strong>Docs Técnicos:</strong></p>
+
+<ul>
+<li><code>.claude/integrations/google-analytics.md</code> - Setup, API, troubleshooting</li>
+<li><code>.claude/integrations/search-console.md</code> - Setup, queries, Core Web Vitals</li>
+<li><code>.claude/integrations/ai-reports.md</code> - Como funciona, customizar relatórios</li>
+<li><code>.claude/security/rate-limiting.md</code> - Configuração, whitelist, ajustes</li>
+<li><code>.claude/backup-restore-guide.md</code> - Restauração passo a passo</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 2h escrita + screenshots
+<strong>Prioridade:</strong> MÉDIO</p>
+
+<hr />
+
+<h4 id="21.testesend-to-end1h-mÉdio"><strong>21. Testes End-to-End</strong> (1h) - MÉDIO</h4>
+
+<p><strong>Objetivo:</strong> Validar que tudo funciona integrado</p>
+
+<p><strong>Checklist:</strong></p>
+
+<ul>
+<li>[ ] Backup roda e restaura corretamente</li>
+<li>[ ] Relatórios IA geram diariamente</li>
+<li>[ ] GA/GSC sincronizam dados</li>
+<li>[ ] Rate limiting bloqueia após X tentativas</li>
+<li>[ ] Security headers score A</li>
+<li>[ ] Sitemap.xml válido</li>
+<li>[ ] Logs estruturados funcionam</li>
+<li>[ ] Alertas disparam corretamente</li>
+</ul>
+
+<p><strong>Estimativa:</strong> 1h validação
+<strong>Prioridade:</strong> MÉDIO</p>
+
+<hr />
+
+<h2 id="🎯resultadofinalapós1mês">🎯 RESULTADO FINAL (Após 1 Mês)</h2>
+
+<pre><code>╔═══════════════════════════════════════════════════════════╗
+║         AEGIS Admin Dashboard - Visão Consolidada         ║
+╠═══════════════════════════════════════════════════════════╣
+║                                                           ║
+║  📊 ANALYTICS (Google Analytics 4)                        ║
+║    • Usuários: 1.240 hoje (↑ 8% vs ontem)               ║
+║    • Pageviews: 3.680 (↑ 12%)                           ║
+║    • Bounce rate: 42% (↓ 3%)                            ║
+║    • Gráfico últimos 7 dias                              ║
+║                                                           ║
+║  🔍 SEO (Google Search Console)                           ║
+║    • Cliques hoje: 520 (↑ 18%)                          ║
+║    • Posição média: 11.2 (↑ 0.8)                        ║
+║    • Top 5 queries + posições                            ║
+║    • Core Web Vitals: 85% páginas OK                     ║
+║                                                           ║
+║  ⚡ PERFORMANCE (PageSpeed Insights)                      ║
+║    • Score médio: 92/100                                 ║
+║    • 3 páginas precisam otimização                       ║
+║    • Tendência últimos 30 dias                           ║
+║                                                           ║
+║  🤖 RELATÓRIOS IA (Automáticos)                          ║
+║    • Último: 15/02 08:00 - ✅ 0 problemas críticos      ║
+║    • Histórico: 30 relatórios                            ║
+║    • Alertas: 2 avisos SEO                               ║
+║                                                           ║
+║  🚨 ALERTAS ATIVOS                                        ║
+║    • Uptime: 99.98% (7 dias)                            ║
+║    • Backup: ✅ Último em 15/02 03:00                   ║
+║    • Logs: 3 warnings (não críticos)                     ║
+║                                                           ║
+║  🔒 SEGURANÇA                                             ║
+║    • Rate limiting: 12 bots bloqueados hoje             ║
+║    • Security score: A (securityheaders.com)             ║
+║    • Backups: 30 dias disponíveis                        ║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
+</code></pre>
+
+<p><strong>Funcionalidades Ativas:</strong></p>
+
+<ul>
+<li>✅ Monitoramento 24/7 (uptime, métricas, SEO, performance)</li>
+<li>✅ Automação completa (backups, relatórios, alertas, syncs)</li>
+<li>✅ Segurança reforçada (rate limiting, headers, CSRF, sanitização)</li>
+<li>✅ Inteligência artificial (insights, oportunidades, cruzamento de dados)</li>
+<li>✅ Custo total: <strong>$0&#8211;0.12/mês</strong></li>
+</ul>
+
+<hr />
+
+<h2 id="💰estimativadecustos">💰 ESTIMATIVA DE CUSTOS</h2>
+
+<h3 id="custosrecorrentes:">Custos Recorrentes:</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Serviço </th>
+	<th> Plano </th>
+	<th> Custo/mês </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> Google Analytics API </td>
+	<td> Grátis (50k requests/dia) </td>
+	<td> $0 </td>
+</tr>
+<tr>
+	<td> Search Console API </td>
+	<td> Grátis (ilimitado) </td>
+	<td> $0 </td>
+</tr>
+<tr>
+	<td> PageSpeed Insights API </td>
+	<td> Grátis (25k requests/dia) </td>
+	<td> $0 </td>
+</tr>
+<tr>
+	<td> UptimeRobot </td>
+	<td> Free (50 monitores, 5min) </td>
+	<td> $0 </td>
+</tr>
+<tr>
+	<td> n8n </td>
+	<td> Self-hosted </td>
+	<td> $0 </td>
+</tr>
+<tr>
+	<td> Claude Code </td>
+	<td> Local (via Claude Pro) </td>
+	<td> $0 </td>
+</tr>
+<tr>
+	<td> Backup storage (Google Drive) </td>
+	<td> 15GB grátis </td>
+	<td> $0 </td>
+</tr>
+<tr>
+	<td> Backup storage (AWS S3) </td>
+	<td> <sub>5GB</sub> × $0.023/GB </td>
+	<td> $0.12 </td>
+</tr>
+<tr>
+	<td> Cloudflare CDN </td>
+	<td> Free plan </td>
+	<td> $0 </td>
+</tr>
+<tr>
+	<td> <strong>TOTAL</strong> </td>
+	<td> </td>
+	<td> <strong>$0&#8211;0.12/mês</strong> </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Por projeto/ano:</strong> $0&#8211;1.44</p>
+
+<p><strong>10 projetos/ano:</strong> $0&#8211;14.40 (vs $4.000&#8211;8.000 com WordPress + plugins)</p>
+
+<p><strong>Economia anual:</strong> ~$4.000&#8211;8.000</p>
+
+<hr />
+
+<h2 id="🎯cronogramasugerido">🎯 CRONOGRAMA SUGERIDO</h2>
+
+<h3 id="semana14-5h:">Semana 1 (4&#8211;5h):</h3>
+
+<ul>
+<li>✅ UptimeRobot (5min)</li>
+<li>✅ Security Headers (40min)</li>
+<li>✅ Backup automático (1&#8211;2h)</li>
+<li>✅ Relatórios IA (2&#8211;3h)</li>
+<li>✅ HTTPS/SSL (2min)</li>
+<li>✅ GTM/GA4 (3min)</li>
+<li>✅ robots.txt (5min)</li>
+<li>✅ PHPStan (10min)</li>
+</ul>
+
+<h3 id="semana212h-14h:">Semana 2 (12h-14h):</h3>
+
+<ul>
+<li>✅ Sitemap (30min)</li>
+<li>✅ Rate Limiting (2h)</li>
+<li>✅ Google Search Console API (5&#8211;6h)</li>
+<li>✅ Google Analytics API (4&#8211;5h)</li>
+</ul>
+
+<h3 id="semana36h-7h:">Semana 3 (6h-7h):</h3>
+
+<ul>
+<li>✅ Logger melhorado (3h)</li>
+<li>✅ Cruzamento de dados IA (2h)</li>
+<li>✅ PHP_CodeSniffer (15min)</li>
+<li>✅ Microsoft Clarity (10min)</li>
+<li>✅ Pa11y (30min)</li>
+</ul>
+
+<h3 id="semana43h-4h:">Semana 4 (3h-4h):</h3>
+
+<ul>
+<li>✅ Event Tracking GA4 (2h)</li>
+<li>✅ CDN Cloudflare (15min)</li>
+<li>✅ Documentação (2h)</li>
+<li>✅ Testes end-to-end (1h)</li>
+</ul>
+
+<p><strong>Total: <sub>25</sub>&#8211;30h em 1 mês</strong></p>
+
+<hr />
+
+<h2 id="🆚aegisvsalternativas">🆚 AEGIS vs ALTERNATIVAS</h2>
+
+<h3 id="wordpresspluginspremium">WordPress + Plugins Premium</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Feature </th>
+	<th> WordPress </th>
+	<th> AEGIS Framework </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>Analytics</strong> </td>
+	<td> Jetpack Stats ($14/mês) ou MonsterInsights ($99/ano) </td>
+	<td> GA integrado <strong>$0</strong> </td>
+</tr>
+<tr>
+	<td> <strong>SEO</strong> </td>
+	<td> Yoast Premium ($99/ano) ou RankMath Pro ($59/ano) </td>
+	<td> GSC integrado <strong>$0</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Backups</strong> </td>
+	<td> UpdraftPlus Premium ($70/ano) ou BackupBuddy ($80/ano) </td>
+	<td> n8n automático <strong>$0</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Uptime</strong> </td>
+	<td> Jetpack Monitor ($9/mês) ou ManageWP ($2/site) </td>
+	<td> UptimeRobot <strong>$0</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Performance</strong> </td>
+	<td> WP Rocket ($59/ano) ou NitroPack ($21/mês) </td>
+	<td> PageSpeed nativo <strong>$0</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Security</strong> </td>
+	<td> Wordfence Premium ($119/ano) ou Sucuri ($200/ano) </td>
+	<td> Headers + Rate limit <strong>$0</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Logs</strong> </td>
+	<td> Query Monitor (grátis mas básico) </td>
+	<td> Logger estruturado <strong>$0</strong> </td>
+</tr>
+<tr>
+	<td> <strong>Relatórios IA</strong> </td>
+	<td> Não existe </td>
+	<td> Sistema próprio <strong>$0</strong> </td>
+</tr>
+<tr>
+	<td> <strong>TOTAL/ano</strong> </td>
+	<td> <strong>~$400&#8211;800/ano por site</strong> </td>
+	<td> <strong>$0&#8211;6/ano</strong> </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Vantagens AEGIS:</strong></p>
+
+<ul>
+<li>✅ Tudo integrado (1 dashboard, não 10 plugins)</li>
+<li>✅ Não quebra entre updates</li>
+<li>✅ Leve (WP + plugins = 100MB+, AEGIS = 15MB)</li>
+<li>✅ Customizável 100%</li>
+<li>✅ Dados consolidados</li>
+<li>✅ <strong>Custo próximo de $0</strong></li>
+</ul>
+
+<hr />
+
+<h2 id="📊priorizaÇÃogeral">📊 PRIORIZAÇÃO GERAL</h2>
+
+<h3 id="🔴crÍticofazeragoraapóspagespeed:">🔴 CRÍTICO (fazer AGORA após PageSpeed):</h3>
+
+<ol>
+<li><strong>Uptime Monitoring</strong> (5min)</li>
+<li><strong>Backup Automático</strong> (1&#8211;2h)</li>
+<li><strong>Security Headers</strong> (40min)</li>
+</ol>
+
+<h3 id="🟠altofazeressasemana:">🟠 ALTO (fazer essa semana):</h3>
+
+<ol>
+<li><strong>Sistema de Relatórios IA</strong> (2&#8211;3h)</li>
+<li><strong>Rate Limiting</strong> (2h)</li>
+<li><strong>Sitemap Automático</strong> (30min)</li>
+<li><strong>Google Search Console</strong> (5&#8211;6h)</li>
+</ol>
+
+<h3 id="🟡mÉdiofazeressemês:">🟡 MÉDIO (fazer esse mês):</h3>
+
+<ol>
+<li><strong>Google Analytics</strong> (4&#8211;5h)</li>
+<li><strong>Logger Melhorado</strong> (3h)</li>
+<li><strong>Cruzamento de Dados</strong> (2h)</li>
+<li><strong>PHPStan</strong> (10min)</li>
+</ol>
+
+<h3 id="🟢baixoavaliarnecessidade:">🟢 BAIXO (avaliar necessidade):</h3>
+
+<ol>
+<li><strong>PHP_CodeSniffer</strong> (15min)</li>
+<li><strong>Microsoft Clarity</strong> (10min)</li>
+<li><strong>Pa11y</strong> (30min)</li>
+<li><strong>Event Tracking GA4</strong> (2h)</li>
+<li><strong>CDN Cloudflare</strong> (15min - só se tráfego alto)</li>
+</ol>
+
+<h3 id="⚪muitobaixobacklogfuturo:">⚪ MUITO BAIXO (backlog futuro):</h3>
+
+<ul>
+<li>A/B Testing</li>
+<li>Docker</li>
+<li>Multi-idioma</li>
+<li>PWA</li>
+<li>WebSockets</li>
+</ul>
+
+<hr />
+
+<h2 id="✅checklistdevalidaÇÃo">✅ CHECKLIST DE VALIDAÇÃO</h2>
+
+<h3 id="tier1:">TIER 1:</h3>
+
+<ul>
+<li>[ ] UptimeRobot ativo e alertando</li>
+<li>[ ] https://securityheaders.com score ≥ A</li>
+<li>[ ] Backup manual testado e restaurado</li>
+<li>[ ] Relatório IA gerado automaticamente</li>
+<li>[ ] HTTPS funcionando</li>
+<li>[ ] GTM/GA4 validado</li>
+<li>[ ] robots.txt acessível</li>
+<li>[ ] Sitemap.xml válido</li>
+<li>[ ] PHPStan rodando</li>
+</ul>
+
+<h3 id="tier2:">TIER 2:</h3>
+
+<ul>
+<li>[ ] Login bloqueado após X tentativas</li>
+<li>[ ] GSC sincronizando queries</li>
+<li>[ ] GA sincronizando métricas</li>
+<li>[ ] Core Web Vitals aparecem</li>
+<li>[ ] Widgets dashboard funcionando</li>
+</ul>
+
+<h3 id="tier3:">TIER 3:</h3>
+
+<ul>
+<li>[ ] Logs estruturados no banco</li>
+<li>[ ] IA cruza dados e detecta oportunidades</li>
+<li>[ ] PHP_CodeSniffer rodando</li>
+<li>[ ] Clarity gravando sessões</li>
+<li>[ ] Pa11y detecta problemas</li>
+</ul>
+
+<hr />
+
+<h2 id="💼impactoesperado">💼 IMPACTO ESPERADO</h2>
+
+<p><strong>Para você (desenvolvedor):</strong></p>
+
+<ul>
+<li>⏱️ <strong>Tempo economizado:</strong> 5&#8211;10h/mês</li>
+<li>💰 <strong>Custo economizado:</strong> $400&#8211;800/ano por projeto</li>
+<li>😌 <strong>Stress reduzido:</strong> Alertas proativos</li>
+<li>📈 <strong>Upsell:</strong> Mostra valor concreto</li>
+<li>🎯 <strong>Profissionalismo:</strong> Dashboard classe mundial</li>
+</ul>
+
+<p><strong>Para o cliente:</strong></p>
+
+<ul>
+<li>🚀 <strong>Site mais rápido:</strong> PageSpeed otimizado</li>
+<li>📊 <strong>Transparência:</strong> Métricas reais</li>
+<li>🔒 <strong>Segurança:</strong> Backups + proteção</li>
+<li>📈 <strong>Resultados:</strong> SEO melhorando</li>
+<li>💪 <strong>Confiança:</strong> Problemas resolvidos antes de afetar</li>
+</ul>
+
+<hr />
+
+<h2 id="🚨planoderollback">🚨 PLANO DE ROLLBACK</h2>
+
+<h3 id="seintegraçãogagscquebrarsite:">Se integração GA/GSC quebrar site:</h3>
+
+<pre><code class="php">// Comentar inclusão da classe no bootstrap:
+// require_once 'core/GoogleAnalytics.php';
+</code></pre>
+
+<p><strong>Tempo recuperação:</strong> &lt; 15min</p>
+
+<h3 id="sebackupfalhar:">Se backup falhar:</h3>
+
+<pre><code class="bash"># Backup manual imediato
+mysqldump -u user -p'pass' database | gzip &gt; manual-backup-$(date +%Y%m%d-%H%M).sql.gz
+tar -czf manual-files-$(date +%Y%m%d-%H%M).tar.gz /path/to/aegis
+</code></pre>
+
+<p><strong>Tempo recuperação:</strong> 30min</p>
+
+<h3 id="seratelimitingbloquearusuárioslegítimos:">Se rate limiting bloquear usuários legítimos:</h3>
+
+<pre><code class="sql">-- Limpar tabela para IP específico
+DELETE FROM rate_limits WHERE key_hash = SHA2('admin_login:192.168.1.100', 256);
+</code></pre>
+
+<p><strong>Tempo recuperação:</strong> 5min</p>
+
+<hr />
+
+<h2 id="✅conclusÃo">✅ CONCLUSÃO</h2>
+
+<p><strong>Sistema completo após todas as fases:</strong></p>
+
+<pre><code>AEGIS Framework v18+
+├─ Monitoramento Total
+│  ├─ Uptime (UptimeRobot - 5min intervals)
+│  ├─ Analytics (GA4 - tráfego, conversões, comportamento)
+│  ├─ SEO (Search Console - queries, posições, CWV)
+│  ├─ Performance (PageSpeed + CWV reais)
+│  └─ Logs estruturados (crítico, erro, warning, info)
+│
+├─ Automação Completa
+│  ├─ Backups diários (banco + arquivos, 30 dias histórico)
+│  ├─ Relatórios IA diários (insights, problemas, oportunidades)
+│  ├─ Alertas proativos (uptime, SEO, performance, segurança)
+│  └─ Sincronização de dados (GA, GSC, PageSpeed → MySQL)
+│
+├─ Segurança Reforçada
+│  ├─ Rate limiting (anti brute force, DDoS básico)
+│  ├─ Security headers (XSS, clickjacking, MIME sniff)
+│  ├─ CSRF protection (já tem)
+│  └─ Input sanitization (já tem)
+│
+├─ Admin Dashboard Poderoso
+│  ├─ Widgets ao vivo (GA + GSC + PageSpeed - cache 5min)
+│  ├─ Histórico de métricas (comparação temporal)
+│  ├─ Relatórios IA (últimos 30 dias, busca, filtros)
+│  ├─ Logs buscáveis (por level, data, usuário, URL)
+│  └─ Alertas centralizados (tudo em 1 lugar)
+│
+└─ SEO Otimizado
+   ├─ Sitemap automático (atualização semanal)
+   ├─ Core Web Vitals monitorados (LCP, FID, CLS)
+   ├─ Keywords tracking (posições, tendências)
+   └─ Oportunidades detectadas (IA analisa e sugere)
+</code></pre>
+
+<hr />
+
+<p><strong>Versão:</strong> 3.0.0 CONSOLIDADA
+<strong>Criado em:</strong> 15/02/2026
+<strong>Baseado em:</strong></p>
+
+<ul>
+<li><code>roadmap-melhorias.md</code> (2,252 linhas - visão estratégica)</li>
+<li><code>INSTALACAO-FERRAMENTAS-COMPLETA.md</code> (634 linhas - código prático)</li>
+</ul>
+
+<p><strong>Responsável:</strong> Claude (Guardião AEGIS)
+<strong>Status:</strong> ✅ Documento consolidado COMPLETO
+<strong>Próximo passo:</strong> Implementar TIER 1 (4&#8211;5h)</p>
+
+</body>
+</html>
+

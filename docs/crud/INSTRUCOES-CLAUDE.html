@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="🤖instruÇÕesdiretasparaclaude">🤖 INSTRUÇÕES DIRETAS PARA CLAUDE</h1>
+
+<h2 id="⚠️leiaistoantesdecriarqualquercrud">⚠️ LEIA ISTO ANTES DE CRIAR QUALQUER CRUD</h2>
+
+<hr />
+
+<h2 id="🚀primeiraaÇÃoobrigatÓria">🚀 PRIMEIRA AÇÃO OBRIGATÓRIA</h2>
+
+<p><strong>QUANDO usuário pedir &#8220;criar CRUD de X&#8221;:</strong></p>
+
+<pre><code>1. LER /docs/crud/INICIO-OBRIGATORIO.md (PRIMEIRO!)
+2. LER /docs/crud/guia-pratico.md (COMPLETO!)
+3. DEPOIS ler este arquivo (contexto adicional)
+</code></pre>
+
+<p><strong>NÃO comece a codificar sem ler os 3 arquivos nesta ordem.</strong></p>
+
+<hr />
+
+<h2 id="🚨regraabsoluta:opcional≠podepular">🚨 REGRA ABSOLUTA: &#8220;OPCIONAL&#8221; ≠ &#8220;PODE PULAR&#8221;</h2>
+
+<h3 id="❌nÃofaçaisso:">❌ <strong>NÃO faça isso:</strong></h3>
+
+<pre><code>User: &quot;Criar CRUD de banners exibido no frontend&quot;
+
+Claude:
+- Cria CRUD admin ✅
+- Chega no PASSO 11
+- Vê &quot;PASSO 11B (OPCIONAL)&quot;
+- Pensa: &quot;É opcional, vou pular&quot;
+- Vai direto para PASSO 12 ❌
+
+RESULTADO: ❌ ERRADO - Usuário pediu frontend!
+</code></pre>
+
+<h3 id="✅faÇaisso:">✅ <strong>FAÇA isso:</strong></h3>
+
+<pre><code>User: &quot;Criar CRUD de banners exibido no frontend&quot;
+
+Claude:
+- PASSO -2: Pergunta 6 → &quot;Sim, exibido no frontend&quot;
+- Define: $needs_frontend_display = True
+- Cria CRUD admin ✅
+- Chega no PASSO 11
+- Vê checkpoint obrigatório
+- Verifica flag = True
+- Pensa: &quot;Usuário pediu frontend, é obrigatório&quot;
+- Executa PASSO 11B completo ✅
+
+RESULTADO: ✅ CORRETO - Frontend criado automaticamente
+</code></pre>
+
+<hr />
+
+<h2 id="📋checklistobrigatÓrioparavocÊclaude">📋 CHECKLIST OBRIGATÓRIO PARA VOCÊ (CLAUDE)</h2>
+
+<h3 id="aoiniciarcriaçãodecrud:"><strong>Ao iniciar criação de CRUD:</strong></h3>
+
+<pre><code>[ ] Fazer todas as 6 perguntas do PASSO -2
+[ ] Anotar resposta da pergunta 6 (Display frontend?)
+[ ] Definir flag $needs_frontend_display baseado na resposta
+[ ] Guardar essa flag para usar no PASSO 11
+</code></pre>
+
+<h3 id="aochegarnopasso11:"><strong>Ao chegar no PASSO 11:</strong></h3>
+
+<pre><code>⛔ PARE AQUI - CHECKPOINT OBRIGATÓRIO
+
+[ ] Reler resposta da pergunta 6 do PASSO -2
+[ ] Verificar valor da flag $needs_frontend_display
+[ ] Aplicar lógica:
+
+    if $needs_frontend_display == True:
+        ❌ NÃO pular para PASSO 12
+        ✅ Executar PASSO 11B (OBRIGATÓRIO)
+        ✅ Fazer todos os 6 sub-passos:
+            - 11B.1: Controller frontend
+            - 11B.2: Partial reutilizável
+            - 11B.3: Preview no admin
+            - 11B.4: SASS
+            - 11B.5: Testes
+            - 11B.6: Documentação
+
+    else:
+        ❓ Perguntar ao usuário:
+           &quot;Deseja criar frontend display?&quot;
+
+        if usuário diz SIM:
+            ✅ Executar PASSO 11B
+        else:
+            ✅ Ir para PASSO 12
+</code></pre>
+
+<hr />
+
+<h2 id="🎯quandoaflagÉtrue">🎯 QUANDO A FLAG É TRUE?</h2>
+
+<pre><code class="python"># Flag vira True SE a resposta contém:
+
+$needs_frontend_display = (
+    &quot;sim&quot; in resposta.lower() or
+    &quot;yes&quot; in resposta.lower() or
+    &quot;frontend&quot; in resposta.lower() or
+    &quot;home&quot; in resposta.lower() or
+    &quot;página&quot; in resposta.lower() or
+    &quot;site&quot; in resposta.lower() or
+    &quot;público&quot; in resposta.lower()
+)
+
+# Exemplos que ativam a flag:
+&quot;Sim&quot; → True ✅
+&quot;Sim, na home&quot; → True ✅
+&quot;Exibido no frontend&quot; → True ✅
+&quot;Vai aparecer no site&quot; → True ✅
+&quot;Página sobre&quot; → True ✅
+
+# Exemplos que NÃO ativam:
+&quot;Não&quot; → False ✅
+&quot;Só admin&quot; → False ✅
+&quot;Apenas gerenciamento&quot; → False ✅
+</code></pre>
+
+<hr />
+
+<h2 id="🚩sistemade4flags">🚩 SISTEMA DE 4 FLAGS</h2>
+
+<pre><code class="python"># Você deve manter 4 flags durante todo o processo:
+
+$needs_upload = False
+$needs_ordering = False
+$needs_status = False
+$needs_frontend_display = False
+
+# REGRAS DE USO:
+
+# Flag 1: Upload
+if pergunta_5_upload == &quot;SIM&quot;:
+    $needs_upload = True
+    # → Executar PASSO 4B ao criar store()
+
+# Flag 2: Ordenação
+if pergunta_5_ordering == &quot;SIM&quot;:
+    $needs_ordering = True
+    # → Adicionar campo `order` na tabela
+    # → Adicionar ORDER BY `order` nas queries
+
+# Flag 3: Status
+if pergunta_5_status == &quot;SIM&quot;:
+    $needs_status = True
+    # → Adicionar campo `ativo` na tabela
+    # → Adicionar WHERE ativo=1 nas queries frontend
+
+# Flag 4: Frontend Display
+if pergunta_6 tem palavras-chave:
+    $needs_frontend_display = True
+    # → Executar PASSO 11B no final
+</code></pre>
+
+<hr />
+
+<h2 id="🔴erroscomunsecomoevitar">🔴 ERROS COMUNS E COMO EVITAR</h2>
+
+<h3 id="erro1:veropcionalepularsemverificar"><strong>ERRO 1: Ver &#8220;opcional&#8221; e pular sem verificar</strong></h3>
+
+<pre><code>❌ ERRADO:
+&quot;PASSO 11B (OPCIONAL)&quot; → Vou pular
+
+✅ CORRETO:
+&quot;PASSO 11B (OPCIONAL)&quot; → Verificar flag primeiro
+if flag == True → É obrigatório
+</code></pre>
+
+<h3 id="erro2:nãoreleropasso-2"><strong>ERRO 2: Não reler o PASSO -2</strong></h3>
+
+<pre><code>❌ ERRADO:
+Não lembro o que usuário respondeu → Vou pular
+
+✅ CORRETO:
+Reler pergunta 6 → Verificar resposta → Decidir baseado nisso
+</code></pre>
+
+<h3 id="erro3:nãodefinirasflags"><strong>ERRO 3: Não definir as flags</strong></h3>
+
+<pre><code>❌ ERRADO:
+Perguntei mas não guardei as respostas
+
+✅ CORRETO:
+Definir as 4 flags logo após PASSO -2
+Consultar essas flags nos passos seguintes
+</code></pre>
+
+<h3 id="erro4:pularsub-passosdo11b"><strong>ERRO 4: Pular sub-passos do 11B</strong></h3>
+
+<pre><code>❌ ERRADO:
+Fazer só 11B.1 e 11B.2 → Parar
+
+✅ CORRETO:
+Fazer TODOS os 6 sub-passos:
+- 11B.1 ✅
+- 11B.2 ✅
+- 11B.3 ✅
+- 11B.4 ✅
+- 11B.5 ✅
+- 11B.6 ✅
+</code></pre>
+
+<hr />
+
+<h2 id="📖interpretaÇÃodeopcional">📖 INTERPRETAÇÃO DE &#8220;OPCIONAL&#8221;</h2>
+
+<h3 id="❌interpretaçãoerrada:">❌ <strong>Interpretação ERRADA:</strong></h3>
+
+<pre><code>&quot;Opcional&quot; = Posso escolher não fazer
+&quot;Opcional&quot; = Depende do meu critério
+&quot;Opcional&quot; = Pular se quiser agilizar
+</code></pre>
+
+<h3 id="✅interpretaçãocorreta:">✅ <strong>Interpretação CORRETA:</strong></h3>
+
+<pre><code>&quot;Opcional&quot; = Depende da flag
+&quot;Opcional&quot; = Verificar resposta do usuário
+&quot;Opcional&quot; = Se flag=True, vira obrigatório
+&quot;Opcional&quot; = Sempre verificar antes de decidir
+</code></pre>
+
+<hr />
+
+<h2 id="🎓fluxocompletocorreto">🎓 FLUXO COMPLETO CORRETO</h2>
+
+<pre><code>1. PASSO -2: Coletar Requisitos
+   └─ Fazer 6 perguntas
+   └─ Definir 4 flags
+   └─ Guardar respostas
+
+2. PASSO -1 até PASSO 10: Criar CRUD
+   └─ Consultar flags quando necessário
+   └─ PASSO 4B: Só se $needs_upload = True
+
+3. PASSO 11: CRUD Admin Completo
+   └─ ⛔ PARAR AQUI - CHECKPOINT
+   └─ Verificar $needs_frontend_display
+   └─ if True:
+          └─ EXECUTAR PASSO 11B (6 sub-passos)
+      else:
+          └─ Perguntar ao usuário
+
+4. PASSO 12: Validação
+5. PASSO 13: Entregar
+</code></pre>
+
+<hr />
+
+<h2 id="🚀exemplopassoapasso">🚀 EXEMPLO PASSO A PASSO</h2>
+
+<h3 id="usuáriodiz:"><strong>Usuário diz:</strong></h3>
+
+<blockquote>
+<p>&#8220;Criar CRUD de banners hero que vão aparecer na home&#8221;</p>
+</blockquote>
+
+<h3 id="vocêdevefazer:"><strong>Você deve fazer:</strong></h3>
+
+<pre><code>PASSO -2:
+✅ Pergunta 1: Nome? → &quot;Banner Hero&quot;
+✅ Pergunta 2: Técnico? → &quot;BannerHero&quot;
+✅ Pergunta 3: Quem? → &quot;Admin geral&quot;
+✅ Pergunta 4: Campos? → [lista campos]
+✅ Pergunta 5: Comportamentos?
+   → Upload: SIM ($needs_upload = True)
+   → Ordenação: SIM ($needs_ordering = True)
+   → Status: SIM ($needs_status = True)
+✅ Pergunta 6: Frontend?
+   → Usuário disse &quot;aparecer na home&quot;
+   → 🚨 $needs_frontend_display = True
+
+PASSO -1 até PASSO 10:
+✅ Criar tabela
+✅ Criar controller admin
+✅ Criar views admin
+✅ Adicionar rotas
+✅ PASSO 4B executado (flag upload=True)
+
+PASSO 11:
+⛔ CHECKPOINT!
+✅ Verificar $needs_frontend_display
+✅ Flag = True
+✅ &quot;Usuário pediu frontend no PASSO -2&quot;
+✅ &quot;PASSO 11B é OBRIGATÓRIO&quot;
+✅ Executar 11B.1: Controller frontend
+✅ Executar 11B.2: Partial
+✅ Executar 11B.3: Preview
+✅ Executar 11B.4: SASS
+✅ Executar 11B.5: Testes
+✅ Executar 11B.6: Documentação
+
+PASSO 12:
+✅ Validação
+
+PASSO 13:
+✅ Entregar completo
+</code></pre>
+
+<hr />
+
+<h2 id="✅checklistfinalparavocÊclaude">✅ CHECKLIST FINAL PARA VOCÊ (CLAUDE)</h2>
+
+<pre><code>ANTES de pular PASSO 11B, verificar:
+
+[ ] Reli a resposta da pergunta 6 do PASSO -2?
+[ ] Verifiquei o valor da flag $needs_frontend_display?
+[ ] Se flag=True, executei PASSO 11B completo?
+[ ] Se flag=False, perguntei ao usuário antes de pular?
+[ ] Se executei 11B, fiz TODOS os 6 sub-passos?
+[ ] Não pulei nada por assumir que é &quot;opcional&quot;?
+
+SE TODOS ✅ → Pode ir para PASSO 12
+SE ALGUM ❌ → VOLTE e corrija
+</code></pre>
+
+<hr />
+
+<h2 id="🎯resumoem3regras">🎯 RESUMO EM 3 REGRAS</h2>
+
+<h3 id="regra1:"><strong>REGRA 1:</strong></h3>
+
+<p>Sempre definir flags no PASSO -2 baseado nas respostas</p>
+
+<h3 id="regra2:"><strong>REGRA 2:</strong></h3>
+
+<p>&#8220;Opcional&#8221; = Verificar flag, não = pular automaticamente</p>
+
+<h3 id="regra3:"><strong>REGRA 3:</strong></h3>
+
+<p>Se flag=True, passo &#8220;opcional&#8221; vira obrigatório</p>
+
+<hr />
+
+<h2 id="💬setiverdÚvidapergunte">💬 SE TIVER DÚVIDA, PERGUNTE</h2>
+
+<pre><code>❓ &quot;Usuário quer frontend?&quot; → Verifique flag
+❓ &quot;Devo fazer PASSO 11B?&quot; → Verifique flag
+❓ &quot;É opcional?&quot; → Sim, mas verifique flag primeiro
+❓ &quot;Posso pular?&quot; → Só se flag=False E usuário confirmar
+</code></pre>
+
+<hr />
+
+<p><strong>IMPORTANTE:</strong></p>
+
+<p>Estas instruções substituem qualquer interpretação implícita de &#8220;opcional&#8221;.
+Sempre que ver &#8220;opcional&#8221; no guia, lembre-se:</p>
+
+<ol>
+<li>Verificar a flag correspondente</li>
+<li>Se flag=True → É obrigatório</li>
+<li>Se flag=False → Perguntar ao usuário</li>
+</ol>
+
+<p><strong>Não decida sozinho. Verifique as flags.</strong></p>
+
+<hr />
+
+<p><strong>Criado:</strong> 2026&#8211;02&#8211;14
+<strong>Para:</strong> Claude (Anthropic)
+<strong>Contexto:</strong> Melhorias no guia-pratico.md
+<strong>Versão:</strong> 2.0</p>
+
+</body>
+</html>
+

@@ -1,0 +1,39 @@
+<?php
+/**
+ * {{CLASS_NAME}}
+ * Middleware para {{DESCRIPTION}}
+ *
+ * @example
+ * // Registrar no Middleware.php
+ * Router::middleware('{{SLUG}}', [{{CLASS_NAME}}::class, 'handle']);
+ *
+ * // Usar nas rotas
+ * Router::get('/rota', 'Controller@method')->middleware('{{SLUG}}');
+ */
+
+class {{CLASS_NAME}} {
+
+    /**
+     * Executar middleware
+     *
+     * @param callable $next Próximo middleware/controller
+     * @return mixed
+     */
+    public static function handle($next) {
+        // Lógica ANTES de executar a rota
+        // Exemplo: verificações, autenticação, logging
+
+        // Se quiser bloquear a requisição:
+        // http_response_code(403);
+        // echo "Acesso negado";
+        // return;
+
+        // Continuar para próximo middleware/controller
+        $response = $next();
+
+        // Lógica DEPOIS de executar a rota (opcional)
+        // Exemplo: modificar headers, logging de resposta
+
+        return $response;
+    }
+}

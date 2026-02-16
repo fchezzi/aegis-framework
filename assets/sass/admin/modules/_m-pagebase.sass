@@ -1,0 +1,718 @@
+// ============================================
+// MÓDULO: Páginas Admin
+// Gerenciamento de pagebase do sistema
+// ============================================
+
+@use 'sass:color'
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+
+body.m-pagebasebody
+  font-family: $font-text
+
+.m-pagebase
+  padding: 50px
+  background: white
+
+  &__exibition
+    margin: 50px 0
+
+    h2
+      font-size: 20px
+      font-weight: 700
+      color: $gray-50
+      font-family: $font-title  
+
+    p
+      font-size: 15px        
+      color: $gray-80
+
+    &--code
+      background: $gray-10
+      padding: 15px
+      border-radius: 3px
+      font-size: 12px
+      font-family: 'Monaco', 'Courier New', monospace
+      margin: 15px 0 0 0
+      @include flex(row, center, space-between, wrap)
+
+      &--sm
+        font-size: 12px       
+
+  &__back
+    color: $color-main
+    text-decoration: none
+    margin-bottom: 10px
+    display: inline-block
+    font-family: $font-text
+    @include transition()
+
+    &:hover
+      opacity: 0.8
+
+  &__header
+    padding: 0px 0 10px 0
+    margin-bottom: 40px
+    @include flex(row, center, space-between, nowrap)
+    border-bottom: 2px solid $gray-10
+    position: relative
+
+    &::after
+      content: ''
+      position: absolute
+      bottom: -2px
+      left: 0
+      width: 80px
+      height: 2px
+      background: $gradient-main
+
+    h1
+      font-size: 25px
+      font-weight: 700
+      color: $gray-50
+      font-family: $font-title
+     
+
+  &__filters
+    margin-bottom: 30px
+    background: $gray-05
+    padding: 20px
+    border-radius: $radius-md
+    font-family: $font-text
+
+  &__filters-group
+    @include flex(row, center, flex-start, wrap)
+    gap: 10px
+
+  &__filters-input
+    flex: 1
+    min-width: 250px
+    padding: 10px 14px
+    border: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    @include transition()
+
+    &:focus
+      outline: none
+      box-shadow: 0 0 0 2px $color-main
+
+    &::placeholder
+      color: $gray-30
+
+  &__filters-select
+    padding: 10px 14px
+    border: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    cursor: pointer
+    @include transition()
+
+    &:focus
+      outline: none
+      box-shadow: 0 0 0 2px $color-main
+
+  &__filters-btn
+    background: $color-main
+    color: white
+    padding: 10px 20px
+    border: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    cursor: pointer
+    @include flex(row, center, center, nowrap)
+    gap: 6px
+    @include transition()
+
+    &:hover
+      opacity: 0.9
+
+    svg
+      width: 16px
+      height: 16px
+      stroke-width: 2.5
+
+  &__filters-clear
+    background: $gray-50
+    color: white
+    padding: 10px 20px
+    text-decoration: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    @include flex(row, center, center, nowrap)
+    gap: 6px
+    @include transition()
+
+    &:hover
+      opacity: 0.9
+
+    svg
+      width: 16px
+      height: 16px
+      stroke-width: 2.5
+
+  &__btn
+    background: $color-main
+    color: white
+    padding: 10px 20px
+    text-decoration: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    line-height: 1
+    @include flex(row,center, center, nowrap)
+    width: 85px
+    border: none
+    cursor: pointer
+    @include transition()
+
+    &:hover
+      opacity: 0.9
+
+    &--sm
+      padding: 5px 10px
+      font-size: 11px
+      margin-right: 0
+      line-height: 1
+      vertical-align: middle
+      width: auto
+
+      svg
+        width: 14px
+        height: 14px
+        margin-right: 4px
+
+    &--view
+      background: #3498db
+
+    &--edit
+      background: #f39c12
+
+    &--builder
+      background: #9b59b6
+
+    &--danger
+      background: #e74c3c
+
+    svg
+      width: 16px
+      height: 16px
+      stroke-width: 2.5
+      flex-shrink: 0
+      margin: 0 4px 0 0
+
+    &--widthauto
+      width: auto !important
+      white-space: nowrap
+
+    &--mleft
+      margin: 0 0 0 10px
+
+  &__table
+    width: 100%
+    background: white
+    border-radius: $radius-md
+    overflow: hidden
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    font-family: $font-text
+    font-size: 13px
+    table-layout: fixed
+
+    th, td
+      padding: 10px 12px
+      text-align: left
+      border-bottom: 1px solid $gray-10
+      overflow: hidden
+      text-overflow: ellipsis
+      white-space: nowrap
+      vertical-align: middle
+
+    th
+      background: $color-main
+      color: white
+      font-weight: 600
+      font-family: $font-text
+      font-size: 13px
+
+    tr:hover
+      background: $gray-05
+
+    th:first-child, td:first-child
+      width: 20%
+
+    th:nth-child(2), td:nth-child(2)
+      width: 80px
+
+    th:nth-child(3), td:nth-child(3)
+      width: 120px
+
+    th:nth-child(4), td:nth-child(4)
+      width: auto
+
+    th:nth-child(5), td:nth-child(5)
+      width: 100px
+
+    th:nth-child(6), td:nth-child(6)
+      width: 90px
+
+    th:last-child, td:last-child
+      width: 320px
+      white-space: normal
+      overflow: visible
+      text-overflow: clip
+
+  &__table-sortable
+    a
+      color: white
+      text-decoration: none
+      @include flex(row, center, flex-start, nowrap)
+      gap: 6px
+      cursor: pointer
+      @include transition()
+
+      &:hover
+        opacity: 0.8
+
+      svg
+        width: 14px
+        height: 14px
+        stroke-width: 2.5
+        flex-shrink: 0
+
+  &__thumb
+    width: 60px
+    height: 45px
+    object-fit: cover
+    border-radius: $radius-sm
+    display: block
+
+  &__empty
+    text-align: center
+    padding: 40px
+    color: $gray-50
+    font-family: $font-text
+
+    p
+      margin-top: 10px
+
+  &__code
+    background: $gray-10
+    padding: 2px 6px
+    border-radius: 3px
+    font-size: 12px
+    font-family: 'Monaco', 'Courier New', monospace
+
+    &--sm
+      font-size: 12px
+
+  &__meta
+    color: $gray-60
+    font-size: 13px
+
+  &__badge
+    display: inline-block
+    padding: 3px 8px
+    border-radius: 3px
+    font-size: 11px
+    font-weight: 600
+    margin-left: 8px
+    font-family: $font-text
+
+    &--core
+      background: $color-main
+      color: white
+
+    &--custom
+      background: $gray-50
+      color: white
+
+    &--danger
+      background: #e74c3c
+      color: white
+
+    &--success
+      background: #3498db
+      color: white
+
+    &--inactive
+      background: #95a5a6
+      color: white
+
+  &__warning
+    color: #e74c3c
+    margin-left: 8px
+    font-family: $font-text
+
+  &__actions
+    @include flex(row, center, flex-start, nowrap)
+    gap: 6px
+    min-height: 66px
+
+    form
+      display: inline
+      margin: 0
+
+  &__pagination
+    @include flex(row, center, center, nowrap)
+    margin-top: 30px
+    gap: 10px
+    font-family: $font-text
+
+  &__pagination-btn
+    background: $color-main
+    color: white
+    padding: 10px 16px
+    text-decoration: none
+    border-radius: $radius-sm
+    font-size: 14px
+    @include flex(row, center, center, nowrap)
+    gap: 6px
+    @include transition()
+
+    &:hover
+      opacity: 0.9
+
+    svg
+      width: 16px
+      height: 16px
+      stroke-width: 2.5
+
+  &__pagination-numbers
+    @include flex(row, center, center, nowrap)
+    gap: 5px
+
+  &__pagination-number
+    padding: 8px 12px
+    text-decoration: none
+    border-radius: $radius-sm
+    font-size: 14px
+    color: $gray-50
+    background: white
+    border: 1px solid $gray-10
+    @include transition()
+    min-width: 40px
+    text-align: center
+
+    &:hover
+      background: $gray-05
+      border-color: $color-main
+
+    &--active
+      background: $color-main
+      color: white
+      border-color: $color-main
+      font-weight: 600
+
+  &__pagination-ellipsis
+    padding: 8px 4px
+    color: $gray-50
+    font-size: 14px
+
+  // Formulários
+  &__form-container
+    background: white
+    border-radius: $radius-md
+    padding: 30px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    max-width: 700px
+    margin: 0 auto
+
+  &__info
+    background: #f3e5f5
+    padding: 15px
+    border-radius: $radius-sm
+    margin-bottom: 30px
+    font-size: 14px
+    font-family: $font-text
+    line-height: 1.6
+
+  &__form
+    font-family: $font-text
+
+  &__form-group
+    margin-bottom: 25px
+
+  &__form-label
+    display: block
+    margin-bottom: 10px
+    font-weight: normal
+    color: $gray-70
+    font-size: 16px
+    font-family: $font-text
+
+  &__section-title
+    font-size: 18px
+    font-weight: 700
+    color: $color-main
+    font-family: $font-title
+    margin-bottom: 15px
+    padding-bottom: 12px
+    border-bottom: 2px solid $gray-10
+    position: relative
+
+    &::after
+      content: ''
+      position: absolute
+      bottom: -2px
+      left: 0
+      width: 60px
+      height: 2px
+      background: $gradient-main
+
+    &--spaced
+      margin-top: 50px
+
+  &__form-input
+    width: 100%
+    padding: 12px 14px
+    border: none
+    border-radius: $radius-sm !important
+    font-size: 14px
+    font-family: $font-text
+    background: $gray-05
+    @include transition()
+
+    &:focus
+      outline: none
+      box-shadow: 0 0 0 2px $color-main
+
+    &::placeholder
+      color: $gray-30
+
+  &__form-textarea
+    width: 100%
+    padding: 12px 14px
+    border: none
+    border-radius: $radius-sm !important
+    font-size: 14px
+    font-family: $font-text
+    background: $gray-05
+    resize: vertical
+    min-height: 100px
+    box-sizing: border-box
+    @include transition()
+
+    &:focus
+      outline: none
+      box-shadow: 0 0 0 2px $color-main
+
+    &::placeholder
+      color: $gray-30
+
+  &__form-select
+    width: 100%
+    padding: 12px 14px
+    border: none
+    border-radius: $radius-sm !important
+    font-size: 14px
+    font-family: $font-text
+    background: $gray-05
+    cursor: pointer
+    @include transition()
+
+    &:focus
+      outline: none
+      box-shadow: 0 0 0 2px $color-main
+
+  &__form-checkbox
+    display: flex
+    align-items: center
+    gap: 10px
+    font-weight: normal
+    color: $gray-50
+    font-size: 14px
+    cursor: pointer
+    font-family: $font-text
+    margin-bottom: 10px
+
+    input[type="checkbox"]
+      cursor: pointer
+
+  &__form-help
+    font-size: 14px
+    color: $gray-70
+    margin-top: 6px
+    margin-bottom: 25px
+    font-family: $font-text
+    line-height: 1.4
+
+  &__form-file
+    width: 100%
+    padding: 12px 14px
+    border: none
+    border-radius: $radius-sm !important
+    font-size: 14px
+    font-family: $font-text
+    background: $gray-05
+    cursor: pointer
+    @include transition()
+
+    &:focus
+      outline: none
+      box-shadow: 0 0 0 2px $color-main
+
+  &__form-preview
+    margin-top: 15px
+    padding: 15px
+    background: $gray-05
+    border-radius: $radius-sm
+
+    strong
+      display: block
+      margin-bottom: 10px
+      color: $gray-70
+      font-size: 14px
+
+  &__form-preview-img
+    max-width: 200px
+    border-radius: $radius-sm
+    display: block
+    margin-top: 10px
+
+  &__form-file-current
+    margin-top: 15px
+    padding: 15px
+    background: $gray-05
+    border-radius: $radius-sm
+
+    strong
+      display: block
+      margin-bottom: 10px
+      color: $gray-70
+      font-size: 14px
+
+    a
+      color: $color-main
+      text-decoration: none
+      display: inline-flex
+      align-items: center
+      gap: 6px
+      @include transition()
+
+      &:hover
+        opacity: 0.8
+
+      i
+        width: 16px
+        height: 16px
+
+  &__form-actions
+    @include flex(row, center, flex-start, wrap)
+    gap: 15px
+    margin-top: 35px
+    padding-top: 25px
+    border-top: 1px solid $gray-10
+
+  &__btn-secondary
+    background: $gray-50
+    color: white
+    padding: 10px 20px
+    text-decoration: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    @include flex(row, center, center, nowrap)
+    gap: 6px
+    @include transition()
+
+    &:hover
+      opacity: 0.9
+
+    svg
+      width: 16px
+      height: 16px
+      stroke-width: 2.5
+
+  &__widthsettings
+    max-width: 100% !important
+
+  // SEO Widget
+  &__seo-widget
+    margin-bottom: 30px
+
+  &__seo-card
+    background: white
+    padding: 25px
+    border-radius: $radius-md
+    margin-bottom: 20px
+    border: 2px solid $gray-10
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05)
+
+    &--primary
+      border-color: $color-main
+      border-width: 2px
+
+  &__seo-card-title
+    font-size: 16px
+    font-weight: 700
+    color: $color-main
+    font-family: $font-title
+    margin-bottom: 20px
+    padding-bottom: 10px
+    border-bottom: 2px solid $gray-10
+    display: block
+
+  &__seo-score-box
+    @include flex(row, center, space-between, wrap)
+    background: linear-gradient(135deg, $color-main 0%, color.adjust($color-main, $lightness: -10%) 100%)
+    padding: 25px
+    border-radius: $radius-md
+    margin-bottom: 20px
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
+    gap: 15px
+
+  &__seo-score-label
+    font-size: 14px
+    font-weight: 600
+    color: white
+    font-family: $font-text
+    text-transform: uppercase
+    letter-spacing: 0.5px
+    opacity: 0.9
+
+  &__seo-score-value
+    font-size: 56px
+    font-weight: 700
+    color: white
+    font-family: $font-title
+    line-height: 1
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)
+
+  &__seo-score-grade
+    font-size: 40px
+    font-weight: 700
+    color: white
+    font-family: $font-title
+    background: rgba(255, 255, 255, 0.2)
+    padding: 5px 15px
+    border-radius: $radius-sm
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)
+
+  &__seo-score-desc
+    font-size: 14px
+    color: white
+    font-family: $font-text
+    flex: 1 1 100%
+    text-align: center
+    opacity: 0.95
+    font-weight: 500
+
+
+.seo-counter
+    font-weight: 600
+    color: $gray-50
+    margin-right: 15px
+    font-size: 13px
+
+.seo-status
+    font-weight: 600
+    font-size: 13px

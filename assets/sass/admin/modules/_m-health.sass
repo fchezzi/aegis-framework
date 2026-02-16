@@ -1,0 +1,128 @@
+// ====================================
+// Health Check - Sistema de Diagnóstico
+// ====================================
+
+// Score Card - Card de pontuação geral
+.health-score
+  text-align: center
+  padding: 40px
+
+  &__number
+    font-size: 72px
+    font-weight: 700
+    margin-bottom: 10px
+    line-height: 1
+
+  &__label
+    font-size: 18px
+    color: #666
+    margin-bottom: 15px
+    font-weight: 500
+
+  &__detail
+    font-size: 14px
+    color: #999
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 8px
+
+    i
+      width: 16px
+      height: 16px
+
+  // Variantes de cor por status
+  &--success
+    .health-score__number
+      color: #667eea
+
+  &--warning
+    .health-score__number
+      color: #ffc107
+
+  &--danger
+    .health-score__number
+      color: #dc3545
+
+// Section Title
+.health-section__title
+  color: #667eea
+  margin-bottom: 20px
+  font-size: 18px
+  font-weight: 600
+
+// Espaçamento maior entre categorias principais
+.health-score + .m-pagebase__card
+  margin-top: 60px
+
+.m-pagebase__card + .m-pagebase__card
+  margin-top: 50px
+
+// Container de testes
+.health-tests
+  display: flex
+  flex-direction: column
+  gap: 10px
+
+// Item de teste individual
+.health-test
+  padding: 15px
+  border-radius: 6px
+  border: 1px solid #e9ecef
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 15px
+
+  &__content
+    flex: 1
+
+  &__name
+    font-weight: 600
+    color: #333
+    font-size: 14px
+    display: flex
+    align-items: center
+    gap: 8px
+    margin-bottom: 5px
+
+    i
+      width: 18px
+      height: 18px
+
+  &__message
+    font-size: 13px
+    color: #666
+    line-height: 1.4
+
+  &__badge
+    display: inline-block
+    padding: 6px 14px
+    border-radius: 4px
+    font-size: 12px
+    font-weight: 700
+    text-transform: uppercase
+    letter-spacing: 0.5px
+
+    &--success
+      background: #4c63d2
+      color: white
+
+    &--error
+      background: #dc3545
+      color: white
+
+  // Variantes de cor por status
+  &--success
+    background: #f0f3ff
+    border-color: #dce3ff
+
+    .health-test__name i
+      color: #667eea
+
+  &--error
+    background: #f8d7da
+    border-color: #f5c6cb
+
+    .health-test__name i
+      color: #dc3545

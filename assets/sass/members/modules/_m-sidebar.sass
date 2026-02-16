@@ -1,0 +1,170 @@
+// Sidebar Module
+// Menu collapsible com ícones Lucide
+
+
+
+
+
+@use 'sass:color'
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+
+.m-sidebar
+	width: 100%
+	height: 100%
+
+	// Textos que somem no collapse
+	.menu-text
+		transition: opacity 0.5s ease, visibility 0.5s ease
+
+	&__toggle
+		background: none
+		border: none
+		color: white
+		cursor: pointer
+		display: flex
+		align-items: center
+		transition: transform 0.3s ease
+
+		&:hover
+			transform: scale(1.1)
+
+		svg
+			width: 20px
+			height: 20px
+
+		// Hide on mobile
+		@include responsive-max($tabletSmall)
+			display: none
+
+	&__menu
+		padding: 10px 0
+
+// MENU ITEM
+.menu-item
+	position: relative
+	margin: 0 0 5px 0
+
+	&__link
+		display: flex
+		align-items: center
+		padding: 15px 20px
+		color: rgba(255,255,255,0.8)
+		transition: all 0.3s ease
+		cursor: pointer
+
+		&:hover
+			background: rgba(255, 255, 255, 0.1)
+			color: white
+			border-radius: 7px
+
+		svg
+			width: 20px
+			height: 20px
+			flex-shrink: 0
+
+	&__content
+		flex: 1
+		display: flex
+		align-items: center
+		justify-content: space-between
+		gap: 10px
+
+	&__text
+		font-size: 14px
+		font-weight: 500
+		margin: 0 0 0 12px
+
+	&__arrow
+		width: 16px
+		height: 16px
+		transition: transform 0.3s ease
+
+	// Active state
+	&--active
+		> .menu-item__link
+			background: rgba(255,255,255,0.1)
+			color: white
+			border-left: 3px solid #5b1d5c
+
+			body:not(.dark) &
+				border-left: 3px solid #ff6201
+
+	// Open state (submenu expanded)
+	&--open
+		.menu-item__arrow
+			transform: rotate(90deg)
+
+// SUBMENU
+.submenu
+	list-style: none
+	margin: 0
+	padding: 0
+	max-height: 0
+	overflow: hidden
+	transition: max-height 0.3s ease
+
+	&--open
+		max-height: 500px
+
+	&__item
+		padding-left: 25px
+
+	&__icon
+		margin: 0 15px 0 0
+		width: 20px
+		height: 20px
+
+	&__item a
+			display: flex
+			padding: 10px 20px
+			color: rgba(255,255,255,0.7)
+			text-decoration: none
+			font-size: 14px
+			transition: all 0.3s ease
+			position: relative
+
+			&:hover
+				color: white
+				padding-left: 15px
+
+			&.active
+				color: white
+				font-weight: 600
+				padding-left: 25px
+
+				&::before
+					content: ''
+					position: absolute
+					left: 0
+					top: 50%
+					transform: translateY(-50%)
+					width: 3px
+					height: 20px
+					background: #5b1d5c
+					border-radius: 2px
+
+					body:not(.dark) &
+						background: #ff6201
+
+// Mobile overlay backdrop
+.sidebar-backdrop
+	display: none
+	position: fixed
+	top: 120px
+	left: 0
+	width: 100%
+	height: calc(100vh - 120px)
+	background: rgba(0,0,0,0.5)
+	z-index: 997
+	opacity: 0
+	transition: opacity 0.3s ease
+
+	&--active
+		display: block
+		opacity: 1
+
+	@include responsive-max($tabletSmall)
+		display: block

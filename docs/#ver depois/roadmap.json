@@ -1,0 +1,264 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-11-23T15:30:00Z",
+    "description": "Project roadmap - what to do next"
+  },
+  "inProgress": [],
+  "next": [],
+  "backlog": [
+    {
+      "id": "task-101",
+      "priority": "medium",
+      "title": "Sistema de testes automatizados",
+      "description": "Criar suite de testes (PHPUnit) para componentes críticos: DB, Cache, Security, Permission.",
+      "component": "tests/",
+      "estimatedEffort": "8h",
+      "tags": ["testing", "quality"],
+      "notes": "Arquivo TESTING.md existe mas não há testes implementados"
+    },
+    {
+      "id": "task-102",
+      "priority": "low",
+      "title": "Dashboard de analytics para admin",
+      "description": "Estatísticas de uso: páginas mais acessadas, usuários ativos, queries lentas, cache hit rate.",
+      "component": "admin/analytics.php",
+      "estimatedEffort": "4h",
+      "tags": ["feature", "admin"]
+    },
+    {
+      "id": "task-103",
+      "priority": "low",
+      "title": "Exportação de dados para Excel/CSV",
+      "description": "Permitir exportar relatórios (palpites, resultados, rankings) para Excel.",
+      "component": "modules/palpites/export.php",
+      "estimatedEffort": "3h",
+      "tags": ["feature", "palpites"]
+    },
+    {
+      "id": "task-104",
+      "priority": "low",
+      "title": "API REST pública para frontend",
+      "description": "Criar endpoints REST para consumir dados no frontend (sem precisar PHP inline).",
+      "component": "api/",
+      "estimatedEffort": "6h",
+      "tags": ["api", "architecture"]
+    },
+    {
+      "id": "task-105",
+      "priority": "low",
+      "title": "Sistema de notificações (email/push)",
+      "description": "Notificar usuários sobre novos conteúdos, resultados, etc.",
+      "component": "core/Notification.php",
+      "estimatedEffort": "5h",
+      "tags": ["feature", "engagement"]
+    },
+    {
+      "id": "task-106",
+      "priority": "low",
+      "title": "Suporte a múltiplos idiomas (i18n)",
+      "description": "Internacionalização do framework e admin.",
+      "component": "core/I18n.php",
+      "estimatedEffort": "10h",
+      "tags": ["feature", "i18n"]
+    },
+    {
+      "id": "task-107",
+      "priority": "low",
+      "title": "Modo de manutenção",
+      "description": "Flag para colocar site em manutenção sem tirar do ar.",
+      "component": "core/Maintenance.php",
+      "estimatedEffort": "1h",
+      "tags": ["feature", "admin"]
+    }
+  ],
+  "blocked": [],
+  "completed": [
+    {
+      "id": "done-001",
+      "title": "Correção de N+1 queries no MenuBuilder",
+      "completedAt": "2025-01-20",
+      "impact": "28x faster (700ms → 25ms)",
+      "changelog": "2025-01-20-performance-menubuilder"
+    },
+    {
+      "id": "done-002",
+      "title": "Correção de SQL Injection em PalpitesController",
+      "completedAt": "2025-01-20",
+      "impact": "Security critical + 2-3x faster",
+      "changelog": "2025-01-20-security-sql-injection"
+    },
+    {
+      "id": "done-003",
+      "title": "Correção de XSS em ContentController",
+      "completedAt": "2025-01-20",
+      "impact": "Security critical",
+      "changelog": "2025-01-20-security-xss"
+    },
+    {
+      "id": "done-004",
+      "title": "Correção de Object Injection em Cache",
+      "completedAt": "2025-01-20",
+      "impact": "Security critical",
+      "changelog": "2025-01-20-security-object-injection"
+    },
+    {
+      "id": "done-005",
+      "title": "Sistema de auto-versionamento",
+      "completedAt": "2025-01-18",
+      "impact": "Versionamento consistente e automático",
+      "changelog": "2025-01-18-feature-auto-versioning"
+    },
+    {
+      "id": "done-006",
+      "title": "Remoção do sistema de Migrations (redundante)",
+      "completedAt": "2025-01-18",
+      "impact": "Arquitetura simplificada",
+      "changelog": "2025-01-18-architecture-remove-migrations"
+    },
+    {
+      "id": "done-007",
+      "title": "Project Memory System",
+      "completedAt": "2025-01-20",
+      "impact": "Claude consegue se localizar em qualquer sessão",
+      "changelog": null
+    },
+    {
+      "id": "done-008",
+      "title": "Migração de documentação para Obsidian",
+      "completedAt": "2025-01-20",
+      "impact": "26 arquivos organizados, projeto mais limpo",
+      "changelog": null
+    },
+    {
+      "id": "done-009",
+      "title": "Limpeza de 37 arquivos desnecessários",
+      "completedAt": "2025-01-20",
+      "impact": "405 KB recuperados, 1199 linhas removidas",
+      "changelog": "2025-01-20-cleanup-files"
+    },
+    {
+      "id": "done-010",
+      "title": "Implementar upload de arquivo em ContentController",
+      "completedAt": "2025-01-21",
+      "impact": "Security critical - 7 layers of protection, file upload attack vector eliminated",
+      "changelog": "2025-01-21-security-file-upload"
+    },
+    {
+      "id": "done-011",
+      "title": "Implementar cache em ModuleManager::getInstalled()",
+      "completedAt": "2025-01-21",
+      "impact": "Performance: 45x faster per request (5ms → 0.11ms), 2-level cache implemented",
+      "changelog": "2025-01-21-performance-modulemanager"
+    },
+    {
+      "id": "done-012",
+      "title": "Criar codebase-map.json (mapa de dependências)",
+      "completedAt": "2025-01-20",
+      "impact": "147 PHP files mapped with complete dependency graph",
+      "changelog": null
+    },
+    {
+      "id": "done-013",
+      "title": "Criar sessions.json (log de sessões Claude)",
+      "completedAt": "2025-01-20",
+      "impact": "Session logging system with 4 sessions documented",
+      "changelog": null
+    },
+    {
+      "id": "done-014",
+      "title": "Adicionar connection pooling no MySQLAdapter",
+      "completedAt": "2025-01-21",
+      "impact": "Performance: 2-5ms saved per request (connection reuse, no handshake overhead)",
+      "changelog": "2025-01-21-performance-mysql-pooling"
+    },
+    {
+      "id": "done-015",
+      "title": "Validação completa MySQL SEM members (DEV + PROD)",
+      "completedAt": "2025-11-22",
+      "impact": "Stack MySQL + no members 100% validada em produção. 7 bugs corrigidos (schemas, auto-public, module_name)",
+      "changelog": "2025-11-22-validation-mysql-no-members"
+    },
+    {
+      "id": "done-016",
+      "title": "Validação completa MySQL COM members (DEV)",
+      "completedAt": "2025-11-22",
+      "impact": "Sistema de groups/members/permissions 100% funcional. Módulos, páginas e menu respeitam permissões corretamente",
+      "changelog": "2025-11-22-validation-mysql-with-members"
+    },
+    {
+      "id": "done-017",
+      "title": "Validação completa MySQL COM members (PRODUÇÃO)",
+      "completedAt": "2025-11-22",
+      "impact": "Stack MySQL + members 100% validada em produção. Groups, members, permissions, módulos - tudo funcionando. Issue #8 documentado (pasta /public)",
+      "changelog": "2025-11-22-validation-mysql-with-members-prod"
+    },
+    {
+      "id": "done-018",
+      "title": "Validação completa Supabase SEM members (DEV)",
+      "completedAt": "2025-11-22",
+      "impact": "Stack Supabase sem members 100% funcional. Instalação, páginas, módulos, menu - tudo OK. Performance ~10-20x mais lenta que MySQL (esperado)",
+      "changelog": "2025-11-22-validation-supabase-no-members"
+    },
+    {
+      "id": "done-019",
+      "title": "Correção crítica: SupabaseAdapter não substituía placeholders SQL",
+      "completedAt": "2025-11-22",
+      "impact": "Bug crítico: queries com parâmetros (?) enviavam placeholders sem substituir valores, causando syntax error. Corrigido em SupabaseAdapter::query() linha 203-211",
+      "changelog": "2025-11-22-fix-supabase-query-placeholders"
+    },
+    {
+      "id": "done-020",
+      "title": "Validação completa Supabase COM members (DEV)",
+      "completedAt": "2025-11-22",
+      "impact": "Stack Supabase com members 100% funcional. Groups, members, permissions, módulos - tudo OK após correção de placeholders SQL",
+      "changelog": "2025-11-22-validation-supabase-with-members"
+    },
+    {
+      "id": "done-021",
+      "title": "Correção deploy.php - pasta /public não era incluída",
+      "completedAt": "2025-11-22",
+      "impact": "Sistema de deploy não incluía pasta /public, causando falha em TODOS os deploys COM members. Corrigido em admin/deploy.php linha 207",
+      "changelog": "2025-11-22-fix-deploy-public-folder"
+    },
+    {
+      "id": "done-022",
+      "title": "Validação completa Supabase COM members (PRODUÇÃO)",
+      "completedAt": "2025-11-22",
+      "impact": "Stack Supabase + members 100% validada em produção. Sistema completo testado e funcionando",
+      "changelog": "2025-11-22-validation-supabase-prod"
+    },
+    {
+      "id": "done-023",
+      "title": "Validação Site Estático (DB_TYPE = none)",
+      "completedAt": "2025-11-22",
+      "impact": "Site estático funciona corretamente. Login admin bloqueado (esperado). Criado checklist de deploy manual (.deploy-static-checklist.md)",
+      "changelog": "2025-11-22-validation-static-site"
+    },
+    {
+      "id": "done-024",
+      "title": "Módulo Blog - Desenvolvimento Completo",
+      "completedAt": "2025-11-23",
+      "impact": "Primeiro módulo customizado 100% pronto: 19 arquivos, 2.594 linhas, CRUD completo, posts relacionados híbridos, compartilhamento social, upload seguro, cache implementado. Compatível com todas as 4 stacks (MySQL/Supabase, COM/SEM members). Criado template de planejamento e documentação de padrões reutilizáveis.",
+      "changelog": "2025-11-23-module-blog-complete",
+      "files": [
+        "modules/blog/*",
+        ".claude/templates/module-planning-template.md",
+        ".claude/memory/module-patterns.md"
+      ]
+    }
+  ],
+  "statistics": {
+    "total": 24,
+    "inProgress": 0,
+    "next": 0,
+    "backlog": 7,
+    "blocked": 0,
+    "completed": 24
+  },
+  "priorities": {
+    "high": 0,
+    "medium": 1,
+    "low": 6
+  }
+}

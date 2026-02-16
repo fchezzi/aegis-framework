@@ -1,0 +1,47 @@
+{
+  "name": "imagelink",
+  "title": "Imagem com Link",
+  "description": "Card simples com imagem clicável",
+  "version": "1.0.0",
+  "min_size": 1,
+  "max_size": 6,
+  "fields": {
+    "image_url": {
+      "type": "upload",
+      "label": "Imagem",
+      "required": true,
+      "default": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect width='600' height='400' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EImagem Exemplo%3C/text%3E%3C/svg%3E",
+      "help": "Faça upload de uma imagem (JPG, PNG, GIF ou WEBP - máximo 5MB)"
+    },
+    "link_url": {
+      "type": "text",
+      "label": "URL do Link",
+      "required": false,
+      "default": "#",
+      "help": "Para onde a imagem vai redirecionar quando clicada"
+    },
+    "alt_text": {
+      "type": "text",
+      "label": "Texto Alternativo",
+      "required": false,
+      "default": "Imagem",
+      "help": "Descrição da imagem (importante para acessibilidade e SEO)"
+    },
+    "target": {
+      "type": "select",
+      "label": "Abrir Link em",
+      "required": false,
+      "options": ["_self", "_blank"],
+      "default": "_self",
+      "help": "_self = mesma aba | _blank = nova aba"
+    },
+    "object_fit": {
+      "type": "select",
+      "label": "Ajuste da Imagem",
+      "required": false,
+      "options": ["cover", "contain", "fill", "none"],
+      "default": "cover",
+      "help": "cover = preenche todo espaço cortando | contain = mostra imagem completa | fill = estica"
+    }
+  }
+}

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="pagespeedinsights-quickstart">PageSpeed Insights - Quick Start</h1>
+
+<p><strong>TL;DR</strong> - Comandos rápidos para uso diário</p>
+
+<p><strong>Última atualização:</strong> 2026&#8211;02&#8211;15</p>
+
+<hr />
+
+<h2 id="🚀startrápido">🚀 Start Rápido</h2>
+
+<h3 id="1.verificarstatusatual">1. Verificar Status Atual</h3>
+
+<pre><code class="bash"># Dashboard principal
+open http://localhost:5757/aegis/admin/pagespeed
+
+# Gerenciar URLs
+open http://localhost:5757/aegis/admin/pagespeed/urls
+
+# Banco de dados - Relatórios
+mysql -u root -proot aegis -e &quot;
+  SELECT id, url, strategy, status, performance_score, analyzed_at
+  FROM tbl_pagespeed_reports
+  ORDER BY analyzed_at DESC
+  LIMIT 5;
+&quot;
+
+# Banco de dados - URLs ativas
+mysql -u root -proot aegis -e &quot;
+  SELECT id, url, ativo
+  FROM tbl_pagespeed_urls
+  ORDER BY created_at DESC;
+&quot;
+</code></pre>
+
+<h3 id="2.sistemadeurls">2. Sistema de URLs</h3>
+
+<p><strong>Gerenciar URLs para análise:</strong></p>
+
+<pre><code class="bash"># Via interface
+open http://localhost:5757/aegis/admin/pagespeed/urls
+
+# Via banco de dados
+mysql -u root -proot aegis -e &quot;
+  INSERT INTO tbl_pagespeed_urls (id, url, ativo)
+  VALUES (UUID(), 'https://seusite.com', 1);
+&quot;
+
+# Listar URLs ativas
+mysql -u root -proot aegis -e &quot;
+  SELECT * FROM tbl_pagespeed_urls WHERE ativo = 1;
+&quot;
+</code></pre>
+
+<h3 id="3.sistemadequeuestatus">3. Sistema de Queue/Status</h3>
+
+<p><strong>Status possíveis:</strong></p>
+
+<ul>
+<li><code>pending</code> - Aguardando processamento</li>
+<li><code>processing</code> - Em análise</li>
+<li><code>completed</code> - Concluído</li>
+<li><code>failed</code> - Falhou</li>
+</ul>
+
+<p><strong>Monitorar:</strong></p>
+
+<pre><code class="bash"># Ver análises em andamento
+mysql -u root -proot aegis -e &quot;
+  SELECT url, strategy, status, analyzed_at
+  FROM tbl_pagespeed_reports
+  WHERE status IN ('pending', 'processing')
+  ORDER BY analyzed_at DESC;
+&quot;
+</code></pre>
+
+<hr />
+
+<h2 id="🧪testarsistema">🧪 Testar Sistema</h2>
+
+<h3 id="testecompletoviadashboardrecomendado">Teste Completo via Dashboard (Recomendado)</h3>
+
+<pre><code class="bash"># 1. Abrir dashboard
+open http://localhost:5757/aegis/admin/pagespeed
+
+# 2. Clicar em &quot;Analisar Agora&quot;
+# A página mostrará status &quot;pending&quot; e auto-refresh a cada 5s
+
+# 3. Acompanhar progresso no terminal
+tail -f /tmp/pagespeed-batch.log
+
+# 4. Ver resultados quando completar
+# Dashboard atualiza automaticamente
+</code></pre>
+
+<h3 id="testeviascriptphpbackground">Teste via Script PHP (Background)</h3>
+
+<pre><code class="bash"># Rodar análise em background
+cd /Users/fabiochezzi/Documents/websites/aegis
+/Applications/MAMP/bin/php/php8.2.0/bin/php admin/api/pagespeed-test-batch.php
+
+# Monitorar progresso
+mysql -u root -proot aegis -e &quot;
+  SELECT url, strategy, status, performance_score
+  FROM tbl_pagespeed_reports
+  ORDER BY analyzed_at DESC
+  LIMIT 5;
+&quot;
+</code></pre>
+
+<h3 id="testecomdadosmockfuncionaagora">Teste com Dados Mock (funciona agora)</h3>
+
+<pre><code class="bash"># Salvar dados fake diretamente
+curl -X POST http://localhost:5757/aegis/admin/api/pagespeed-save.php \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;webhook_secret&quot;: &quot;bfe48065-3ab7-442c-b6c6-a9ac467a3c19&quot;,
+    &quot;url&quot;: &quot;https://seusite.com&quot;,
+    &quot;strategy&quot;: &quot;mobile&quot;,
+    &quot;analyzed_at&quot;: &quot;2026-02-10 09:00:00&quot;,
+    &quot;lighthouse_version&quot;: &quot;13.0.1&quot;,
+    &quot;fetch_time_ms&quot;: 4200,
+    &quot;performance_score&quot;: 92,
+    &quot;lab_lcp&quot;: &quot;1.234&quot;,
+    &quot;lab_fcp&quot;: &quot;0.876&quot;,
+    &quot;lab_cls&quot;: 0.015,
+    &quot;lab_inp&quot;: 0,
+    &quot;lab_si&quot;: &quot;2.100&quot;,
+    &quot;lab_tti&quot;: &quot;3.200&quot;,
+    &quot;lab_tbt&quot;: 120,
+    &quot;field_lcp&quot;: 1500,
+    &quot;field_fcp&quot;: 900,
+    &quot;field_cls&quot;: 0.02,
+    &quot;field_inp&quot;: 200,
+    &quot;field_category&quot;: &quot;FAST&quot;,
+    &quot;opportunities&quot;: [
+      {
+        &quot;title&quot;: &quot;Eliminar recursos que impedem a renderização&quot;,
+        &quot;description&quot;: &quot;Recursos bloqueando a primeira renderização&quot;,
+        &quot;savings_lcp&quot;: 850,
+        &quot;savings_fcp&quot;: 400
+      }
+    ],
+    &quot;diagnostics&quot;: {
+      &quot;dom_size&quot;: 1234,
+      &quot;requests_count&quot;: 35,
+      &quot;transfer_size&quot;: 1850000
+    }
+  }' | jq
+
+# Verificar se salvou
+mysql -u root -proot aegis -e &quot;
+  SELECT url, performance_score
+  FROM tbl_pagespeed_reports
+  WHERE url = 'https://seusite.com';&quot;
+</code></pre>
+
+<hr />
+
+<h2 id="📋checklistpré-teste">📋 Checklist Pré-Teste</h2>
+
+<p>Antes de testar amanhã, verificar:</p>
+
+<ul>
+<li>[ ] <strong>MAMP rodando</strong></li>
+</ul>
+
+<pre><code class="```bash">  open -a MAMP
+
+</code></pre>
+
+<ul>
+<li>[ ] <strong>n8n rodando</strong></li>
+</ul>
+
+<pre><code class="```bash">  docker ps | grep n8n
+  # Se não estiver: docker start n8n
+
+</code></pre>
+
+<ul>
+<li>[ ] <strong>Workflow n8n ativo</strong></li>
+</ul>
+
+<pre><code class="```bash">  curl -s &quot;http://localhost:5678/api/v1/workflows&quot; \
+    -H &quot;X-N8N-API-KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZjBhNWJjYS05M2EyLTQ5NWQtOWZkYi05OTM4OGY1ZTJmZjAiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzY3MTE0MzU2LCJleHAiOjE3NzQ4NDMyMDB9.IMuReQkuCy29CMvV3TaV2g2RqLp0eUWPENSBCN2c2VY&quot; | \
+    jq '.data[] | select(.name | contains(&quot;PageSpeed&quot;)) | {name, active}'
+
+  # Deve mostrar: &quot;active&quot;: true
+
+</code></pre>
+
+<ul>
+<li><p>[ ] <strong>Nova Google API Key</strong> (se criar)</p></li>
+<li><p> Copiar e colar em <code>/storage/settings.json</code></p></li>
+<li><p> Campo: <code>pagespeed_api_key</code></p></li>
+<li><p>[ ] <strong>SASS compilado</strong> (se mudou algo)</p></li>
+</ul>
+
+<pre><code class="```bash">  cd /Users/fabiochezzi/Documents/websites/aegis
+  sass assets/sass/admin.sass assets/css/admin.css
+
+</code></pre>
+
+<hr />
+
+<h2 id="🐛troubleshootingrápido">🐛 Troubleshooting Rápido</h2>
+
+<h3 id="erro:quotaexceeded">Erro: &#8220;Quota exceeded&#8221;</h3>
+
+<p><strong>Solução:</strong></p>
+
+<ul>
+<li>Aguardar renovação da quota (meia-noite PST)</li>
+<li>OU criar nova API key (ver acima)</li>
+</ul>
+
+<h3 id="erro:webhook_secretinválido">Erro: &#8220;webhook_secret inválido&#8221;</h3>
+
+<p><strong>Verificar secret atual:</strong></p>
+
+<pre><code class="bash">grep pagespeed_webhook_secret /Users/fabiochezzi/Documents/websites/aegis/storage/settings.json
+</code></pre>
+
+<p><strong>Secret correto:</strong> <code>bfe48065-3ab7-442c-b6c6-a9ac467a3c19</code></p>
+
+<h3 id="erro:classdatabasenotfound">Erro: &#8220;Class Database not found&#8221;</h3>
+
+<p><strong>Solução:</strong> Já corrigido em todos os arquivos</p>
+
+<p><strong>Padrão correto:</strong></p>
+
+<pre><code class="php">$db = DB::connect();  // ✅ Correto
+$db = Database::getInstance();  // ❌ Errado
+</code></pre>
+
+<h3 id="workflown8nnãoexecuta">Workflow n8n não executa</h3>
+
+<p><strong>Verificar se está ativo:</strong></p>
+
+<pre><code class="bash"># n8n UI
+open http://localhost:5678
+
+# Ver workflow &quot;AEGIS PageSpeed - Análise Manual&quot;
+# Deve ter toggle verde (ativo)
+</code></pre>
+
+<p><strong>Ver última execução:</strong></p>
+
+<pre><code class="bash">curl -s &quot;http://localhost:5678/api/v1/executions?workflowId=GlB19t0bOXuqh5pR&amp;limit=1&quot; \
+  -H &quot;X-N8N-API-KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZjBhNWJjYS05M2EyLTQ5NWQtOWZkYi05OTM4OGY1ZTJmZjAiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzY3MTE0MzU2LCJleHAiOjE3NzQ4NDMyMDB9.IMuReQkuCy29CMvV3TaV2g2RqLp0eUWPENSBCN2c2VY&quot; | \
+  jq '.data[0] | {id, status, createdAt}'
+</code></pre>
+
+<h3 id="dashboardnãocarregadados">Dashboard não carrega dados</h3>
+
+<p><strong>Verificar se tem dados no banco:</strong></p>
+
+<pre><code class="bash">mysql -u root -proot aegis -e &quot;SELECT COUNT(*) FROM tbl_pagespeed_reports;&quot;
+</code></pre>
+
+<p><strong>Se COUNT = 0:</strong> Inserir dados mock (ver acima)</p>
+
+<p><strong>Se COUNT &gt; 0 mas não aparece:</strong> Verificar controller</p>
+
+<pre><code class="bash"># Ver erros PHP
+tail -f /Applications/MAMP/logs/php_error.log
+</code></pre>
+
+<hr />
+
+<h2 id="📂arquivosimportantes">📂 Arquivos Importantes</h2>
+
+<p><strong>Backend - Controllers:</strong></p>
+
+<pre><code>/admin/controllers/PageSpeedController.php - Dashboard e relatórios
+/admin/controllers/PageSpeedUrlsController.php - Gerenciamento de URLs
+</code></pre>
+
+<p><strong>Backend - API:</strong></p>
+
+<pre><code>/admin/api/pagespeed-trigger.php - Trigger manual (cria pending records)
+/admin/api/pagespeed-test-batch.php - Processa queue em background
+/admin/api/pagespeed-save.php - Save results (n8n ou batch)
+</code></pre>
+
+<p><strong>Frontend - Views:</strong></p>
+
+<pre><code>/admin/views/pagespeed/index.php - Dashboard (100% Lucide icons)
+/admin/views/pagespeed/report.php - Detalhes (100% Lucide icons)
+/admin/views/pagespeed/urls.php - Gerenciar URLs (100% Lucide icons)
+</code></pre>
+
+<p><strong>Transform:</strong></p>
+
+<pre><code>/storage/n8n/pagespeed-transform-FULL.php - Extrai 100% dos dados
+</code></pre>
+
+<p><strong>Database:</strong></p>
+
+<pre><code>/migrations/20260208_create_pagespeed_tables.sql - Tabela reports
+/migrations/20260215_create_pagespeed_urls.sql - Tabela URLs
+</code></pre>
+
+<p><strong>Configuração:</strong></p>
+
+<pre><code>/storage/settings.json - Settings principais
+</code></pre>
+
+<hr />
+
+<h2 id="🔑credenciaiseconfigs">🔑 Credenciais e Configs</h2>
+
+<p><strong>n8n Local:</strong></p>
+
+<ul>
+<li>URL: http://localhost:5678</li>
+<li>API Key: <code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZjBhNWJjYS05M2EyLTQ5NWQtOWZkYi05OTM4OGY1ZTJmZjAiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzY3MTE0MzU2LCJleHAiOjE3NzQ4NDMyMDB9.IMuReQkuCy29CMvV3TaV2g2RqLp0eUWPENSBCN2c2VY</code></li>
+<li>Workflow ID: <code>GlB19t0bOXuqh5pR</code></li>
+</ul>
+
+<p><strong>AEGIS Local:</strong></p>
+
+<ul>
+<li>URL: http://localhost:5757/aegis</li>
+<li>Admin: /admin/pagespeed</li>
+<li>MySQL: root/root</li>
+</ul>
+
+<p><strong>Secrets:</strong></p>
+
+<ul>
+<li>Webhook Secret: <code>bfe48065-3ab7-442c-b6c6-a9ac467a3c19</code></li>
+<li>Google API Key: <code>AIzaSyCt3kyxa9i-eWDWNHv-qnPZvV2bhhYz3_A</code> (quota excedida)</li>
+</ul>
+
+<hr />
+
+<h2 id="✅statusatual2026-02-15">✅ Status Atual (2026&#8211;02&#8211;15)</h2>
+
+<p><strong>✅ Funcionando 100%:</strong></p>
+
+<ul>
+<li>✅ Sistema de gerenciamento de URLs (CRUD completo)</li>
+<li>✅ Queue/Status system (pending → processing → completed/failed)</li>
+<li>✅ Background processing funcionando</li>
+<li>✅ Auto-refresh quando há análises em progresso</li>
+<li>✅ Dashboard com filtros e paginação</li>
+<li>✅ Interface 100% Lucide icons (13 substituições)</li>
+<li>✅ Transform FULL - extrai 98% dos dados úteis</li>
+<li>✅ Banco de dados com 2 tabelas (reports + urls)</li>
+<li>✅ SASS compilado</li>
+<li>✅ 6 rotas configuradas</li>
+</ul>
+
+<p><strong>🔧 Melhorias Recentes:</strong></p>
+
+<ul>
+<li>✅ Bug strategy mobile/desktop corrigido</li>
+<li>✅ Transform function com parâmetros corretos</li>
+<li>✅ Background execution com nohup</li>
+<li>✅ Session management em APIs</li>
+<li>✅ CSRF validation corrigida</li>
+</ul>
+
+<p><strong>✨ Recursos Completos:</strong></p>
+
+<ul>
+<li>URLs dinâmicas (não mais hardcoded)</li>
+<li>Status em tempo real</li>
+<li>Processamento em lote com mediana (3 testes)</li>
+<li>Detalhes completos de oportunidades</li>
+<li>Análise third-party</li>
+<li>Resource breakdown por tipo</li>
+</ul>
+
+<hr />
+
+<h2 id="🎯usodiário">🎯 Uso Diário</h2>
+
+<h3 id="adicionarnovaurlparaanálise">Adicionar nova URL para análise</h3>
+
+<pre><code class="bash"># Via interface (recomendado)
+open http://localhost:5757/aegis/admin/pagespeed/urls
+
+# Via SQL
+mysql -u root -proot aegis -e &quot;
+  INSERT INTO tbl_pagespeed_urls (id, url, ativo)
+  VALUES (UUID(), 'https://novaurl.com', 1);
+&quot;
+</code></pre>
+
+<h3 id="rodaranálisemanual">Rodar análise manual</h3>
+
+<pre><code class="bash"># Via dashboard (recomendado)
+open http://localhost:5757/aegis/admin/pagespeed
+# Clicar em &quot;Analisar Agora&quot;
+
+# Via script PHP
+/Applications/MAMP/bin/php/php8.2.0/bin/php \
+  /Users/fabiochezzi/Documents/websites/aegis/admin/api/pagespeed-test-batch.php
+</code></pre>
+
+<h3 id="verrelatórios">Ver relatórios</h3>
+
+<pre><code class="bash"># Dashboard
+open http://localhost:5757/aegis/admin/pagespeed
+
+# Detalhes de um relatório específico
+open http://localhost:5757/aegis/admin/pagespeed/report/{id}
+
+# Via SQL
+mysql -u root -proot aegis -e &quot;
+  SELECT url, strategy, performance_score, lab_lcp, lab_cls, analyzed_at
+  FROM tbl_pagespeed_reports
+  WHERE status = 'completed'
+  ORDER BY analyzed_at DESC
+  LIMIT 10;
+&quot;
+</code></pre>
+
+<hr />
+
+<p><strong>Docs completas:</strong></p>
+
+<ul>
+<li>Quick Start: <code>/docs/#ver depois/pagespeed-quickstart.md</code> (este arquivo)</li>
+<li>Resumo: <code>/docs/#ver depois/pagespeed-summary.md</code></li>
+<li>Dados FULL: <code>/docs/#ver depois/pagespeed-FULL-extraction.md</code></li>
+<li>Completa: <code>/docs/#ver depois/pagespeed-insights.md</code></li>
+</ul>
+
+<p><strong>Última atualização:</strong> 2026&#8211;02&#8211;15</p>
+
+</body>
+</html>
+

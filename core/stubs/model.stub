@@ -1,0 +1,165 @@
+<?php
+/**
+ * {{CLASS_NAME}}
+ * Model para tabela {{TABLE}}
+ */
+
+class {{CLASS_NAME}} {
+
+    /**
+     * Nome da tabela
+     */
+    protected static $table = '{{TABLE}}';
+
+    /**
+     * Chave primária
+     */
+    protected static $primaryKey = 'id';
+
+    /**
+     * Campos preenchíveis em massa
+     */
+    protected static $fillable = [
+        // 'nome',
+        // 'email',
+    ];
+
+    /**
+     * Campos ocultos na serialização
+     */
+    protected static $hidden = [
+        'senha',
+        'password',
+    ];
+
+    /**
+     * Timestamps automáticos
+     */
+    protected static $timestamps = true;
+
+    // ===================
+    // CRUD BÁSICO
+    // ===================
+
+    /**
+     * Buscar todos os registros
+     */
+    public static function all() {
+        return DB::table(static::$table)->get();
+    }
+
+    /**
+     * Buscar por ID
+     */
+    public static function find($id) {
+        return DB::table(static::$table)
+            ->where(static::$primaryKey, $id)
+            ->first();
+    }
+
+    /**
+     * Buscar ou falhar
+     */
+    public static function findOrFail($id) {
+        $item = static::find($id);
+
+        if (!$item) {
+            throw new Exception('{{CLASS_NAME}} não encontrado');
+        }
+
+        return $item;
+    }
+
+    /**
+     * Buscar por condição
+     */
+    public static function where($column, $value) {
+        return DB::table(static::$table)->where($column, $value);
+    }
+
+    /**
+     * Criar novo registro
+     */
+    public static function create(array $data) {
+        // Filtrar apenas campos fillable
+        $data = array_intersect_key($data, array_flip(static::$fillable));
+
+        // Gerar ID se não existir
+        if (!isset($data[static::$primaryKey])) {
+            $data[static::$primaryKey] = Security::generateUUID();
+        }
+
+        // Timestamps
+        if (static::$timestamps) {
+            $data['created_at'] = date('Y-m-d H:i:s');
+        }
+
+        DB::insert(static::$table, $data);
+
+        return static::find($data[static::$primaryKey]);
+    }
+
+    /**
+     * Atualizar registro
+     */
+    public static function update($id, array $data) {
+        // Filtrar apenas campos fillable
+        $data = array_intersect_key($data, array_flip(static::$fillable));
+
+        // Timestamps
+        if (static::$timestamps) {
+            $data['updated_at'] = date('Y-m-d H:i:s');
+        }
+
+        DB::update(static::$table, $data, [static::$primaryKey => $id]);
+
+        return static::find($id);
+    }
+
+    /**
+     * Excluir registro
+     */
+    public static function delete($id) {
+        return DB::delete(static::$table, [static::$primaryKey => $id]);
+    }
+
+    /**
+     * Contar registros
+     */
+    public static function count($where = []) {
+        $query = DB::table(static::$table);
+
+        foreach ($where as $column => $value) {
+            $query->where($column, $value);
+        }
+
+        return $query->count();
+    }
+
+    /**
+     * Verificar se existe
+     */
+    public static function exists($id) {
+        return static::find($id) !== null;
+    }
+
+    // ===================
+    // RELACIONAMENTOS
+    // ===================
+
+    /**
+     * Pertence a (belongsTo)
+     * Exemplo: Post pertence a User
+     */
+    protected static function belongsTo($related, $foreignKey, $ownerKey = 'id') {
+        // Implementar conforme necessário
+    }
+
+    /**
+     * Tem muitos (hasMany)
+     * Exemplo: User tem muitos Posts
+     */
+    protected static function hasMany($related, $foreignKey, $localKey = 'id') {
+        // Implementar conforme necessário
+    }
+}

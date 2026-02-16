@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="padrão:acessopúblicoprivadoemmódulos">Padrão: Acesso Público/Privado em Módulos</h1>
+
+<h2 id="⚠️obrigatÓrioparatodososnovosmÓdulos">⚠️ OBRIGATÓRIO PARA TODOS OS NOVOS MÓDULOS</h2>
+
+<p>Este padrão é <strong>OBRIGATÓRIO</strong> para todos os módulos que possuem rotas públicas. Não é opcional.</p>
+
+<h2 id="🚨regracrÍtica:prefixoobrigatórionasrotaspúblicas">🚨 REGRA CRÍTICA: Prefixo Obrigatório nas Rotas Públicas</h2>
+
+<p><strong>TODOS os módulos (exceto Blog) DEVEM usar prefixo <code>/{nome_modulo}/</code> em TODAS as rotas públicas.</strong></p>
+
+<h3 id="✅correto:">✅ Correto:</h3>
+
+<ul>
+<li><code>/palpites/exibicao-palpites</code></li>
+<li><code>/cursos/aula-01</code></li>
+<li><code>/loja/produtos</code></li>
+<li><code>/forum/topico-123</code></li>
+</ul>
+
+<h3 id="❌errado:">❌ ERRADO:</h3>
+
+<ul>
+<li><code>/exibicao-palpites</code> (sem prefixo)</li>
+<li><code>/aula-01</code> (sem prefixo)</li>
+<li><code>/produtos</code> (sem prefixo)</li>
+</ul>
+
+<h3 id="🎯exceção:blog">🎯 Exceção: Blog</h3>
+
+<p>O módulo <strong>blog</strong> é a ÚNICA exceção devido a requisitos de SEO:</p>
+
+<ul>
+<li><code>/:categoria</code> (permitido)</li>
+<li><code>/:categoria/:post</code> (permitido)</li>
+<li><code>/blog</code> (rota base)</li>
+</ul>
+
+<p><strong>Por quê essa regra?</strong></p>
+
+<ul>
+<li>Evita conflitos entre módulos</li>
+<li>Evita conflitos com páginas do AEGIS</li>
+<li>Escalável (suporta infinitos módulos)</li>
+<li>Simples de validar</li>
+</ul>
+
+<h2 id="⚠️regracrÍticaatualizada2025-11-24">⚠️ REGRA CRÍTICA (Atualizada 2025&#8211;11&#8211;24)</h2>
+
+<p><strong>MÓDULOS NÃO PRECISAM DE PÁGINAS NA TABELA <code>pages</code>!</strong></p>
+
+<h3 id="controledeacessoportipo:">Controle de Acesso por Tipo:</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Tipo </th>
+	<th> Fonte de Verdade </th>
+	<th> Onde Configurar </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>Módulo</strong> </td>
+	<td> <code>&quot;public&quot;</code> no <code>module.json</code> </td>
+	<td> <code>/admin/modules</code> (Gerenciar Módulos) </td>
+</tr>
+<tr>
+	<td> <strong>Página</strong> </td>
+	<td> <code>is_public</code> na tabela <code>pages</code> </td>
+	<td> <code>/admin/pages</code> </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Separação clara:</strong></p>
+
+<ul>
+<li>Módulos = <code>module.json</code></li>
+<li>Páginas = tabela <code>pages</code></li>
+</ul>
+
+<hr />
+
+<h2 id="objetivo">Objetivo</h2>
+
+<p>Permitir que módulos tenham rotas públicas que respeitam o campo <code>&quot;public&quot;</code> do <code>module.json</code>, com controle visual no admin &#8220;Gerenciar Módulos&#8221;.</p>
+
+<h2 id="funcionamento">Funcionamento</h2>
+
+<h3 id="1.configuraçãonomodule.json">1. Configuração no <code>module.json</code></h3>
+
+<pre><code class="json">{
+  &quot;name&quot;: &quot;nome_modulo&quot;,
+  &quot;label&quot;: &quot;Nome do Módulo&quot;,
+  &quot;public&quot;: false,
+  &quot;public_url&quot;: &quot;/caminho-publico&quot;
+}
+</code></pre>
+
+<ul>
+<li><code>public</code>: Define se módulo é público por padrão (geralmente <code>false</code>)</li>
+<li><code>public_url</code>: URL pública principal do módulo</li>
+</ul>
+
+<h3 id="2.funçãohelpernoroutes.php">2. Função Helper no <code>routes.php</code></h3>
+
+<p>Adicionar no <strong>início</strong> do arquivo de rotas do módulo:</p>
+
+<pre><code class="php">// =========================================
+// HELPER: Verificar se módulo é público
+// =========================================
+function checkModuleAccess($pageSlug) {
+    // Se MEMBERS desabilitado, libera acesso
+    if (!ENABLE_MEMBERS) {
+        return true;
+    }
+
+    // Buscar página no banco de dados
+    $db = DB::connect();
+    $pages = $db-&gt;select('pages', ['slug' =&gt; $pageSlug, 'ativo' =&gt; 1]);
+
+    if (empty($pages)) {
+        // Página não existe - libera acesso (módulo público por padrão)
+        return true;
+    }
+
+    $page = $pages[0];
+
+    // Se módulo é público (is_public = 1), libera acesso sem login
+    if (($page['is_public'] ?? 0) == 1) {
+        return true;
+    }
+
+    // Módulo privado - exige autenticação e permissão
+    MemberAuth::require();
+    $member = MemberAuth::member();
+
+    if (!Permission::canAccess($member['id'], $page['id'])) {
+        http_response_code(403);
+        echo &quot;&lt;!DOCTYPE html&gt;&quot;;
+        echo &quot;&lt;html lang='pt-BR'&gt;&lt;head&gt;&lt;meta charset='UTF-8'&gt;&quot;;
+        echo &quot;&lt;title&gt;Acesso Negado&lt;/title&gt;&quot;;
+        echo &quot;&lt;style&gt;body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;&quot;;
+        echo &quot;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;&quot;;
+        echo &quot;background:#f5f5f5;text-align:center;}&quot;;
+        echo &quot;h1{font-size:48px;color:#ef4444;margin-bottom:10px;}&quot;;
+        echo &quot;p{color:#666;margin-bottom:20px;}&quot;;
+        echo &quot;a{color:#667eea;text-decoration:none;}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&quot;;
+        echo &quot;&lt;div&gt;&lt;h1&gt;🔒 Acesso Negado&lt;/h1&gt;&quot;;
+        echo &quot;&lt;p&gt;Você não tem permissão para acessar esta página.&lt;/p&gt;&quot;;
+        echo &quot;&lt;a href='&quot; . url('/home') . &quot;'&gt;← Voltar para Home&lt;/a&gt;&lt;/div&gt;&quot;;
+        echo &quot;&lt;/body&gt;&lt;/html&gt;&quot;;
+        exit;
+    }
+
+    return true;
+}
+</code></pre>
+
+<h3 id="3.aplicarnasrotaspúblicas">3. Aplicar nas Rotas Públicas</h3>
+
+<p>Adicionar <code>checkModuleAccess()</code> no <strong>início</strong> de cada rota pública:</p>
+
+<pre><code class="php">// =========================================
+// ROTAS PÚBLICAS
+// =========================================
+
+Router::get('/blog', function() {
+    checkModuleAccess('module_blog');
+    require_once __DIR__ . '/controllers/PublicBlogController.php';
+    $controller = new PublicBlogController();
+    $controller-&gt;index();
+});
+
+Router::get('/palpites/exibicao', function() {
+    checkModuleAccess('palpites/exibicao-palpites');
+    require_once __DIR__ . '/views/public/exibicao-palpites.php';
+});
+</code></pre>
+
+<h3 id="4.slugdapágina">4. Slug da Página</h3>
+
+<p>O <code>$pageSlug</code> passado para <code>checkModuleAccess()</code> deve corresponder ao campo <code>slug</code> na tabela <code>pages</code>:</p>
+
+<ul>
+<li><strong>Convenção para módulos:</strong> <code>module_{nome_modulo}</code> (ex: <code>module_blog</code>)</li>
+<li><strong>Convenção para páginas específicas:</strong> <code>{modulo}/{pagina}</code> (ex: <code>palpites/exibicao-palpites</code>)</li>
+</ul>
+
+<h2 id="comportamento">Comportamento</h2>
+
+<h3 id="quandoenable_membersfalsesemsistemademembros">Quando <code>ENABLE_MEMBERS = false</code> (sem sistema de membros)</h3>
+
+<ul>
+<li><strong>Todas as rotas públicas são liberadas automaticamente</strong></li>
+<li>Não verifica permissões</li>
+<li>Acesso totalmente público</li>
+</ul>
+
+<h3 id="quandoenable_memberstruecomsistemademembros">Quando <code>ENABLE_MEMBERS = true</code> (com sistema de membros)</h3>
+
+<h4 id="sepublic:truenomodule.json:">Se <code>&quot;public&quot;: true</code> no module.json:</h4>
+
+<ul>
+<li><strong>Acesso liberado sem login</strong></li>
+<li>Qualquer pessoa pode acessar</li>
+<li>Menu aparece para todos</li>
+<li>Ideal para conteúdo público (blog, landing pages)</li>
+</ul>
+
+<h4 id="sepublic:falsenomodule.json:">Se <code>&quot;public&quot;: false</code> no module.json:</h4>
+
+<ul>
+<li><strong>Exige login (MemberAuth::require())</strong></li>
+<li>Menu só aparece para usuários autenticados</li>
+<li>Acesso controlado por autenticação</li>
+</ul>
+
+<h2 id="vantagens">Vantagens</h2>
+
+<ol>
+<li><strong>Uma fonte de verdade:</strong> Módulos controlados APENAS por <code>module.json</code></li>
+<li><strong>Controle visual:</strong> Admin muda <code>public</code> via interface &#8220;Gerenciar Módulos&#8221;</li>
+<li><strong>Sem duplicação:</strong> Não precisa criar páginas no banco para módulos</li>
+<li><strong>Separação clara:</strong> Módulos ≠ Páginas (conceitos diferentes)</li>
+<li><strong>Compatibilidade:</strong> Funciona com e sem sistema de membros</li>
+<li><strong>Padrão consistente:</strong> Todos os módulos seguem mesma lógica</li>
+</ol>
+
+<h2 id="exemplosdeuso">Exemplos de Uso</h2>
+
+<h3 id="blogsemprepúblico">Blog sempre público</h3>
+
+<pre><code class="json">// modules/blog/module.json
+{
+  &quot;public&quot;: true
+}
+</code></pre>
+
+<p>→ Menu aparece para todos, rotas acessíveis sem login</p>
+
+<h3 id="palpitesapenasparamembrosautenticados">Palpites apenas para membros autenticados</h3>
+
+<pre><code class="json">// modules/palpites/module.json
+{
+  &quot;public&quot;: false
+}
+</code></pre>
+
+<p>→ Menu só aparece logado, rotas exigem autenticação</p>
+
+<h3 id="controlefinoviacheckmoduleaccess">Controle fino via checkModuleAccess()</h3>
+
+<p>Para controle mais granular (por grupo/membro), usar lógica dentro do <code>checkModuleAccess()</code> nas rotas do módulo.</p>
+
+<h2 id="checklistobrigatÓrioparanovosmódulos">Checklist OBRIGATÓRIO para Novos Módulos</h2>
+
+<p><strong>Ao criar qualquer módulo novo, seguir OBRIGATORIAMENTE:</strong></p>
+
+<h3 id="1️⃣configuraçãodomodule.json">1️⃣ Configuração do module.json</h3>
+
+<ul>
+<li>[ ] ✅ Adicionar <code>&quot;label&quot;</code>: &#8220;Nome do Módulo&#8221; (para exibição no menu)</li>
+<li>[ ] ✅ Adicionar <code>&quot;public&quot;: false</code> (módulos privados por padrão)</li>
+<li>[ ] ✅ Adicionar <code>&quot;public_url&quot;</code>: &#8220;/modulo/rota-principal&#8221;</li>
+<li>[ ] ✅ Adicionar <code>&quot;icon&quot;</code>: &#8220;nome-do-icone&#8221; (Lucide icons)</li>
+</ul>
+
+<h3 id="2️⃣rotaspúblicas">2️⃣ Rotas Públicas</h3>
+
+<ul>
+<li>[ ] ✅ <strong>PREFIXO OBRIGATÓRIO:</strong> Todas as rotas públicas DEVEM começar com <code>/{nome_modulo}/</code></li>
+<li>[ ] ✅ Copiar função <code>checkModuleAccess()</code> no início do <code>routes.php</code></li>
+<li>[ ] ✅ Aplicar <code>checkModuleAccess('{nome_modulo}')</code> em TODAS as rotas públicas</li>
+<li>[ ] ✅ Passar o <strong>nome do módulo</strong> (ex: <code>'blog'</code>), NÃO o slug da página</li>
+</ul>
+
+<h3 id="3️⃣testescrÍtico">3️⃣ Testes (CRÍTICO)</h3>
+
+<ul>
+<li>[ ] ✅ Testar com <code>ENABLE_MEMBERS = false</code> (deve funcionar público)</li>
+<li>[ ] ✅ Testar com <code>ENABLE_MEMBERS = true</code> e <code>public: false</code> (deve exigir login)</li>
+<li>[ ] ✅ Testar com <code>ENABLE_MEMBERS = true</code> e <code>public: true</code> (deve funcionar público)</li>
+<li>[ ] ✅ <strong>Instalar OUTRO módulo</strong> e testar novamente (validar que não quebra com múltiplos módulos)</li>
+<li>[ ] ✅ Fazer logout e verificar se menu aparece/desaparece corretamente</li>
+</ul>
+
+<h3 id="4️⃣validaçõesfinais">4️⃣ Validações Finais</h3>
+
+<ul>
+<li>[ ] ✅ <strong>NÃO criar páginas na tabela <code>pages</code></strong> - módulos não precisam!</li>
+<li>[ ] ✅ Verificar que ModuleManager.php NÃO cria páginas ao instalar</li>
+<li>[ ] ✅ Menu item criado com <code>page_slug: null</code> e <code>type: 'module'</code></li>
+<li>[ ] ✅ Controle de acesso: APENAS via <code>&quot;public&quot;</code> no <code>module.json</code></li>
+</ul>
+
+<p><strong>Notas Importantes:</strong></p>
+
+<ul>
+<li>⚠️ <strong>MÓDULOS ≠ PÁGINAS</strong> - Nunca misturar os dois conceitos</li>
+<li>✅ Configuração visual: <code>/admin/modules</code> (Gerenciar Módulos)</li>
+<li>✅ Se deletar páginas antigas do módulo, atualizar TODAS as rotas que referenciam elas</li>
+<li><strong>EXCEÇÃO:</strong> Apenas o módulo <code>blog</code> pode ter rotas sem prefixo (devido a SEO)</li>
+</ul>
+
+<h2 id="módulosqueseguemestepadrão">Módulos que Seguem Este Padrão</h2>
+
+<ul>
+<li>✅ <code>palpites</code> - Referência original</li>
+<li>✅ <code>blog</code> - Implementado</li>
+</ul>
+
+</body>
+</html>
+

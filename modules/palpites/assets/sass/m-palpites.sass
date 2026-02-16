@@ -1,0 +1,288 @@
+@forward '../../../../assets/sass/base/b-variables'
+@forward '../../../../assets/sass/base/b-extends'
+@forward '../../../../assets/sass/base/b-mixins'
+@forward '../../../../assets/sass/base/b-responsive'
+
+@use 'sass:color'
+@use '../../../../assets/sass/base/_b-colors' as *;
+@use '../../../../assets/sass/base/_b-variables' as *;
+@use '../../../../assets/sass/base/_b-mixins' as *;
+
+.m-damas
+
+  &__palpite
+    background: url("../img/bg.png")
+    @include soflex(row, center, center, nowrap)
+    height: 100vh
+
+    main
+      @include soflex(column, center, center, nowrap)
+      width: 85%
+
+    &--top
+      width: 100%
+      @include soflex(row, center, space-between, nowrap) 
+      margin: 0 0 20px 0
+
+    &--player
+      width: 16%
+      @include soflex(column, center, center, nowrap)
+
+      img
+        width: 100%
+        float: left
+
+      h5
+        text-transform: uppercase
+        text-align: center
+        background: #563e86
+        border-radius: 7px
+        width: 100%
+        padding: 10px 0
+        color: white
+        font-size: 20px
+        box-shadow: -1px 25px 13px -19px rgba(0,0,0,0.75)
+        -webkit-box-shadow: -1px 25px 13px -19px rgba(0,0,0,0.75)
+        -moz-box-shadow: -1px 25px 13px -19px rgba(0,0,0,0.75)    
+          
+
+    &--bottom  
+      @include soflex(row, inherit, space-between, nowrap) 
+      width: 100%
+
+    &--time
+      width: 10%  
+
+      img
+        width: 100%
+        height: 100%
+        object-fit: cover
+
+    &--palpite
+      background: rgba(86, 62, 134, 0.8)
+      width: 16%
+      @include soflex(row, center, center, nowrap)
+      padding: 10px
+      border-radius: 7px
+
+      h2
+        font-size: 60px
+        color: white
+
+      h3
+        font-size: 30px  
+        margin: 0 10px   
+        color: white   
+
+    &--finalscore
+      width: 600px
+      margin: 80px 0 0 0
+      @include soflex(row, inherit, space-between, nowrap)
+      background: rgba(86, 62, 134, 0.8)
+      padding: 30px
+      border-radius: 15px
+      box-shadow: -1px 25px 36px 0px rgba(0,0,0,0.75)
+      -webkit-box-shadow: -1px 25px 36px 0px rgba(0,0,0,0.75)
+      -moz-box-shadow: -1px 25px 36px 0px rgba(0,0,0,0.75)    
+
+
+    &--finaltime
+      width: 30%
+
+      img
+        width: 100%
+        float: left
+
+    &--finalplacar
+      @include soflex(row, inherit, space-between, nowrap) 
+
+      h2
+        font-size: 80px
+        color: white
+
+      h3
+        font-size: 50px  
+        margin: 0 15px   
+        color: white      
+
+    &--outrosjogos
+      position: fixed
+      right: 20px
+      top: 20px      
+      width: 180px
+      height: 230px
+      overflow: auto
+
+    &--outroscontent
+      background: rgba(133, 89, 148, 0.407)
+      margin: 0 0 10px 0
+      padding: 7px
+      border-radius: 5px
+      @include soflex(row, center, space-between, nowrap) 
+
+    &--outrostime
+      width: 25%
+
+      img
+        width: 100%
+        float: left
+
+    &--outrosplacar
+      @include soflex(row, inherit, space-between, nowrap)
+
+      h2
+        font-size: 30px
+        color: white
+
+      h3
+        font-size: 20px
+        margin: 0 5px
+        color: white
+
+  &__ranking
+    background: url("../img/bg.png")
+    @include soflex(row, center, center, nowrap)
+    min-height: 100vh
+
+    main
+      @include soflex(column, center, center, nowrap)
+      width: 90%
+      max-width: 1200px
+
+    &--header
+      width: 100%
+      text-align: center
+      margin: 0 0 40px 0
+
+      h1
+        font-size: 80px
+        color: white
+        text-transform: uppercase
+        text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8)
+
+    &--table
+      width: 100%
+      background: rgba(86, 62, 134, 0.9)
+      border-radius: 15px
+      padding: 30px
+      box-shadow: -1px 25px 36px 0px rgba(0,0,0,0.75)
+      -webkit-box-shadow: -1px 25px 36px 0px rgba(0,0,0,0.75)
+      -moz-box-shadow: -1px 25px 36px 0px rgba(0,0,0,0.75)
+
+    &--row
+      @include soflex(row, center, space-between, nowrap)
+      width: 100%
+      padding: 20px 0 0 0
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2)
+
+      &--header
+        border-bottom: 3px solid rgba(255, 255, 255, 0.4)
+        padding: 15px 0
+
+    &--player
+      width: 30%
+      @include soflex(row, flex-end, flex-start, nowrap)
+      gap: 15px
+      padding: 0 0 20px 0
+      align-self: stretch
+
+      img
+        width: 130px
+        height: auto
+        object-fit: contain
+        margin-bottom: -20px
+        align-self: flex-end
+
+      h3
+        font-size: 28px
+        color: white
+        text-transform: uppercase
+        font-family: $font-text
+        align-self: center
+
+    &--points
+      width: 15%
+      text-align: center
+      align-self: center
+      padding-bottom: 20px
+
+      &:not(.m-damas__ranking--row--header &)
+        font-size: 50px
+        font-weight: bold
+        color: #ffd700
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5)
+        font-family: $font-text
+
+    &--stats
+      width: 55%
+      @include soflex(row, center, space-around, nowrap)
+      align-self: center
+      padding-bottom: 20px
+
+    &--stat
+      text-align: center
+      flex: 1
+
+      &:not(.m-damas__ranking--row--header &)
+        font-size: 35px
+        font-weight: bold
+        color: white
+        font-family: $font-text
+
+    &--header-text
+      font-size: 18px
+      font-weight: bold
+      color: white
+      text-transform: uppercase
+      font-family: $font-text
+      display: block
+      width: 100%
+
+  &__nav
+    position: fixed
+    top: 20px
+    left: 20px
+    @include soflex(row, center, center, nowrap)
+    gap: 10px
+    z-index: 9999
+
+    &-btn
+      width: 50px
+      height: 50px
+      background: rgba(86, 62, 134, 0.8)
+      border-radius: 8px
+      @include soflex(row, center, center, nowrap)
+      text-decoration: none
+      font-size: 24px
+      transition: all 0.3s ease
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3)
+
+      svg
+        width: 24px
+        height: 24px
+        stroke: white
+        stroke-width: 2
+        transition: all 0.3s ease
+
+      &:hover
+        background: rgba(86, 62, 134, 1)
+        transform: translateY(-2px)
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5)
+
+        svg
+          stroke: #ffffff
+          transform: scale(1.1)
+
+      &--active
+        background: #ffd700
+        transform: scale(1.1)
+
+        svg
+          stroke: #563e86
+
+        &:hover
+          background: #ffd700
+
+          svg
+            stroke: #563e86
+

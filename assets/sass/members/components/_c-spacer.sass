@@ -1,0 +1,88 @@
+// Spacer Component
+
+
+@use 'sass:color'
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+
+.aegis-spacer
+	position: relative
+	width: 100%
+	display: flex
+	align-items: center
+	justify-content: center
+
+// Linha divisória
+.aegis-spacer--with-divider
+	.aegis-spacer__divider
+		position: absolute
+		top: 50%
+		left: 50%
+		transform: translate(-50%, -50%)
+		border: none
+		margin: 0
+
+// Estilos da linha
+.aegis-spacer--divider-solid .aegis-spacer__divider
+	border-top-style: solid
+
+.aegis-spacer--divider-dashed .aegis-spacer__divider
+	border-top-style: dashed
+
+.aegis-spacer--divider-dotted .aegis-spacer__divider
+	border-top-style: dotted
+
+// Larguras da linha
+.aegis-spacer--divider-width-full .aegis-spacer__divider
+	width: 100%
+
+.aegis-spacer--divider-width-75 .aegis-spacer__divider
+	width: 75%
+
+.aegis-spacer--divider-width-50 .aegis-spacer__divider
+	width: 50%
+
+.aegis-spacer--divider-width-25 .aegis-spacer__divider
+	width: 25%
+
+// Espessuras da linha
+.aegis-spacer--divider-thin .aegis-spacer__divider
+	border-top-width: 1px
+
+.aegis-spacer--divider-medium .aegis-spacer__divider
+	border-top-width: 2px
+
+.aegis-spacer--divider-thick .aegis-spacer__divider
+	border-top-width: 4px
+
+// Cores da linha
+.aegis-spacer--divider-color-default .aegis-spacer__divider
+	border-top-color: rgba(255, 255, 255, 0.1)
+	body.dark &
+		border-top-color: rgba(255, 255, 255, 0.1)
+	body:not(.dark) &
+		border-top-color: rgba(0, 0, 0, 0.1)
+
+.aegis-spacer--divider-color-primary .aegis-spacer__divider
+	border-top-color: $color-main
+
+.aegis-spacer--divider-color-secondary .aegis-spacer__divider
+	border-top-color: $color-second
+
+.aegis-spacer--divider-color-light .aegis-spacer__divider
+	border-top-color: rgba(255, 255, 255, 0.3)
+
+.aegis-spacer--divider-color-dark .aegis-spacer__divider
+	border-top-color: rgba(0, 0, 0, 0.3)
+
+// Remover padding do card quando tiver spacer
+.page-builder-card:has(.aegis-spacer)
+	padding: 0 !important
+	background: transparent !important
+	box-shadow: none !important
+
+	&:hover
+		transform: none !important
+		box-shadow: none !important

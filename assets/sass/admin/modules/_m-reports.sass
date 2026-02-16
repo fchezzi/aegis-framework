@@ -1,0 +1,438 @@
+// ============================================
+// MÓDULO: Reports (Templates Excel)
+// Sistema de upload e mapeamento de relatórios
+// ============================================
+
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+body.m-reportsbody
+  font-family: $font-text
+  background: white
+
+.m-reports
+  padding: 50px
+  background: white
+
+  // Container principal
+  &__container
+    max-width: 1200px
+    margin: 0 auto
+    background: white
+    border-radius: $radius-md
+    padding: 40px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+  // Tabela de templates
+  &__table
+    width: 100%
+    background: white
+    border-radius: $radius-md
+    overflow: hidden
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    font-family: $font-text
+    margin-top: 20px
+
+    th, td
+      padding: 17px
+      text-align: left
+      border-bottom: 1px solid $gray-10
+
+    th
+      background: $color-main 
+      color: white
+      font-weight: 600
+      font-family: $font-text
+      font-size: 14px
+
+    tr:hover
+      background: $gray-05
+
+    td
+      font-size: 14px
+      color: $gray-50
+
+  // Badges de visibilidade
+  &__badge
+    display: inline-block
+    padding: 6px 12px
+    border-radius: 16px
+    font-size: 11px
+    font-weight: 600
+    text-transform: uppercase
+    letter-spacing: 0.5px
+
+    &--visible
+      background: $color-info
+      color: white
+
+    &--hidden
+      background: $gray-30
+      color: white
+
+  // Ações na tabela
+  &__actions
+    @include flex(row, center, flex-start, nowrap)
+    gap: 10px
+
+    form
+      display: inline
+
+  // Empty state
+  &__empty
+    text-align: center
+    padding: 60px 40px
+    background: $gray-05
+    border-radius: $radius-md
+    color: $gray-40
+    margin-top: 20px
+
+    p
+      margin: 10px 0
+      font-size: 14px
+
+      strong
+        color: $gray-50
+        font-size: 16px
+
+    .m-pagebase__btn
+      margin-top: 15px
+
+  // === FORMULÁRIOS (CREATE/EDIT) ===
+
+  &__form-container
+    max-width: 900px
+    margin: 0 auto
+    background: white
+    border-radius: $radius-md
+    padding: 40px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+  &__form-group
+    margin-bottom: 25px
+
+  &__form-label
+    display: block
+    margin-bottom: 8px
+    font-weight: 600
+    color: $gray-50
+    font-size: 14px
+    font-family: $font-text
+
+  &__form-input
+    width: 100%
+    padding: 12px 14px
+    border: 2px solid $gray-10
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    @include transition()
+
+    &:focus
+      outline: none
+      border-color: $color-main 
+      box-shadow: 0 0 0 3px rgba($color-main, 0.1)
+
+    &::placeholder
+      color: $gray-30
+
+  &__form-textarea
+    width: 100%
+    padding: 12px 14px
+    border: 2px solid $gray-10
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    resize: vertical
+    min-height: 80px
+    @include transition()
+
+    &:focus
+      outline: none
+      border-color: $color-main 
+      box-shadow: 0 0 0 3px rgba($color-main, 0.1)
+
+    &::placeholder
+      color: $gray-30
+
+  &__form-file
+    width: 100%
+    padding: 12px 14px
+    border: 2px solid $gray-10
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    cursor: pointer
+    @include transition()
+
+    &:focus
+      outline: none
+      border-color: $color-main 
+      box-shadow: 0 0 0 3px rgba($color-main, 0.1)
+
+  &__form-select
+    width: 100%
+    padding: 12px 14px
+    border: 2px solid $gray-10
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    cursor: pointer
+    @include transition()
+
+    &:focus
+      outline: none
+      border-color: $color-main 
+      box-shadow: 0 0 0 3px rgba($color-main, 0.1)
+
+  &__form-help
+    font-size: 12px
+    color: $gray-30
+    margin-top: 6px
+    font-family: $font-text
+    line-height: 1.4
+    display: block
+
+  // Checkbox
+  &__checkbox-group
+    @include flex(row, center, flex-start, nowrap)
+    gap: 10px
+
+    input[type="checkbox"]
+      width: 18px
+      height: 18px
+      cursor: pointer
+      accent-color: $color-main 
+
+    label
+      margin: 0
+      font-weight: normal
+      color: $gray-50
+      font-size: 14px
+      cursor: pointer
+      font-family: $font-text
+
+  // Arquivo atual (edit)
+  &__current-file
+    background: #e3f2fd
+    padding: 15px
+    border-radius: $radius-sm
+    margin-bottom: 15px
+    font-size: 13px
+    color: $gray-50
+    @include flex(row, center, flex-start, nowrap)
+    gap: 8px
+
+    svg
+      width: 18px
+      height: 18px
+      stroke-width: 2.5
+      color: $color-info
+
+    strong
+      color: $gray-50
+
+  // === MAPEAMENTO DE CÉLULAS ===
+
+  &__cell-mapping
+    border: 2px solid $gray-10
+    padding: 25px
+    border-radius: $radius-md
+    background: $gray-05
+    margin-bottom: 25px
+
+    h3
+      font-size: 18px
+      font-weight: 600
+      margin-bottom: 15px
+      color: $gray-50
+      font-family: $font-title
+
+  &__cell-row
+    @include flex(row, flex-end, flex-start, nowrap)
+    gap: 15px
+    margin-bottom: 15px
+
+    &.hidden
+      display: none
+
+    > div
+      &:first-child
+        width: 150px
+
+      &:nth-child(2)
+        width: 150px
+
+      &:nth-child(3)
+        flex: 1
+
+    input
+      width: 100%
+      padding: 10px 12px
+      border: 2px solid $gray-10
+      border-radius: $radius-sm
+      font-size: 14px
+      font-family: $font-text
+      background: white
+      @include transition()
+
+      &:focus
+        outline: none
+        border-color: $color-main 
+        box-shadow: 0 0 0 2px rgba($color-main, 0.1)
+
+    select
+      width: 100%
+      padding: 10px 12px
+      border: 2px solid $gray-10
+      border-radius: $radius-sm
+      font-size: 14px
+      font-family: $font-text
+      background: white
+      cursor: pointer
+      @include transition()
+
+      &:focus
+        outline: none
+        border-color: $color-main 
+        box-shadow: 0 0 0 2px rgba($color-main, 0.1)
+
+    small
+      color: $gray-30
+      font-size: 12px
+      display: block
+      margin-top: 4px
+      font-family: $font-text
+
+    button
+      padding: 10px 14px
+      background: #e74c3c
+      color: white
+      border: none
+      border-radius: $radius-sm
+      cursor: pointer
+      font-size: 18px
+      line-height: 1
+      @include transition()
+
+      &:hover
+        opacity: 0.9
+
+  // Botão adicionar célula
+  &__btn-add
+    background: $color-info
+    color: white
+    padding: 12px 20px
+    border: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-weight: 600
+    font-family: $font-text
+    cursor: pointer
+    @include transition()
+    margin-top: 10px
+    @include flex(row, center, center, nowrap)
+    gap: 6px
+
+    svg
+      width: 18px
+      height: 18px
+      stroke-width: 2.5
+
+    &:hover
+      opacity: 0.9
+      transform: translateY(-1px)
+
+    &:active
+      transform: translateY(0)
+
+  // Filtro de células (edit)
+  &__filter-input
+    width: 100%
+    padding: 12px 14px
+    border: 2px solid $gray-10
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    margin-bottom: 20px
+    @include transition()
+
+    &:focus
+      outline: none
+      border-color: $color-main 
+      box-shadow: 0 0 0 3px rgba($color-main, 0.1)
+
+    &::placeholder
+      color: $gray-30
+
+  // Botões de ação do form
+  &__form-actions
+    @include flex(row, center, flex-start, wrap)
+    gap: 15px
+    margin-top: 10px
+
+  &__btn-submit
+    background: $color-main 
+    color: white
+    padding: 14px 28px
+    border: none
+    border-radius: $radius-sm
+    font-size: 16px
+    font-weight: 600
+    font-family: $font-text
+    cursor: pointer
+    @include transition()
+
+    &:hover
+      opacity: 0.9
+      transform: translateY(-1px)
+
+    &:active
+      transform: translateY(0)
+
+  &__btn-cancel
+    background: $gray-40
+    color: white
+    padding: 14px 28px
+    border: none
+    border-radius: $radius-sm
+    font-size: 16px
+    font-weight: 600
+    font-family: $font-text
+    text-decoration: none
+    cursor: pointer
+    @include transition()
+    display: inline-block
+
+    &:hover
+      opacity: 0.9
+
+  // Alerts
+  &__alert-success
+    background: #d6eaf8
+    color: #1b4f72
+    padding: 15px 20px
+    border-radius: $radius-sm
+    margin-bottom: 25px
+    border-left: 4px solid #3498db
+    font-size: 14px
+    font-family: $font-text
+    line-height: 1.5
+
+  &__alert-error
+    background: #f8d7da
+    color: #721c24
+    padding: 15px 20px
+    border-radius: $radius-sm
+    margin-bottom: 25px
+    border-left: 4px solid #e74c3c
+    font-size: 14px
+    font-family: $font-text
+    line-height: 1.5

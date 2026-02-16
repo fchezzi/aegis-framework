@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="📤guiacompleto:uploaddearquivos">📤 Guia Completo: Upload de Arquivos</h1>
+
+<blockquote>
+<p><strong>Quando usar:</strong> Qualquer implementação de upload (CRUD, TinyMCE, standalone). Upload é vetor de ataque #1 - seguir TODOS os passos de segurança.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="🎯cenáriosdeupload">🎯 Cenários de Upload</h2>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Cenário </th>
+	<th> Uso </th>
+	<th> Referência </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>CRUD Admin</strong> </td>
+	<td> Foto de produto, imagem destaque, banner </td>
+	<td> Seção 1 </td>
+</tr>
+<tr>
+	<td> <strong>TinyMCE</strong> </td>
+	<td> Upload inline no editor rico </td>
+	<td> Seção 2 </td>
+</tr>
+<tr>
+	<td> <strong>Standalone</strong> </td>
+	<td> Múltiplos arquivos, CSV, galeria </td>
+	<td> Seção 3 </td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="📋antesdecomeçar">📋 Antes de Começar</h2>
+
+<p><strong>Decisões obrigatórias:</strong></p>
+
+<ul>
+<li>[ ] Que tipo de arquivo? (imagem, PDF, CSV, etc)</li>
+<li>[ ] Tamanho máximo? (5MB imagem, 10MB docs)</li>
+<li>[ ] Onde armazenar? (<code>storage/uploads/{tipo}/</code>)</li>
+<li>[ ] Público ou privado?</li>
+</ul>
+
+<hr />
+
+<h2 id="1️⃣cenÁrio1:uploademcrudadmin">1️⃣ CENÁRIO 1: Upload em CRUD Admin</h2>
+
+<p><strong>Exemplo:</strong> Produto com foto, Post com imagem destaque</p>
+
+<h3 id="controllerpattern:">Controller Pattern:</h3>
+
+<pre><code class="php">public function store() {
+    Auth::require();
+    Security::validateCSRF($_POST['csrf_token']);
+
+    $db = DB::connect();
+    $errors = [];
+
+    // Campos normais
+    $nome = Security::sanitize($_POST['nome'] ?? '');
+    if (empty($nome)) $errors[] = 'Nome obrigatório';
+
+    // ✅ UPLOAD DE IMAGEM
+    $imagemPath = null;
+    if (!empty($_FILES['imagem']['tmp_name'])) {
+        $upload = Upload::image($_FILES['imagem'], 'produtos');
+
+        if ($upload['success']) {
+            $imagemPath = $upload['path'];
+        } else {
+            $errors[] = $upload['message']; // ⚠️ 'message' não 'error'
+        }
+    }
+
+    if (!empty($errors)) {
+        $_SESSION['error'] = implode('&lt;br&gt;', $errors);
+        Core::redirect('/admin/produtos/create');
+    }
+
+    // Insert
+    $db-&gt;insert('produtos', [
+        'id' =&gt; Core::generateUUID(),
+        'nome' =&gt; $nome,
+        'imagem' =&gt; $imagemPath,
+        'ativo' =&gt; isset($_POST['ativo']) ? 1 : 0
+    ]);
+
+    $_SESSION['success'] = 'Criado!';
+    Core::redirect('/admin/produtos');
+}
+</code></pre>
+
+<h3 id="updatecomtrocadeimagem:">Update com Troca de Imagem:</h3>
+
+<pre><code class="php">public function update($id) {
+    Auth::require();
+    Security::validateCSRF($_POST['csrf_token']);
+
+    $db = DB::connect();
+
+    // Buscar item atual
+    $item = $db-&gt;query(&quot;SELECT * FROM produtos WHERE id = ?&quot;, [$id])[0];
+
+    // ✅ MANTER IMAGEM ATUAL OU TROCAR
+    $imagemPath = $item['imagem']; // Manter atual
+
+    if (!empty($_FILES['imagem']['tmp_name'])) {
+        $upload = Upload::image($_FILES['imagem'], 'produtos');
+
+        if ($upload['success']) {
+            // Deletar antiga
+            if (!empty($imagemPath)) {
+                Upload::delete($imagemPath); // ⚠️ Upload::delete (não unlink)
+            }
+
+            $imagemPath = $upload['path'];
+        } else {
+            $_SESSION['error'] = $upload['message'];
+            Core::redirect('/admin/produtos/edit/' . $id);
+        }
+    }
+
+    // Update
+    $db-&gt;update('produtos', [
+        'nome' =&gt; Security::sanitize($_POST['nome']),
+        'imagem' =&gt; $imagemPath
+    ], ['id' =&gt; $id]);
+
+    $_SESSION['success'] = 'Atualizado!';
+    Core::redirect('/admin/produtos');
+}
+</code></pre>
+
+<h3 id="deletecomremoçãodearquivo:">Delete com Remoção de Arquivo:</h3>
+
+<pre><code class="php">public function delete($id) {
+    Auth::require();
+    Security::validateCSRF($_POST['csrf_token']);
+
+    $db = DB::connect();
+    $item = $db-&gt;query(&quot;SELECT * FROM produtos WHERE id = ?&quot;, [$id])[0];
+
+    // ✅ DELETAR ARQUIVO
+    if (!empty($item['imagem'])) {
+        Upload::delete($item['imagem']);
+    }
+
+    $db-&gt;delete('produtos', ['id' =&gt; $id]);
+
+    $_SESSION['success'] = 'Deletado!';
+    Core::redirect('/admin/produtos');
+}
+</code></pre>
+
+<h3 id="viewform:">View (Form):</h3>
+
+<pre><code class="php">&lt;form method=&quot;POST&quot; action=&quot;&lt;?= url('/admin/produtos/store') ?&gt;&quot; enctype=&quot;multipart/form-data&quot;&gt;
+    &lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label for=&quot;nome&quot;&gt;Nome *&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;nome&quot; name=&quot;nome&quot; required&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label for=&quot;imagem&quot;&gt;Imagem&lt;/label&gt;
+
+        &lt;!-- Preview imagem atual (edit) --&gt;
+        &lt;?php if (!empty($produto['imagem'])): ?&gt;
+            &lt;div class=&quot;current-image&quot;&gt;
+                &lt;img src=&quot;&lt;?= Upload::url($produto['imagem']) ?&gt;&quot;
+                     alt=&quot;Atual&quot;
+                     style=&quot;max-width: 200px;&quot;&gt;
+                &lt;p&gt;&lt;small&gt;Imagem atual&lt;/small&gt;&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;?php endif; ?&gt;
+
+        &lt;input type=&quot;file&quot; id=&quot;imagem&quot; name=&quot;imagem&quot; accept=&quot;image/jpeg,image/png,image/webp&quot;&gt;
+        &lt;small&gt;JPG, PNG ou WEBP (máx 5MB)&lt;/small&gt;
+    &lt;/div&gt;
+
+    &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot;&gt;Salvar&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+
+<hr />
+
+<h2 id="2️⃣cenÁrio2:uploadnotinymceeditor">2️⃣ CENÁRIO 2: Upload no TinyMCE (Editor)</h2>
+
+<p><strong>Uso:</strong> Upload de imagens inline no conteúdo rico</p>
+
+<h3 id="configem_config.php:">Config em _config.php:</h3>
+
+<pre><code class="php">define('TINYMCE_API_KEY', 'sua-chave-aqui');
+</code></pre>
+
+<h3 id="viewcomtinymce:">View com TinyMCE:</h3>
+
+<pre><code class="php">&lt;textarea id=&quot;conteudo&quot; name=&quot;conteudo&quot;&gt;&lt;/textarea&gt;
+
+&lt;script src=&quot;https://cdn.tiny.cloud/1/&lt;?= TINYMCE_API_KEY ?&gt;/tinymce/6/tinymce.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+tinymce.init({
+    selector: '#conteudo',
+    height: 500,
+    language: 'pt_BR',
+    plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'media', 'table', 'code'],
+    toolbar: 'undo redo | blocks | bold italic | link image media',
+
+    // ✅ Upload de imagens
+    images_upload_url: '&lt;?= url('/admin/blog/upload-image') ?&gt;',
+    automatic_uploads: true,
+
+    // YouTube embed
+    media_live_embeds: true
+});
+&lt;/script&gt;
+</code></pre>
+
+<h3 id="controllerupload:">Controller Upload:</h3>
+
+<pre><code class="php">public function uploadImage() {
+    Auth::require();
+    header('Content-Type: application/json');
+
+    $upload = Upload::image($_FILES['file'], 'blog');
+
+    if ($upload['success']) {
+        echo json_encode([
+            'location' =&gt; url('/storage/uploads/' . $upload['path'])
+        ]);
+    } else {
+        echo json_encode([
+            'error' =&gt; $upload['message']
+        ]);
+    }
+    exit;
+}
+</code></pre>
+
+<h3 id="route:">Route:</h3>
+
+<pre><code class="php">Router::post('/admin/blog/upload-image', function() {
+    $controller = new AdminBlogController();
+    $controller-&gt;uploadImage();
+});
+</code></pre>
+
+<h3 id="databaseconteúdorico:">Database (conteúdo rico):</h3>
+
+<pre><code class="sql">-- Para conteúdo com imagens/vídeos embedados
+conteudo MEDIUMTEXT NOT NULL  -- 16MB (não TEXT 64KB)
+</code></pre>
+
+<hr />
+
+<h2 id="3️⃣cenÁrio3:uploadstandaloneavançado">3️⃣ CENÁRIO 3: Upload Standalone (Avançado)</h2>
+
+<p><strong>Uso:</strong> Múltiplos arquivos, importação CSV, galeria de imagens</p>
+
+<h3 id="múltiplosarquivos:">Múltiplos Arquivos:</h3>
+
+<pre><code class="php">public function uploadMultiple() {
+    Auth::require();
+    Security::validateCSRF($_POST['csrf_token']);
+
+    $db = DB::connect();
+    $uploadedPaths = [];
+    $errors = [];
+
+    // $_FILES['imagens'] é array quando input tem multiple
+    $files = $_FILES['imagens'];
+    $totalFiles = count($files['name']);
+
+    for ($i = 0; $i &lt; $totalFiles; $i++) {
+        // Montar array compatível com Upload::image()
+        $file = [
+            'name' =&gt; $files['name'][$i],
+            'type' =&gt; $files['type'][$i],
+            'tmp_name' =&gt; $files['tmp_name'][$i],
+            'error' =&gt; $files['error'][$i],
+            'size' =&gt; $files['size'][$i]
+        ];
+
+        // Upload individual
+        $upload = Upload::image($file, 'galeria');
+
+        if ($upload['success']) {
+            $uploadedPaths[] = $upload['path'];
+
+            // Salvar no banco (opcional)
+            $db-&gt;insert('galeria_imagens', [
+                'id' =&gt; Core::generateUUID(),
+                'path' =&gt; $upload['path'],
+                'ordem' =&gt; $i
+            ]);
+        } else {
+            $errors[] = &quot;Arquivo {$file['name']}: {$upload['message']}&quot;;
+        }
+    }
+
+    if (!empty($errors)) {
+        $_SESSION['error'] = implode('&lt;br&gt;', $errors);
+    } else {
+        $_SESSION['success'] = count($uploadedPaths) . ' imagens enviadas!';
+    }
+
+    Core::redirect('/admin/galeria');
+}
+</code></pre>
+
+<h3 id="formmúltiplosarquivos:">Form Múltiplos Arquivos:</h3>
+
+<pre><code class="php">&lt;form method=&quot;POST&quot; action=&quot;&lt;?= url('/admin/galeria/upload') ?&gt;&quot; enctype=&quot;multipart/form-data&quot;&gt;
+    &lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label for=&quot;imagens&quot;&gt;Selecionar Imagens&lt;/label&gt;
+        &lt;input type=&quot;file&quot;
+               id=&quot;imagens&quot;
+               name=&quot;imagens[]&quot;
+               multiple
+               accept=&quot;image/*&quot;
+               required&gt;
+        &lt;small&gt;Selecione múltiplas imagens (Ctrl/Cmd + clique)&lt;/small&gt;
+    &lt;/div&gt;
+
+    &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot;&gt;Upload&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+
+<h3 id="importaçãodecsv:">Importação de CSV:</h3>
+
+<pre><code class="php">public function importCSV() {
+    Auth::require();
+    Security::validateCSRF($_POST['csrf_token']);
+
+    if (empty($_FILES['csv']['tmp_name'])) {
+        $_SESSION['error'] = 'Nenhum arquivo enviado';
+        Core::redirect('/admin/produtos/import');
+    }
+
+    $file = $_FILES['csv'];
+
+    // ✅ Validar tipo
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+
+    if (!in_array($mime, ['text/plain', 'text/csv', 'application/csv'])) {
+        $_SESSION['error'] = 'Arquivo deve ser CSV';
+        Core::redirect('/admin/produtos/import');
+    }
+
+    // ✅ Processar CSV
+    $handle = fopen($file['tmp_name'], 'r');
+    $header = fgetcsv($handle); // Primeira linha = cabeçalho
+    $imported = 0;
+    $db = DB::connect();
+
+    while (($row = fgetcsv($handle)) !== false) {
+        // Mapear colunas
+        $nome = $row[0] ?? '';
+        $preco = $row[1] ?? 0;
+
+        if (empty($nome)) continue;
+
+        $db-&gt;insert('produtos', [
+            'id' =&gt; Core::generateUUID(),
+            'nome' =&gt; Security::sanitize($nome),
+            'preco' =&gt; floatval($preco),
+            'ativo' =&gt; 1
+        ]);
+
+        $imported++;
+    }
+
+    fclose($handle);
+
+    $_SESSION['success'] = &quot;{$imported} produtos importados!&quot;;
+    Core::redirect('/admin/produtos');
+}
+</code></pre>
+
+<hr />
+
+<h2 id="🛡️uploadclass-apicompleta">🛡️ Upload Class - API Completa</h2>
+
+<h3 id="upload::image">Upload::image()</h3>
+
+<pre><code class="php">$result = Upload::image($_FILES['foto'], 'produtos', [
+    'maxSize' =&gt; 5242880,  // 5MB (opcional, padrão 5MB)
+    'allowedTypes' =&gt; ['image/jpeg', 'image/png', 'image/webp']  // Opcional
+]);
+
+if ($result['success']) {
+    $path = $result['path'];  // ⚠️ 'path' não 'file'
+} else {
+    $erro = $result['message'];  // ⚠️ 'message' não 'error'
+}
+</code></pre>
+
+<p><strong>Validações automáticas:</strong></p>
+
+<ol>
+<li>MIME type real (finfo, não extensão)</li>
+<li>Extensão permitida baseada no MIME</li>
+<li>Tamanho máximo</li>
+<li>Dimensões (para imagens)</li>
+<li>Nome sanitizado (gerado aleatoriamente)</li>
+<li>Path traversal bloqueado</li>
+<li>Permissões corretas (0644)</li>
+</ol>
+
+<h3 id="upload::delete">Upload::delete()</h3>
+
+<pre><code class="php">Upload::delete($path);  // ⚠️ NÃO usar unlink() diretamente
+</code></pre>
+
+<h3 id="upload::url">Upload::url()</h3>
+
+<pre><code class="php">&lt;img src=&quot;&lt;?= Upload::url($produto['imagem']) ?&gt;&quot; alt=&quot;Produto&quot;&gt;
+</code></pre>
+
+<p>Retorna: <code>/storage/uploads/produtos/2025/02/1739557234_a3f4d5e6.jpg</code></p>
+
+<hr />
+
+<h2 id="🔐checklistdesegurançaobrigatÓrio">🔐 Checklist de Segurança OBRIGATÓRIO</h2>
+
+<pre><code>✅ MIME validation (finfo, não $_FILES['type'])
+✅ Extensão validada baseada no MIME
+✅ Tamanho máximo definido
+✅ Nome sanitizado (aleatório, nunca original)
+✅ CSRF token validado
+✅ Auth::require() no controller
+✅ Upload::delete() ao remover (não unlink)
+✅ Storage fora do webroot OU .htaccess bloqueando execução
+</code></pre>
+
+<h3 id=".htaccessnostoragecrÍtico:">.htaccess no Storage (CRÍTICO):</h3>
+
+<p>Criar <code>storage/uploads/.htaccess</code>:</p>
+
+<pre><code class="apache"># ✅ BLOQUEAR EXECUÇÃO DE SCRIPTS
+&lt;FilesMatch &quot;\.(php|phtml|php3|php4|php5|pl|py|jsp|asp|html|shtml|sh|cgi)$&quot;&gt;
+    Require all denied
+&lt;/FilesMatch&gt;
+
+# ✅ PERMITIR APENAS ARQUIVOS ESPECÍFICOS
+&lt;FilesMatch &quot;\.(jpg|jpeg|png|gif|webp|pdf|doc|docx|xls|xlsx|txt|csv)$&quot;&gt;
+    Require all granted
+&lt;/FilesMatch&gt;
+</code></pre>
+
+<hr />
+
+<h2 id="⚠️erroscomuns">⚠️ Erros Comuns</h2>
+
+<h3 id="❌errado:">❌ ERRADO:</h3>
+
+<pre><code class="php">// 1. Confundir keys do resultado
+$path = $result['file'];  // ❌ Não existe
+$erro = $result['error'];  // ❌ Não existe
+
+// 2. Usar unlink direto
+unlink(UPLOAD_PATH . $path);  // ❌ Path incorreto, sem validação
+
+// 3. Confiar na extensão
+if ($_FILES['file']['type'] == 'image/jpeg') {  // ❌ Pode ser forjado
+
+// 4. Nome original
+$filename = $_FILES['file']['name'];  // ❌ Risco de path traversal
+move_uploaded_file($tmp, &quot;uploads/&quot; . $filename);
+</code></pre>
+
+<h3 id="✅certo:">✅ CERTO:</h3>
+
+<pre><code class="php">// 1. Keys corretas
+$path = $result['path'];
+$erro = $result['message'];
+
+// 2. Upload::delete()
+Upload::delete($path);
+
+// 3. MIME real
+$upload = Upload::image($_FILES['file'], 'tipo');  // Valida MIME interno
+
+// 4. Nome sanitizado
+// Upload::image() gera nome aleatório automaticamente
+</code></pre>
+
+<hr />
+
+<h2 id="📚referências">📚 Referências</h2>
+
+<ul>
+<li><strong>CRUD com upload:</strong> module-patterns.md (Controller Pattern)</li>
+<li><strong>Validação de inputs:</strong> REGRAS.md #6</li>
+<li><strong>CSRF obrigatório:</strong> REGRAS.md #5</li>
+<li><strong>Upload validações:</strong> REGRAS.md #9</li>
+</ul>
+
+<hr />
+
+<p><strong>Versão:</strong> 2.0.0
+<strong>Data:</strong> 2026&#8211;02&#8211;14
+<strong>Changelog:</strong> Refatorado de implementação → guia de uso. Focado em 3 cenários (CRUD, TinyMCE, standalone). Reduzido de 531 → 318 linhas.</p>
+
+</body>
+</html>
+

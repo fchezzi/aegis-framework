@@ -1,0 +1,186 @@
+// ========================================
+// IMPORT CSV - Importação de dados CSV
+// ========================================
+
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+.m-importcsvbody
+  background: #fafbfc
+  font-family: $font-text
+
+.m-import-csv
+  &__intro
+    color: $gray-60
+    margin-bottom: 30px
+    font-size: 15px
+    line-height: 1.6
+
+  // Card/Section
+  &__card
+    background: white
+    border: 1px solid $gray-20
+    border-radius: $radius-md
+    padding: 30px
+    margin-bottom: 30px
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05)
+
+  &__card-title
+    font-size: 20px
+    font-weight: 600
+    color: $gray-90
+    margin-bottom: 20px
+    font-family: $font-title
+
+  // Form
+  &__form-group
+    margin-bottom: 20px
+
+  &__label
+    display: block
+    font-weight: 600
+    margin-bottom: 8px
+    color: $gray-90
+    font-size: 14px
+    font-family: $font-text
+
+  &__select,
+  &__file-input
+    width: 100%
+    padding: 10px
+    border: 1px solid $gray-20
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    @include transition()
+    background: white
+
+    &:focus
+      outline: none
+      border-color: $color-main 
+      box-shadow: 0 0 0 2px rgba($color-main, 0.1)
+
+  &__hint
+    font-size: 12px
+    color: $gray-60
+    margin-top: 5px
+
+  // Buttons
+  &__btn
+    background: $color-main 
+    color: white
+    padding: 12px 24px
+    border: none
+    border-radius: $radius-sm
+    font-size: 14px
+    cursor: pointer
+    font-weight: 600
+    @include transition()
+    @include flex(row, center, center, nowrap)
+    gap: 8px
+
+    svg
+      width: 18px
+      height: 18px
+
+    &:hover
+      background: rgba($color-main, 0.9)
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+    &--success
+      background: #27ae60
+
+      &:hover
+        background: #229954
+
+    &--secondary
+      background: $gray-40
+
+      &:hover
+        background: $gray-50
+
+  // Stats
+  &__stats
+    display: flex
+    gap: 20px
+    margin-bottom: 20px
+    flex-wrap: wrap
+
+  &__stat-box
+    flex: 1
+    min-width: 200px
+    background: $gray-05
+    padding: 15px
+    border-radius: $radius-sm
+
+  &__stat-label
+    font-size: 12px
+    color: $gray-60
+    margin-bottom: 5px
+    font-family: $font-text
+
+  &__stat-value
+    font-size: 24px
+    font-weight: 600
+    color: $gray-90
+    font-family: $font-title
+
+    &--small
+      font-size: 16px
+
+  // Preview Table
+  &__preview-table
+    width: 100%
+    border-collapse: collapse
+    margin-top: 20px
+
+    thead
+      background: $gray-05
+
+    th,
+    td
+      padding: 12px
+      text-align: left
+      border-bottom: 1px solid $gray-20
+      font-size: 13px
+
+    th
+      font-weight: 600
+      color: $gray-90
+      font-family: $font-title
+
+    td
+      color: $gray-70
+      font-family: $font-text
+
+    tr:hover
+      background: $gray-05
+
+  &__preview-footer
+    text-align: center
+    color: $gray-60
+    margin-top: 10px
+    font-size: 12px
+
+  // Actions
+  &__actions
+    display: flex
+    gap: 10px
+    margin-top: 20px
+    flex-wrap: wrap
+
+  // Hidden state
+  &__hidden
+    display: none
+
+  // Loading
+  &__loading
+    text-align: center
+    padding: 20px
+    color: $gray-60
+    font-size: 14px

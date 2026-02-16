@@ -1,0 +1,235 @@
+// ============================================
+// MÓDULO: Includes Admin
+// Gerenciamento de includes do frontend
+// ============================================
+
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+body.m-includesbody
+  font-family: $font-text
+
+.m-includes
+  padding: 50px
+  background: white
+
+  &__table
+    width: 100%
+    background: white
+    border-radius: $radius-md
+    overflow: hidden
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    font-family: $font-text
+
+    th, td
+      padding: 17px
+      text-align: left
+      border-bottom: 1px solid $gray-10
+
+    th
+      background: $color-main 
+      color: white
+      font-weight: 600
+      font-family: $font-text
+
+    tr:hover
+      background: $gray-05
+
+  &__code-copy
+    cursor: pointer
+    user-select: all
+    @include transition()
+
+    &:hover
+      background: #e3f2fd
+
+  &__badge
+    display: inline-block
+    padding: 4px 8px
+    border-radius: 3px
+    font-size: 11px
+    font-weight: 600
+    margin-right: 4px
+    font-family: $font-text
+
+    &--critical
+      background: #9b59b6
+      color: white
+
+    &--backup
+      background: #3498db
+      color: white
+
+  // Empty state
+  &__empty
+    text-align: center
+    padding: 60px 20px
+    background: white
+    border-radius: 8px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    font-family: $font-text
+
+  &__empty-text
+    color: #999
+    font-size: 16px
+
+  // Feedback de cópia
+  &__copied-feedback
+    position: fixed
+    top: 20px
+    right: 20px
+    background: #27ae60
+    color: white
+    padding: 15px 25px
+    border-radius: 6px
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2)
+    z-index: 9999
+    animation: slideIn 0.3s ease
+    font-family: $font-text
+
+  @keyframes slideIn
+    from
+      transform: translateX(400px)
+      opacity: 0
+    to
+      transform: translateX(0)
+      opacity: 1
+
+  // Formulário (create/edit)
+  &__form-container
+    background: white
+    border-radius: $radius-md
+    padding: 30px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    max-width: 1200px
+    margin: 0 auto
+
+    &--narrow
+      max-width: 900px
+
+  &__form-group
+    margin-bottom: 25px
+
+  &__form-label
+    display: block
+    margin-bottom: 8px
+    font-weight: 600
+    color: $gray-50
+    font-size: 14px
+    font-family: $font-text
+
+  &__form-input
+    width: 100%
+    padding: 12px 14px
+    border: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: $gray-05
+    @include transition()
+
+    &:focus
+      outline: none
+      box-shadow: 0 0 0 2px $color-main 
+
+    &::placeholder
+      color: $gray-30
+
+  &__form-checkbox
+    @include flex(row, center, flex-start, nowrap)
+    gap: 10px
+    cursor: pointer
+    font-family: $font-text
+    font-size: 14px
+    color: $gray-50
+    user-select: none
+
+    input[type="checkbox"]
+      width: 18px
+      height: 18px
+      cursor: pointer
+      accent-color: #9b59b6
+
+    span
+      line-height: 1.4
+
+  &__form-textarea
+    width: 100%
+    padding: 12px 14px
+    border: none
+    border-radius: $radius-sm
+    font-size: 13px
+    font-family: 'Courier New', monospace
+    background: $gray-05
+    resize: vertical
+    min-height: 400px
+    @include transition()
+
+    &:focus
+      outline: none
+      box-shadow: 0 0 0 2px $color-main 
+
+    &--large
+      min-height: 500px
+
+  &__form-help
+    font-size: 12px
+    color: $gray-30
+    margin-top: 6px
+    font-family: $font-text
+    line-height: 1.4
+
+  &__form-actions
+    @include flex(row, center, flex-start, wrap)
+    gap: 15px
+    margin-top: 35px
+    padding-top: 25px
+    border-top: 1px solid $gray-10
+
+  // Avisos
+  &__warning
+    background: #fff3cd
+    color: #856404
+    padding: 15px
+    border-radius: $radius-sm
+    margin-bottom: 20px
+    border-left: 4px solid #ffc107
+    font-family: $font-text
+
+    strong
+      display: block
+      margin-bottom: 5px
+
+  &__badge-inline
+    background: #9b59b6
+    color: white
+    padding: 4px 8px
+    border-radius: 4px
+    font-size: 11px
+    margin-left: 10px
+    font-family: $font-text
+
+  // Botão restaurar
+  &__btn-restore
+    background: #3498db
+    color: white
+    padding: 10px 20px
+    text-decoration: none
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    border: none
+    cursor: pointer
+    @include flex(row, center, center, nowrap)
+    gap: 6px
+    @include transition()
+
+    &:hover
+      opacity: 0.9
+
+    svg
+      width: 16px
+      height: 16px
+      stroke-width: 2.5

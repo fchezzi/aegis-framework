@@ -1,0 +1,227 @@
+// ============================================
+// MÓDULO: Admins (Administradores)
+// Gerenciamento de administradores do sistema
+// ============================================
+
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+body.m-adminsbody
+  font-family: $font-text
+  background: white
+
+.m-admins
+  padding: 50px
+  background: white
+
+  // Header com contador
+  &__header
+    @include flex(row, center, space-between, nowrap)
+    margin-bottom: 30px
+
+    h1
+      font-size: 28px
+      font-weight: 600
+      color: $gray-50
+      font-family: $font-title
+
+      span
+        color: $gray-30
+        font-weight: 400
+
+  // Tabela de administradores
+  &__table
+    width: 100%
+    background: white
+    border-radius: $radius-md
+    overflow: hidden
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    font-family: $font-text
+
+    th, td
+      padding: 17px
+      text-align: left
+      border-bottom: 1px solid $gray-10
+
+    th
+      background: $color-main 
+      color: white
+      font-weight: 600
+      font-family: $font-text
+      font-size: 14px
+
+    tr:hover
+      background: $gray-05
+
+    td
+      font-size: 14px
+      color: $gray-50
+
+  // Badges de status
+  &__badge
+    display: inline-flex
+    align-items: center
+    gap: 6px
+    padding: 6px 12px
+    border-radius: 16px
+    font-size: 11px
+    font-weight: 600
+    text-transform: uppercase
+    letter-spacing: 0.5px
+
+    svg
+      width: 14px
+      height: 14px
+      stroke-width: 2.5
+
+    &--active
+      background: $color-info
+      color: white
+
+    &--inactive
+      background: $gray-30
+      color: white
+
+  // Ações (botões na tabela)
+  &__actions
+    @include flex(row, center, flex-start, nowrap)
+    gap: 8px
+
+    form
+      display: inline
+
+  // Formulário (create/edit)
+  &__form-container
+    max-width: 600px
+    margin: 0 auto
+    background: white
+    border-radius: $radius-md
+    padding: 40px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+    h1
+      font-size: 28px
+      font-weight: 600
+      color: $gray-50
+      margin-bottom: 30px
+      font-family: $font-title
+
+  &__form-group
+    margin-bottom: 25px
+
+  &__form-label
+    display: block
+    margin-bottom: 8px
+    font-weight: 600
+    color: $gray-50
+    font-size: 14px
+    font-family: $font-text
+
+  &__form-input
+    width: 100%
+    padding: 12px 14px
+    border: 2px solid $gray-10
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    @include transition()
+
+    &:focus
+      outline: none
+      border-color: $color-main 
+      box-shadow: 0 0 0 3px rgba($color-main, 0.1)
+
+    &::placeholder
+      color: $gray-30
+
+  &__form-select
+    width: 100%
+    padding: 12px 14px
+    border: 2px solid $gray-10
+    border-radius: $radius-sm
+    font-size: 14px
+    font-family: $font-text
+    background: white
+    cursor: pointer
+    @include transition()
+
+    &:focus
+      outline: none
+      border-color: $color-main 
+      box-shadow: 0 0 0 3px rgba($color-main, 0.1)
+
+  &__form-checkbox
+    @include flex(row, center, flex-start, nowrap)
+    gap: 10px
+    font-weight: normal
+    color: $gray-50
+    font-size: 14px
+    cursor: pointer
+    font-family: $font-text
+
+    input[type="checkbox"]
+      width: 18px
+      height: 18px
+      cursor: pointer
+      accent-color: $color-main 
+
+  &__form-help
+    font-size: 12px
+    color: $gray-30
+    margin-top: 6px
+    font-family: $font-text
+    line-height: 1.4
+
+  &__form-submit
+    background: $color-main 
+    color: white
+    padding: 14px 28px
+    border: none
+    border-radius: $radius-sm
+    font-size: 16px
+    font-weight: 600
+    font-family: $font-text
+    cursor: pointer
+    @include transition()
+    margin-top: 10px
+    @include flex(row, center, center, nowrap)
+    gap: 8px
+
+    svg
+      width: 18px
+      height: 18px
+      stroke-width: 2.5
+
+    &:hover
+      opacity: 0.9
+      transform: translateY(-1px)
+
+    &:active
+      transform: translateY(0)
+
+  // Alert de erro
+  &__alert-error
+    background: #f8d7da
+    color: #721c24
+    padding: 15px 20px
+    border-radius: $radius-sm
+    margin-bottom: 25px
+    border-left: 4px solid #e74c3c
+    font-size: 14px
+    font-family: $font-text
+    line-height: 1.5
+
+  // Alert de sucesso (azul)
+  &__alert-success
+    background: #d6eaf8
+    color: #1b4f72
+    padding: 15px 20px
+    border-radius: $radius-sm
+    margin-bottom: 25px
+    border-left: 4px solid #3498db
+    font-size: 14px
+    font-family: $font-text
+    line-height: 1.5

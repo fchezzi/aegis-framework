@@ -1,0 +1,24 @@
+# AEGIS Framework - Upload Security
+# Bloqueia acesso direto a arquivos em /uploads/
+
+# Negar acesso a tudo por padrão
+<FilesMatch ".*">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Permitir apenas imagens (se necessário para exibição pública)
+# Descomente apenas se precisar de acesso público a imagens
+# <FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+#     Order Allow,Deny
+#     Allow from all
+# </FilesMatch>
+
+# Bloquear execução de PHP
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Prevenir listagem de diretórios
+Options -Indexes

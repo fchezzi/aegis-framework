@@ -1,0 +1,69 @@
+{
+  "name": "filtros",
+  "title": "Filtros",
+  "description": "Filtros dinâmicos (canal ou data) com suporte a múltiplos grupos",
+  "version": "2.1.0",
+  "min_size": 2,
+  "max_size": 6,
+  "fields": {
+    "filter_group": {
+      "type": "text",
+      "label": "Grupo do Filtro (Principal)",
+      "required": true,
+      "default": "default",
+      "help": "Nome do grupo principal. Para filtro de canal afetar múltiplos grupos, preencha os campos adicionais abaixo."
+    },
+    "filter_group_2": {
+      "type": "text",
+      "label": "Grupo Adicional 2 (Opcional)",
+      "required": false,
+      "default": "",
+      "help": "Segundo grupo que receberá os eventos deste filtro. Deixe vazio se não precisar."
+    },
+    "filter_group_3": {
+      "type": "text",
+      "label": "Grupo Adicional 3 (Opcional)",
+      "required": false,
+      "default": "",
+      "help": "Terceiro grupo que receberá os eventos deste filtro. Deixe vazio se não precisar."
+    },
+    "filter_type": {
+      "type": "select",
+      "label": "Tipo de Filtro",
+      "required": false,
+      "options": ["", "canal", "data"],
+      "default": "canal",
+      "help": "Escolha primeiro: Canal = filtro por canal/conta | Data = filtro por período"
+    },
+    "label": {
+      "type": "text",
+      "label": "Label do Filtro (opcional)",
+      "required": false,
+      "default": "",
+      "placeholder": "Deixe vazio para label automático",
+      "help": "Texto exibido acima do filtro. Se vazio, usa label automático baseado na plataforma (Canal, Website, etc)"
+    },
+    "platform": {
+      "type": "select",
+      "label": "Plataforma",
+      "required": false,
+      "options": ["youtube", "tiktok", "instagram", "facebook", "website", "x", "twitch", "app"],
+      "default": "youtube",
+      "help": "youtube/twitch = Canal | instagram/tiktok/x = Conta | website/app = Website",
+      "show_if": {
+        "filter_type": "canal"
+      }
+    },
+    "show_presets": {
+      "type": "select",
+      "label": "Mostrar atalhos de data?",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "yes",
+      "help": "Botões: Limpar, Últimos 7, 30, 90 dias, Este mês, Este ano",
+      "show_if": {
+        "filter_type": "data"
+      }
+    }
+  }
+}

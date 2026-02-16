@@ -1,0 +1,44 @@
+// Variables Admin
+// Cores, fontes e configurações do painel administrativo
+
+// ====================================
+// CORES PRINCIPAIS
+// ====================================
+
+$color-main: #6c10b8
+$color-second: #612079
+$color-third: #1D4872
+$color-four: #A39D8F
+$color-five: #A39D8F
+
+// Gradientes
+$gradient-main: linear-gradient(135deg, $color-main 25%, $color-second 100%)
+
+// ====================================
+// BORDER RADIUS
+// ====================================
+$radius-sm: 6px
+$radius-md: 12px
+
+// ====================================
+// CORES DE ALERTA
+// ====================================
+
+$alert-danger-bg: #f8d7da
+$alert-danger-color: #721c24
+$alert-danger-border: #f5c6cb
+
+// ====================================
+// FONTES
+// ====================================
+
+$font-title: Inter
+$font-text: Roboto
+$font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif
+
+// Configurações básicas de tipografia
+p, a, ul, li, button, label, table
+	font-family: $font-text
+
+h1, h2, h3, h4, h5, h6
+	font-family: $font-title  

@@ -1,0 +1,67 @@
+// Home Module
+// Página inicial fullscreen com logo e links
+
+
+
+
+
+@use 'sass:color'
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+
+.m-home
+	width: 100%
+	height: 100vh
+	min-height: 100vh
+	max-height: 100%
+	overflow: hidden
+	background: linear-gradient(135deg, #160f47 0%, #5b1d5c 100%)
+	display: flex
+	align-items: center
+	justify-content: center
+
+	&__container
+		display: flex
+		flex-direction: column
+		align-items: center
+		justify-content: center
+		gap: 40px
+
+	&__logo
+		display: flex
+		align-items: center
+		justify-content: center
+
+		img
+			height: 80px
+			width: auto
+			display: block
+			filter: brightness(0) invert(1)
+
+	&__links
+		display: flex
+		flex-direction: column
+		gap: 20px
+		align-items: center
+
+	&__link
+		display: flex
+		align-items: center
+		justify-content: center
+		padding: 15px 40px
+		background: #5b1d5c
+		color: #ffffff
+		text-decoration: none
+		border-radius: 8px
+		font-size: 16px
+		font-weight: 600
+		font-family: $font-text
+		transition: all 0.3s ease
+		min-width: 200px
+		text-align: center
+
+		&:hover
+			transform: translateY(-2px)
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4)

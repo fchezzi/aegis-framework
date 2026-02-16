@@ -1,0 +1,136 @@
+<?php
+/**
+ * {{CLASS_NAME}}
+ * Controller para {{DESCRIPTION}}
+ */
+
+class {{CLASS_NAME}} extends BaseController {
+
+    /**
+     * Listar todos os registros
+     * GET /{{ROUTE}}
+     */
+    public function index() {
+        $items = DB::table('{{TABLE}}')->get();
+
+        $this->view('{{VIEW_PATH}}/index', [
+            'items' => $items
+        ]);
+    }
+
+    /**
+     * Exibir formulário de criação
+     * GET /{{ROUTE}}/create
+     */
+    public function create() {
+        $this->view('{{VIEW_PATH}}/create');
+    }
+
+    /**
+     * Salvar novo registro
+     * POST /{{ROUTE}}
+     */
+    public function store() {
+        $validator = Validator::make($_POST, [
+            // Defina as regras de validação
+            // 'nome' => 'required|min:3',
+        ]);
+
+        if ($validator->fails()) {
+            $_SESSION['errors'] = $validator->errors();
+            $_SESSION['old'] = $_POST;
+            Core::redirect('/{{ROUTE}}/create');
+            return;
+        }
+
+        $data = $validator->validated();
+        $data['id'] = Security::generateUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+
+        DB::insert('{{TABLE}}', $data);
+
+        $_SESSION['success'] = 'Registro criado com sucesso!';
+        Core::redirect('/{{ROUTE}}');
+    }
+
+    /**
+     * Exibir registro específico
+     * GET /{{ROUTE}}/{id}
+     */
+    public function show($id) {
+        $item = DB::table('{{TABLE}}')->where('id', $id)->first();
+
+        if (!$item) {
+            Core::abort(404);
+        }
+
+        $this->view('{{VIEW_PATH}}/show', [
+            'item' => $item
+        ]);
+    }
+
+    /**
+     * Exibir formulário de edição
+     * GET /{{ROUTE}}/{id}/edit
+     */
+    public function edit($id) {
+        $item = DB::table('{{TABLE}}')->where('id', $id)->first();
+
+        if (!$item) {
+            Core::abort(404);
+        }
+
+        $this->view('{{VIEW_PATH}}/edit', [
+            'item' => $item
+        ]);
+    }
+
+    /**
+     * Atualizar registro
+     * PUT /{{ROUTE}}/{id}
+     */
+    public function update($id) {
+        $item = DB::table('{{TABLE}}')->where('id', $id)->first();
+
+        if (!$item) {
+            Core::abort(404);
+        }
+
+        $validator = Validator::make($_POST, [
+            // Defina as regras de validação
+            // 'nome' => 'required|min:3',
+        ]);
+
+        if ($validator->fails()) {
+            $_SESSION['errors'] = $validator->errors();
+            $_SESSION['old'] = $_POST;
+            Core::redirect("/{{ROUTE}}/{$id}/edit");
+            return;
+        }
+
+        $data = $validator->validated();
+        $data['updated_at'] = date('Y-m-d H:i:s');
+
+        DB::update('{{TABLE}}', $data, ['id' => $id]);
+
+        $_SESSION['success'] = 'Registro atualizado com sucesso!';
+        Core::redirect('/{{ROUTE}}');
+    }
+
+    /**
+     * Excluir registro
+     * DELETE /{{ROUTE}}/{id}
+     */
+    public function destroy($id) {
+        $item = DB::table('{{TABLE}}')->where('id', $id)->first();
+
+        if (!$item) {
+            Core::abort(404);
+        }
+
+        DB::delete('{{TABLE}}', ['id' => $id]);
+
+        $_SESSION['success'] = 'Registro excluído com sucesso!';
+        Core::redirect('/{{ROUTE}}');
+    }
+}

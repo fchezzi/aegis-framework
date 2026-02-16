@@ -1,0 +1,16 @@
+# AEGIS Framework - Scripts Protection
+# Scripts administrativos NÃO devem ser acessados via HTTP
+# Use CLI: php scripts/nome-script.php
+
+# Bloquear acesso HTTP a TODOS os arquivos
+Order Allow,Deny
+Deny from all
+
+# Bloquear listagem de diretórios
+Options -Indexes
+
+# Bloquear execução de PHP via browser
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

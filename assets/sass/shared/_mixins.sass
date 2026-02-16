@@ -1,0 +1,63 @@
+// Mixins
+// Funções reutilizáveis com parâmetros
+
+@use 'sass:color'
+@forward 'responsive'
+
+// ====================================
+// COLOR UTILITIES (SASS Moderno)
+// ====================================
+
+// Escurecer cor (substitui darken deprecado)
+// Uso: darken-color($primary-blue, 10%)
+@function darken-color($color, $amount)
+	@return color.scale($color, $lightness: -$amount)
+
+// Clarear cor (substitui lighten deprecado)
+// Uso: lighten-color($primary-blue, 20%)
+@function lighten-color($color, $amount)
+	@return color.scale($color, $lightness: $amount)
+
+// Saturar cor (mais vibrante)
+// Uso: saturate-color($primary-blue, 30%)
+@function saturate-color($color, $amount)
+	@return color.scale($color, $saturation: $amount)
+
+// Desaturar cor (mais cinza/opaco)
+// Uso: desaturate-color($primary-blue, 40%)
+@function desaturate-color($color, $amount)
+	@return color.scale($color, $saturation: -$amount)
+
+// Adicionar transparência
+// Uso: fade($primary-blue, 0.5) = 50% transparente
+@function fade($color, $opacity)
+	@return color.adjust($color, $alpha: -$opacity)
+
+// ====================================
+// MIXINS EXISTENTES
+// ====================================
+
+// Flex layout customizável
+@mixin flex($dir, $ai, $jc, $fw)
+	display: flex
+	flex-direction: $dir
+	align-items: $ai
+	justify-content: $jc
+	flex-wrap: $fw
+
+// Placeholder moderno (browsers atuais)
+@mixin placeholder
+	&::placeholder
+		@content
+
+// Centralizar absoluto
+@mixin center-absolute
+	position: absolute
+	top: 50%
+	left: 50%
+	transform: translate(-50%, -50%)
+
+// Transition otimizada
+@mixin transition($property: all, $duration: 0.3s, $timing: ease)
+	transition: $property $duration $timing
+

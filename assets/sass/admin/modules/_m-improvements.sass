@@ -1,0 +1,60 @@
+@use 'sass:color'
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+// Melhorias Futuras Module
+
+.m-pagebase
+  &__section
+    margin-bottom: 60px
+
+  &__section-title
+    font-size: 18px
+    font-weight: 600
+    color: $gray-50
+    font-family: $font-title
+    margin-bottom: 30px
+    display: flex
+    align-items: center
+    gap: 8px
+
+    svg
+      width: 20px
+      height: 20px
+      stroke-width: 2
+
+  &__list
+    display: flex
+    flex-direction: column
+    gap: 40px
+
+  &__list-item
+    display: flex
+    justify-content: space-between
+    align-items: flex-start
+    gap: 20px
+    padding: 0
+
+  &__list-item-content
+    flex: 1
+
+  &__list-item-title
+    font-size: 15px
+    font-weight: 400
+    color: $gray-50
+    font-family: $font-title
+    margin: 0 0 8px 0
+
+  &__list-item-description
+    font-size: 13px
+    font-weight: 300
+    color: $gray-40
+    line-height: 1.5
+    margin: 0
+
+  &__list-item-meta
+    display: flex
+    gap: 8px
+    flex-shrink: 0

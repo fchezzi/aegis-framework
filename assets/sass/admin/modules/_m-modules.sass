@@ -1,0 +1,359 @@
+// ============================================
+// MÓDULO: Modules (Gerenciamento)
+// Sistema de instalação/desinstalação de módulos
+// ============================================
+
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+body.m-modulesbody
+  font-family: $font-text
+  background: white
+
+.m-modules
+  padding: 50px
+  background: white
+
+  // Header da página
+  &__header
+    background: white
+    border-radius: $radius-md
+    padding: 40px
+    margin-bottom: 30px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    @include flex(row, center, space-between, nowrap)
+    gap: 30px
+
+    h1
+      font-size: 32px
+      font-weight: 600
+      color: $color-main 
+      margin: 0 0 10px 0
+
+    p
+      font-size: 14px
+      color: $gray-40
+      margin: 0
+
+  // Seção de configurações (público/privado)
+  &__config
+    background: white
+    border-radius: $radius-md
+    padding: 30px
+    margin-bottom: 30px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+    &-intro
+      color: $gray-40
+      margin-bottom: 20px
+      font-size: 14px
+
+    &-list
+      @include flex(column, stretch, flex-start, nowrap)
+      gap: 12px
+
+    &-item
+      @include flex(row, center, flex-start, nowrap)
+      gap: 12px
+      padding: 15px
+      background: $gray-05
+      border-radius: $radius-sm
+      cursor: pointer
+      @include transition()
+
+      &:hover
+        background: $gray-10
+
+      input[type="checkbox"]
+        width: 20px
+        height: 20px
+        cursor: pointer
+        accent-color: $color-main 
+
+      &-content
+        flex: 1
+
+        strong
+          color: $gray-50
+          font-size: 15px
+
+        span
+          color: $gray-40
+          font-size: 13px
+          margin-top: 3px
+          display: block
+
+      &-badge
+        padding: 6px 14px
+        border-radius: 20px
+        font-size: 12px
+        font-weight: 600
+        color: white
+
+        &--public
+          background: $color-main 
+
+        &--private
+          background: $gray-40
+
+  // Título de seção
+  &__section-title
+    font-size: 24px
+    font-weight: 600
+    color: $gray-50
+    margin: 50px 0 25px 0
+    padding: 20px 0
+    @include flex(row, center, flex-start, nowrap)
+    gap: 12px
+
+    &::after
+      content: ''
+      flex: 1
+      height: 2px
+      background: $gray-10
+      border-radius: 2px
+
+  // Card de módulo
+  &__card
+    background: white
+    border-radius: $radius-md
+    padding: 30px
+    margin-bottom: 20px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    @include transition()
+    position: relative
+    overflow: hidden
+
+    &::before
+      content: ''
+      position: absolute
+      top: 0
+      left: 0
+      width: 100%
+      height: 4px
+      background: transparent
+      @include transition()
+
+    &--installed::before
+      background: $color-main 
+
+    &--available::before
+      background: $color-info
+
+    &:hover
+      transform: translateY(-2px)
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
+
+  // Header do card
+  &__card-header
+    @include flex(row, flex-start, space-between, nowrap)
+    margin-bottom: 20px
+    gap: 20px
+
+  // Título do módulo
+  &__title
+    font-size: 24px
+    font-weight: 700
+    color: $gray-50
+    margin: 0 0 8px 0
+    @include flex(row, center, flex-start, nowrap)
+    gap: 12px
+
+  // Ícone do módulo
+  &__icon
+    width: 32px
+    height: 32px
+    color: $color-main 
+
+  // Versão do módulo
+  &__version
+    display: inline-block
+    background: $gray-10
+    padding: 6px 14px
+    border-radius: 20px
+    font-size: 13px
+    font-weight: 600
+    color: $gray-40
+    margin-right: 8px
+
+  // Descrição
+  &__description
+    color: $gray-40
+    font-size: 15px
+    line-height: 1.6
+    margin-bottom: 20px
+
+  // Meta informações
+  &__meta
+    @include flex(row, center, flex-start, wrap)
+    gap: 25px
+    margin-bottom: 20px
+    padding: 15px
+    background: $gray-05
+    border-radius: $radius-sm
+
+    &-item
+      @include flex(row, center, flex-start, nowrap)
+      gap: 8px
+      font-size: 14px
+      color: $gray-40
+
+      strong
+        color: $gray-50
+
+  // Ações (botões)
+  &__actions
+    @include flex(row, center, flex-start, wrap)
+    gap: 12px
+
+  // Requisitos
+  &__requirements
+    background: $gray-05
+    padding: 15px 20px
+    border-radius: $radius-sm
+    font-size: 14px
+    color: $gray-40
+    margin-top: 15px
+    border-left: 3px solid $color-info
+
+    strong
+      color: $gray-50
+
+    &-list
+      margin: 10px 0 0 0
+      padding-left: 25px
+
+  // Botões
+  &__btn
+    padding: 12px 24px
+    border: none
+    border-radius: $radius-sm
+    cursor: pointer
+    font-size: 14px
+    font-weight: 600
+    text-decoration: none
+    @include flex(row, center, center, nowrap)
+    gap: 8px
+    @include transition()
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+    &:hover
+      transform: translateY(-2px)
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15)
+
+    &:active
+      transform: translateY(0)
+
+    &--primary
+      background: $color-main 
+      color: white
+
+      &:hover
+        opacity: 0.9
+
+    &--danger
+      background: #e74c3c
+      color: white
+
+      &:hover
+        opacity: 0.9
+
+    &--secondary
+      background: $gray-40
+      color: white
+
+      &:hover
+        opacity: 0.9
+
+    &--back
+      background: $color-main 
+      color: white
+
+      &:hover
+        opacity: 0.9
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+      transform: none !important
+
+    svg
+      width: 18px
+      height: 18px
+      stroke-width: 2.5
+
+  // Badges
+  &__badge
+    display: inline-flex
+    align-items: center
+    gap: 6px
+    padding: 6px 12px
+    border-radius: 16px
+    font-size: 11px
+    font-weight: 600
+    text-transform: uppercase
+    letter-spacing: 0.5px
+
+    svg
+      width: 14px
+      height: 14px
+      stroke-width: 2.5
+
+    &--installed
+      background: $color-main 
+      color: white
+
+    &--available
+      background: #b388cc
+      color: white
+
+  // Empty state
+  &__empty
+    background: white
+    text-align: center
+    padding: 60px 40px
+    border-radius: $radius-md
+    color: $gray-40
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+    &-icon
+      font-size: 64px
+      margin-bottom: 20px
+      opacity: 0.5
+
+    p
+      margin: 10px 0
+
+      strong
+        color: $gray-50
+
+  // Alerts (reaproveitando do components)
+  &__alert
+    padding: 15px 20px
+    border-radius: $radius-sm
+    margin-bottom: 20px
+    @include flex(row, center, flex-start, nowrap)
+    gap: 10px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+    &--success
+      background: #d6eaf8
+      color: #1b4f72
+      border-left: 4px solid #3498db
+
+    &--error
+      background: #f8d7da
+      color: #721c24
+      border-left: 4px solid #e74c3c
+
+    &--warning
+      background: #fff3cd
+      color: #856404
+      border-left: 4px solid #f39c12
+
+  // Back button container
+  &__back-container
+    text-align: center
+    margin-top: 50px

@@ -1,0 +1,34 @@
+// HTML Livre Component Styles
+// components/html-livre/HtmlLivre.php
+
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+
+// Wrapper do componente (se usar classe adicional)
+.html-livre-wrapper
+    // Não aplica estilos por padrão
+    // O código HTML inserido controla totalmente o visual
+
+    // Apenas reset básico para garantir consistência
+    box-sizing: border-box
+
+    // Se precisar de espaçamento padrão, descomente:
+    // padding: 20px
+    // margin-bottom: 20px
+
+// Estado vazio (quando não tem código)
+.html-livre-empty
+    padding: 40px 20px
+    text-align: center
+    color: $gray-50
+    background: $gray-10
+    border: 2px dashed $gray-30
+    border-radius: 8px
+    font-style: italic
+
+    body.dark &
+        background: $gray-90
+        border-color: $gray-70
+        color: $gray-40

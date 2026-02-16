@@ -1,0 +1,106 @@
+// Page Builder Module
+// Grid system de 6 colunas para blocos/cards
+
+
+
+
+
+@use 'sass:color'
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+
+// Row (bloco horizontal)
+.page-builder-row
+	display: flex
+	gap: 20px
+	margin-bottom: 20px
+	flex-wrap: wrap
+
+	// Mobile: stack vertical
+	@include responsive-max($tabletSmall)
+		flex-direction: column
+		gap: 15px
+
+// Colunas (1-6)
+.page-builder-col-1
+	flex: 0 0 calc((100% / 6) - (20px * 5 / 6))
+
+	@include responsive-max($tabletSmall)
+		flex: 0 0 100%
+
+.page-builder-col-2
+	flex: 0 0 calc((100% / 6 * 2) - (20px * 4 / 6))
+
+	@include responsive-max($tabletSmall)
+		flex: 0 0 100%
+
+.page-builder-col-3
+	flex: 0 0 calc((100% / 6 * 3) - (20px * 3 / 6))
+
+	@include responsive-max($tabletSmall)
+		flex: 0 0 100%
+
+.page-builder-col-4
+	flex: 0 0 calc((100% / 6 * 4) - (20px * 2 / 6))
+
+	@include responsive-max($tabletSmall)
+		flex: 0 0 100%
+
+.page-builder-col-5
+	flex: 0 0 calc((100% / 6 * 5) - (20px * 1 / 6))
+
+	@include responsive-max($tabletSmall)
+		flex: 0 0 100%
+
+.page-builder-col-6
+	flex: 0 0 100%
+
+// Card (conteúdo do card)
+.page-builder-card
+	background: white
+	border-radius: 8px
+	padding: 30px
+	height: 100%
+	box-shadow: 0 2px 4px rgba(0,0,0,0.05)
+	transition: all 0.3s ease
+
+	&:hover
+		box-shadow: 0 4px 12px rgba(0,0,0,0.1)
+		transform: translateY(-2px)
+
+	// Dark mode
+	body.dark &
+		background: rgba(0, 0, 0, 0.2)
+
+	// Títulos h3 com mesmas características de .table-title
+	h3
+		font-size: 20px
+		letter-spacing: 0.25px
+		color: #e7515a
+		font-family: 'inter' !important
+		margin: 0
+		font-weight: 600
+
+		body:not(.dark) &
+			color: #0056ff
+
+// Placeholder (quando card está vazio)
+.page-builder-placeholder
+	display: flex
+	align-items: center
+	justify-content: center
+	min-height: 150px
+	border-radius: 7px
+	color: purple
+	font-weight: 500
+
+	body.dark &
+		color: red
+
+	p
+		margin: 0
+		font-size: 14px
+		text-transform: uppercase
+		letter-spacing: 1px

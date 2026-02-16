@@ -1,0 +1,347 @@
+// Tabelas Component
+// Componente de tabelas responsivas com busca, ordenação e paginação
+
+
+@use 'sass:color'
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+
+// Variáveis específicas do componente
+$table-primary: #667eea
+$table-secondary: #95a5a6
+$table-success: #27ae60
+$table-dark: #2c3e50
+$table-border: #ddd
+$table-hover: #f9f9f9
+$table-padding: 17px
+$table-padding-compact: 8px 10px
+
+// Wrapper principal
+.aegis-table-wrapper
+    width: 100%
+
+// Título da tabela
+.table-title
+    font-size: 20px
+    letter-spacing: 0.25px
+    color: #e7515a
+    margin: 0 0 20px 0
+    font-weight: normal
+    font-family:'inter' !important
+
+    body:not(.dark) &
+        color: #0056ff
+
+// Campo de busca
+.table-search-wrapper
+    margin-bottom: 15px
+    position: relative
+
+    .lucide-search
+        position: absolute
+        left: 15px
+        top: 50%
+        transform: translateY(-50%)
+        width: 18px
+        height: 18px
+        color: white
+        opacity: 0.6
+
+        body:not(.dark) &
+            color: $gray-50
+            opacity: 0.7
+
+.table-search
+    width: 100%
+    padding: 15px 15px 15px 45px
+    border: 1px solid $gray-50
+    border-radius: 5px !important
+    font-size: 14px
+    font-family: 'Roboto', sans-serif
+    transition: all 0.3s ease
+    background: none
+    color: white
+
+    body:not(.dark) &
+        background: white
+        border-color: $table-border
+        color: #333
+
+    &:focus
+        outline: none
+        border-color: $table-primary
+
+// Container com scroll horizontal
+.table-container
+    overflow-x: auto
+
+// Tabela base
+.aegis-table
+    width: 100%
+
+    body:not(.dark) &
+        background: white
+
+    th,
+    td
+        padding: $table-padding
+        text-align: left
+        color: $gray-25
+        font-size: 14px
+
+        body:not(.dark) &
+            color: $gray-90
+
+    th
+        font-weight: normal
+        color: white
+
+    tbody
+        tr
+            border-bottom: 1px solid $gray-90
+            transition: background 0.2s ease
+
+            body:not(.dark) &
+                border-bottom-color: #eee
+
+            &:hover
+                background: rgba(0, 0, 0, .25)
+
+                body:not(.dark) &
+                    background: $table-hover
+
+    // Variação: Striped (listrado)
+    &.table-striped tbody tr:nth-child(even)
+        background: $gray-85
+
+        body:not(.dark) &
+            background: #f8f8f8
+
+    // Variação: Bordered (com bordas)
+    &.table-bordered
+        border: 1px solid $gray-80
+
+        body:not(.dark) &
+            border-color: $table-border
+
+        th,
+        td
+            border: 1px solid $gray-80
+
+            body:not(.dark) &
+                border-color: $table-border
+
+    // Variação: Compact (compacto)
+    &.table-compact
+        th,
+        td
+            padding: $table-padding-compact
+
+    // Cores de cabeçalho
+    &.header-primary th
+        background: none
+        border-bottom: 1px solid $gray-35
+
+    &.header-secondary th
+        background: $table-secondary
+
+    &.header-success th
+        background: $table-success
+
+    &.header-dark th
+        background: $table-dark
+
+// Colunas ordenáveis
+.sortable
+    cursor: pointer
+    user-select: none
+    position: relative
+    padding-right: 30px
+
+    .sort-icon
+        position: absolute
+        right: 8px
+        top: 50%
+        transform: translateY(-50%)
+        width: 16px
+        height: 16px
+        opacity: 0.4
+        transition: opacity 0.2s ease
+
+    &:hover .sort-icon
+        opacity: 0.7
+
+    &.asc .sort-icon,
+    &.desc .sort-icon
+        opacity: 1
+
+// Paginação
+.table-pagination
+    display: flex
+    justify-content: center
+    align-items: center
+    gap: 15px
+    margin-top: 15px
+    padding: 15px
+    font-family: 'roboto'
+
+    body:not(.dark) &
+        background: white
+
+    span
+        font-family: 'roboto'
+
+.page-btn
+    padding: 8px 16px
+    background: $table-primary
+    color: white
+    border: none
+    border-radius: 4px
+    cursor: pointer
+    font-weight: 600
+    transition: opacity 0.2s ease
+    font-family: 'roboto'
+    font-size: 14px
+
+    &:hover:not(:disabled)
+        opacity: 0.9
+
+    &:disabled
+        background: #ccc
+        cursor: not-allowed
+
+.page-info
+    font-size: 14px
+    color: $gray-50
+
+    body:not(.dark) &
+        color: #666
+
+    .current-page,
+    .total-pages
+        font-weight: 600
+        color: $table-primary
+
+// Mensagens de erro e status
+.aegis-table-error
+    padding: 20px
+    background: #fee
+    color: #c33
+    border-radius: 4px
+    text-align: center
+    font-weight: 600
+    font-family: 'roboto'
+
+.table-no-results
+    text-align: center
+    padding: 20px
+    color: $gray-50
+
+    body:not(.dark) &
+        color: #999
+
+.table-loading
+    text-align: center
+    padding: 20px
+
+.table-loading-icon
+    animation: spin 1s linear infinite
+
+.table-error
+    text-align: center
+    padding: 20px
+    color: #e7515a
+
+    body:not(.dark) &
+        color: #c33
+
+// Animação de loading
+@keyframes spin
+    from
+        transform: rotate(0deg)
+    to
+        transform: rotate(360deg)
+
+// Loading indicator (filtros)
+.aegis-table-loading
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background: rgba(255, 255, 255, 0.9)
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 12px
+    z-index: 10
+    border-radius: 8px
+
+    body:not(.dark) &
+        background: rgba(255, 255, 255, 0.95)
+
+    body.dark &
+        background: rgba(30, 30, 30, 0.95)
+
+    .spinner
+        width: 24px
+        height: 24px
+        border: 3px solid #f3f3f3
+        border-top: 3px solid #ff6201
+        border-radius: 50%
+        animation: spin 0.8s linear infinite
+
+        body.dark &
+            border-color: #444
+            border-top-color: #5b1d5c
+
+    span
+        font-size: 14px
+        color: #666
+        font-weight: 500
+        font-family: 'Roboto', sans-serif
+
+        body.dark &
+            color: #aaa
+
+// Mensagem de tabela vazia (sem resultados nos filtros)
+.aegis-table-empty
+    display: none
+    padding: 40px 20px
+    text-align: center
+    background: #f8f9fa
+    border-radius: 8px
+    margin-top: 16px
+
+    body.dark &
+        background: #1e1e1e
+
+    p
+        margin: 0
+        font-size: 16px
+        color: #666
+        font-weight: 500
+        font-family: 'Roboto', sans-serif
+
+        body.dark &
+            color: #aaa
+
+// Colunas escondidas (usadas para filtros, mas não visíveis)
+.hidden-filter-column
+    display: none !important
+
+// Responsivo
+@include responsive-max($tablet)
+    .aegis-table
+        th,
+        td
+            font-size: 14px
+
+    .table-search
+        font-size: 13px
+
+    .table-pagination
+        flex-wrap: wrap
+        gap: 10px

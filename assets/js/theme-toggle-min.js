@@ -1,0 +1,1 @@
+const themeToggle=document.querySelector(".theme-toggle");themeToggle&&themeToggle.addEventListener("click",(function(e){e.preventDefault(),document.body.classList.toggle("dark");const t=document.body.classList.contains("dark");localStorage.setItem("theme",t?"dark":"light")}));

@@ -1,0 +1,75 @@
+{
+  "name": "ultimaatualizacao",
+  "title": "Última Atualização",
+  "description": "Exibe a data/hora da última atualização de uma tabela",
+  "version": "2.0.0",
+  "min_size": 1,
+  "max_size": 6,
+  "fields": {
+    "table": {
+      "type": "select",
+      "label": "Tabela",
+      "required": true,
+      "default": "tbl_instagram",
+      "data_source": "tables",
+      "help": "Escolha a tabela de onde buscar a última atualização"
+    },
+    "date_field": {
+      "type": "select",
+      "label": "Campo de Data",
+      "required": true,
+      "default": "data",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Campo de data usado para buscar o registro mais recente"
+    },
+    "prefix_text": {
+      "type": "text",
+      "label": "Texto Prefixo",
+      "required": false,
+      "default": "Última atualização realizada em:",
+      "help": "Texto exibido antes da data"
+    },
+    "date_format": {
+      "type": "select",
+      "label": "Formato da Data",
+      "required": false,
+      "options": ["datetime", "date", "relative"],
+      "default": "datetime",
+      "help": "datetime: 11/01/2026 às 22:45 | date: 11/01/2026 | relative: há 2 horas"
+    },
+    "style": {
+      "type": "select",
+      "label": "Estilo de Exibição",
+      "required": false,
+      "options": ["default", "badge", "card", "inline"],
+      "default": "default",
+      "help": "default: parágrafo simples | badge: destaque colorido | card: box com sombra | inline: texto inline"
+    },
+    "icon": {
+      "type": "text",
+      "label": "Ícone (Lucide)",
+      "required": false,
+      "default": "clock",
+      "help": "Nome do ícone Lucide (ex: clock, calendar, refresh-cw, database). Deixe vazio para não exibir ícone."
+    },
+    "show_empty": {
+      "type": "select",
+      "label": "Exibir se não houver dados?",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "no",
+      "help": "yes: exibe mensagem 'Nenhum dado disponível' | no: não exibe nada"
+    },
+    "empty_text": {
+      "type": "text",
+      "label": "Texto quando vazio",
+      "required": false,
+      "default": "Nenhum dado disponível",
+      "help": "Mensagem exibida quando não há registros na tabela",
+      "show_if": {
+        "show_empty": "yes"
+      }
+    }
+  }
+}

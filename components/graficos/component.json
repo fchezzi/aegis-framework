@@ -1,0 +1,125 @@
+{
+  "name": "graficos",
+  "title": "Gráficos",
+  "description": "Gráficos dinâmicos com ApexCharts (line, area, bar, donut, pie)",
+  "version": "1.0.0",
+  "min_size": 2,
+  "max_size": 6,
+  "fields": {
+    "chart_id": {
+      "type": "text",
+      "label": "ID do Gráfico",
+      "required": true,
+      "default": "chart-1",
+      "help": "ID único para o gráfico (ex: chart-facebook-views, chart-youtube-growth)"
+    },
+    "chart_type": {
+      "type": "select",
+      "label": "Tipo de Gráfico",
+      "required": true,
+      "options": ["line", "area", "bar", "donut", "pie"],
+      "default": "area",
+      "help": "line=Linha, area=Área preenchida, bar=Barras, donut=Rosquinha, pie=Pizza"
+    },
+    "title": {
+      "type": "text",
+      "label": "Título do Gráfico",
+      "required": false,
+      "default": "",
+      "help": "Título exibido acima do gráfico (ex: Evolução Mensal, Comparativo de Plataformas)"
+    },
+    "subtitle": {
+      "type": "text",
+      "label": "Subtítulo",
+      "required": false,
+      "default": "",
+      "help": "Texto descritivo abaixo do título (ex: Últimos 30 dias, Dados consolidados)"
+    },
+    "table": {
+      "type": "select",
+      "label": "Tabela (fonte de dados)",
+      "required": true,
+      "default": "tbl_facebook",
+      "data_source": "tables",
+      "help": "Tabela de onde os dados serão extraídos"
+    },
+    "columns": {
+      "type": "text",
+      "label": "Colunas (separadas por vírgula)",
+      "required": true,
+      "default": "visualizacoes",
+      "help": "Uma ou mais colunas separadas por vírgula (ex: visualizacoes,seguidores,ganhos)"
+    },
+    "date_field": {
+      "type": "select",
+      "label": "Campo de Data",
+      "required": true,
+      "default": "data",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Campo de data usado para agrupar os dados (ex: data, created_at)"
+    },
+    "group_by": {
+      "type": "select",
+      "label": "Agrupar por",
+      "required": false,
+      "options": ["day", "week", "month", "year"],
+      "default": "day",
+      "help": "day=Diário, week=Semanal, month=Mensal, year=Anual"
+    },
+    "filter_group": {
+      "type": "text",
+      "label": "Grupo do Filtro",
+      "required": false,
+      "default": "",
+      "help": "Nome do grupo de filtros. Componentes do mesmo grupo trabalham juntos (ex: facebook, youtube)"
+    },
+    "filter_value_field": {
+      "type": "select",
+      "label": "Campo para Filtro de Canal",
+      "required": false,
+      "default": "",
+      "data_source": "columns",
+      "depends_on": "table",
+      "help": "Campo usado para filtrar por canal/categoria (ex: canal_id, account)"
+    },
+    "colors": {
+      "type": "text",
+      "label": "Cores (separadas por vírgula)",
+      "required": false,
+      "default": "#667eea,#ff6b6b,#ffd93d,#6bcf7f",
+      "help": "Cores em hexadecimal separadas por vírgula (ex: #667eea,#ff6b6b,#ffd93d)"
+    },
+    "height": {
+      "type": "text",
+      "label": "Altura (pixels)",
+      "required": false,
+      "default": "350",
+      "help": "Altura do gráfico em pixels (ex: 300, 400, 500)"
+    },
+    "curve": {
+      "type": "select",
+      "label": "Curva da Linha",
+      "required": false,
+      "options": ["smooth", "straight", "stepline"],
+      "default": "smooth",
+      "help": "Apenas para gráficos de linha/área. smooth=Suave, straight=Reta, stepline=Degraus"
+    },
+    "show_labels": {
+      "type": "select",
+      "label": "Mostrar Valores nos Pontos?",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "no",
+      "help": "Exibir os valores numéricos em cada ponto do gráfico"
+    },
+    "compare_period": {
+      "type": "select",
+      "label": "Comparar com período anterior?",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "no",
+      "help": "Adiciona uma segunda série comparando com o mesmo período anterior (ex: 2024 vs 2025, Janeiro vs Fevereiro)"
+    }
+  }
+}

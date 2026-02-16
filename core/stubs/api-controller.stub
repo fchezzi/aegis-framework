@@ -1,0 +1,118 @@
+<?php
+/**
+ * {{CLASS_NAME}}
+ * API Controller para {{DESCRIPTION}}
+ *
+ * Endpoints:
+ * - GET    /api/v1/{{ROUTE}}        Lista todos
+ * - POST   /api/v1/{{ROUTE}}        Cria novo
+ * - GET    /api/v1/{{ROUTE}}/{id}   Exibe um
+ * - PUT    /api/v1/{{ROUTE}}/{id}   Atualiza
+ * - DELETE /api/v1/{{ROUTE}}/{id}   Remove
+ */
+
+class {{CLASS_NAME}} extends ApiController {
+
+    /**
+     * Listar todos os registros
+     * GET /api/v1/{{ROUTE}}
+     */
+    public function index() {
+        $this->rateLimit(60, 60);
+
+        list($page, $perPage) = $this->getPagination();
+        $offset = ($page - 1) * $perPage;
+
+        $items = DB::table('{{TABLE}}')
+            ->limit($perPage)
+            ->offset($offset)
+            ->get();
+
+        $total = DB::table('{{TABLE}}')->count();
+
+        $this->paginated($items, $total, $page, $perPage);
+    }
+
+    /**
+     * Criar novo registro
+     * POST /api/v1/{{ROUTE}}
+     */
+    public function store() {
+        $this->requireAuth();
+
+        $this->validate([
+            // Defina as regras de validação
+            // 'nome' => 'required|min:3',
+        ]);
+
+        $data = $this->validated();
+        $data['id'] = Security::generateUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+
+        DB::insert('{{TABLE}}', $data);
+
+        $item = DB::table('{{TABLE}}')->where('id', $data['id'])->first();
+
+        $this->created($item);
+    }
+
+    /**
+     * Exibir registro específico
+     * GET /api/v1/{{ROUTE}}/{id}
+     */
+    public function show($id) {
+        $item = DB::table('{{TABLE}}')->where('id', $id)->first();
+
+        if (!$item) {
+            $this->notFound('Registro não encontrado');
+        }
+
+        $this->success($item);
+    }
+
+    /**
+     * Atualizar registro
+     * PUT /api/v1/{{ROUTE}}/{id}
+     */
+    public function update($id) {
+        $this->requireAuth();
+
+        $item = DB::table('{{TABLE}}')->where('id', $id)->first();
+
+        if (!$item) {
+            $this->notFound('Registro não encontrado');
+        }
+
+        $this->validate([
+            // Defina as regras de validação
+            // 'nome' => 'required|min:3',
+        ]);
+
+        $data = $this->validated();
+        $data['updated_at'] = date('Y-m-d H:i:s');
+
+        DB::update('{{TABLE}}', $data, ['id' => $id]);
+
+        $updated = DB::table('{{TABLE}}')->where('id', $id)->first();
+
+        $this->success($updated, 'Registro atualizado com sucesso');
+    }
+
+    /**
+     * Excluir registro
+     * DELETE /api/v1/{{ROUTE}}/{id}
+     */
+    public function destroy($id) {
+        $this->requireAuth();
+
+        $item = DB::table('{{TABLE}}')->where('id', $id)->first();
+
+        if (!$item) {
+            $this->notFound('Registro não encontrado');
+        }
+
+        DB::delete('{{TABLE}}', ['id' => $id]);
+
+        $this->success(null, 'Registro excluído com sucesso');
+    }
+}

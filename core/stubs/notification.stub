@@ -1,0 +1,59 @@
+<?php
+/**
+ * {{CLASS_NAME}}
+ * {{DESCRIPTION}}
+ *
+ * @example
+ * Notification::send($user, new {{CLASS_NAME}}($data));
+ */
+
+class {{CLASS_NAME}} extends Notifiable {
+
+    /**
+     * Dados da notificação
+     */
+    private $data;
+
+    public function __construct(array $data = []) {
+        $this->data = $data;
+    }
+
+    /**
+     * Canais de entrega
+     */
+    public function via($notifiable) {
+        return ['database', 'mail'];
+    }
+
+    /**
+     * Representação para banco de dados
+     */
+    public function toDatabase($notifiable) {
+        return [
+            'title' => '{{TITLE}}',
+            'message' => 'Detalhes da notificação...',
+            'data' => $this->data
+        ];
+    }
+
+    /**
+     * Representação para email
+     */
+    public function toMail($notifiable) {
+        $name = $notifiable['nome'] ?? $notifiable['name'] ?? 'Usuário';
+
+        return (new NotificationMail())
+            ->subject('{{TITLE}}')
+            ->greeting("Olá, {$name}!")
+            ->line('Conteúdo principal da notificação.')
+            ->action('Ver Detalhes', url('/'))
+            ->salutation('Atenciosamente');
+    }
+
+    /**
+     * Representação como array
+     */
+    public function toArray($notifiable) {
+        return $this->toDatabase($notifiable);
+    }
+}

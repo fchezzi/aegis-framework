@@ -1,0 +1,16 @@
+parameters:
+    level: 6
+    paths:
+        - core
+        - admin
+        - modules
+        - public
+    excludePaths:
+        - */vendor/*
+        - */storage/*
+        - */node_modules/*
+    ignoreErrors:
+        # PDO methods
+        - '#Call to an undefined method PDO::#'
+        # MySQLAdapter dynamic methods
+        - '#Call to an undefined method MySQLAdapter::#'

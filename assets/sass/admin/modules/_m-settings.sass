@@ -1,0 +1,114 @@
+// Settings Page Styles
+@use '../base/variables' as *
+@use '../../shared/colors' as *
+
+.m-settingsbg
+  background: #f5f5f5 !important
+
+.m-settings
+
+  &__subtitle
+    color: $color-main !important
+    font-size: 17px
+    padding: 0 0 5px 10px
+    border-bottom: 1px solid $gray-15
+    margin: 0 0 35px 0
+
+  &__section
+    background: #ffffff
+    padding: 35px
+    margin: 0 0 40px 0
+    border-radius: $radius-md
+    border: none
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08)
+
+  &__section-title
+    display: flex
+    align-items: center
+    gap: 12px
+    font-size: 18px
+    font-weight: 600
+    color: $color-main 
+    margin: -35px -35px 20px -35px
+    padding: 16px 20px
+    background: linear-gradient(135deg, rgba($color-main, 0.08) 0%, rgba($color-main, 0.02) 100%)
+    border-bottom: 2px solid rgba($color-main, 0.25)
+    font-family: $font-title
+    border-radius: $radius-md $radius-md 0 0
+
+    i
+      width: 20px
+      height: 20px
+      color: $color-main 
+      stroke-width: 2.5
+
+    span
+      flex: 1
+
+  &__color-group
+    display: flex
+    gap: 10px
+    align-items: center
+
+  &__color-picker
+    width: 60px
+    height: 50px
+    border: 2px solid #e0e0e0
+    border-radius: $radius-sm !important
+    cursor: pointer
+
+  &__color-input
+    width: 120px
+    text-transform: uppercase
+
+  &__logo-preview
+    margin-top: 10px
+
+    img
+      max-width: 200px
+      max-height: 100px
+      margin-top: 5px
+      border: 1px solid #e0e0e0
+      padding: 5px
+      background: #fff
+
+  &__grid
+    display: grid
+    grid-template-columns: repeat(3, 1fr)
+    gap: 40px
+    margin-bottom: 30px
+    width: 100%
+
+  &__column
+    display: flex
+    flex-direction: column
+    gap: 0
+
+  &__form-group
+    margin-bottom: 0 
+    
+  &__form-help
+    font-size: 13px
+    color: $gray-50
+    margin-top: 6px
+    margin-bottom: 20px
+    font-family: $font-text
+    line-height: 1.5
+
+    a
+      color: $color-main 
+      text-decoration: none
+
+      &:hover
+        text-decoration: underline
+
+.m-pagebase__header-actions
+  display: flex
+  gap: 10px
+
+.m-pagebase__form-actions
+  margin-top: 30px
+
+@media (max-width: 1200px)
+  .m-settings__grid
+    grid-template-columns: 1fr

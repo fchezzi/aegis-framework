@@ -1,0 +1,384 @@
+@font-face {
+  font-family: "inter";
+  src: url("../fonts/inter.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "roboto";
+  src: url("../fonts/roboto.ttf");
+  font-display: swap;
+}
+p, a, ul, li, button, label, table {
+  font-family: "inter", sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "roboto", sans-serif;
+}
+
+.u-c-main {
+  color: #6c10b8;
+}
+
+.u-bg-main {
+  background: #6c10b8;
+}
+
+.u-c-second {
+  color: #C41C1C;
+}
+
+.u-bg-second {
+  background: #C41C1C;
+}
+
+.u-c-third {
+  color: #A39D8F;
+}
+
+.u-bg-third {
+  background: #A39D8F;
+}
+
+.m-damas__palpite {
+  background: url("../img/bg.png");
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  height: 100vh;
+}
+.m-damas__palpite main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  width: 85%;
+}
+.m-damas__palpite--top {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  margin: 0 0 20px 0;
+}
+.m-damas__palpite--player {
+  width: 16%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.m-damas__palpite--player img {
+  width: 100%;
+  float: left;
+}
+.m-damas__palpite--player h5 {
+  text-transform: uppercase;
+  text-align: center;
+  background: #563e86;
+  border-radius: 7px;
+  width: 100%;
+  padding: 10px 0;
+  color: white;
+  font-size: 20px;
+  box-shadow: -1px 25px 13px -19px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: -1px 25px 13px -19px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: -1px 25px 13px -19px rgba(0, 0, 0, 0.75);
+}
+.m-damas__palpite--bottom {
+  display: flex;
+  flex-direction: row;
+  align-items: inherit;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+.m-damas__palpite--time {
+  width: 10%;
+}
+.m-damas__palpite--time img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.m-damas__palpite--palpite {
+  background: rgba(86, 62, 134, 0.8);
+  width: 16%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  padding: 10px;
+  border-radius: 7px;
+}
+.m-damas__palpite--palpite h2 {
+  font-size: 60px;
+  color: white;
+}
+.m-damas__palpite--palpite h3 {
+  font-size: 30px;
+  margin: 0 10px;
+  color: white;
+}
+.m-damas__palpite--finalscore {
+  width: 600px;
+  margin: 80px 0 0 0;
+  display: flex;
+  flex-direction: row;
+  align-items: inherit;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  background: rgba(86, 62, 134, 0.8);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: -1px 25px 36px 0px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: -1px 25px 36px 0px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: -1px 25px 36px 0px rgba(0, 0, 0, 0.75);
+}
+.m-damas__palpite--finaltime {
+  width: 30%;
+}
+.m-damas__palpite--finaltime img {
+  width: 100%;
+  float: left;
+}
+.m-damas__palpite--finalplacar {
+  display: flex;
+  flex-direction: row;
+  align-items: inherit;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+.m-damas__palpite--finalplacar h2 {
+  font-size: 80px;
+  color: white;
+}
+.m-damas__palpite--finalplacar h3 {
+  font-size: 50px;
+  margin: 0 15px;
+  color: white;
+}
+.m-damas__palpite--outrosjogos {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  width: 180px;
+  height: 230px;
+  overflow: auto;
+}
+.m-damas__palpite--outroscontent {
+  background: rgba(133, 89, 148, 0.407);
+  margin: 0 0 10px 0;
+  padding: 7px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+.m-damas__palpite--outrostime {
+  width: 25%;
+}
+.m-damas__palpite--outrostime img {
+  width: 100%;
+  float: left;
+}
+.m-damas__palpite--outrosplacar {
+  display: flex;
+  flex-direction: row;
+  align-items: inherit;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+.m-damas__palpite--outrosplacar h2 {
+  font-size: 30px;
+  color: white;
+}
+.m-damas__palpite--outrosplacar h3 {
+  font-size: 20px;
+  margin: 0 5px;
+  color: white;
+}
+.m-damas__ranking {
+  background: url("../img/bg.png");
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  min-height: 100vh;
+}
+.m-damas__ranking main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  width: 90%;
+  max-width: 1200px;
+}
+.m-damas__ranking--header {
+  width: 100%;
+  text-align: center;
+  margin: 0 0 40px 0;
+}
+.m-damas__ranking--header h1 {
+  font-size: 80px;
+  color: white;
+  text-transform: uppercase;
+  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
+}
+.m-damas__ranking--table {
+  width: 100%;
+  background: rgba(86, 62, 134, 0.9);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: -1px 25px 36px 0px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: -1px 25px 36px 0px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: -1px 25px 36px 0px rgba(0, 0, 0, 0.75);
+}
+.m-damas__ranking--row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  width: 100%;
+  padding: 20px 0 0 0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+.m-damas__ranking--row--header {
+  border-bottom: 3px solid rgba(255, 255, 255, 0.4);
+  padding: 15px 0;
+}
+.m-damas__ranking--player {
+  width: 30%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  gap: 15px;
+  padding: 0 0 20px 0;
+  align-self: stretch;
+}
+.m-damas__ranking--player img {
+  width: 130px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: -20px;
+  align-self: flex-end;
+}
+.m-damas__ranking--player h3 {
+  font-size: 28px;
+  color: white;
+  text-transform: uppercase;
+  font-family: "inter", sans-serif;
+  align-self: center;
+}
+.m-damas__ranking--points {
+  width: 15%;
+  text-align: center;
+  align-self: center;
+  padding-bottom: 20px;
+}
+.m-damas__ranking--points:not(.m-damas__ranking--row--header .m-damas__ranking--points) {
+  font-size: 50px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  font-family: "inter", sans-serif;
+}
+.m-damas__ranking--stats {
+  width: 55%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: nowrap;
+  align-self: center;
+  padding-bottom: 20px;
+}
+.m-damas__ranking--stat {
+  text-align: center;
+  flex: 1;
+}
+.m-damas__ranking--stat:not(.m-damas__ranking--row--header .m-damas__ranking--stat) {
+  font-size: 35px;
+  font-weight: bold;
+  color: white;
+  font-family: "inter", sans-serif;
+}
+.m-damas__ranking--header-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  font-family: "inter", sans-serif;
+  display: block;
+  width: 100%;
+}
+.m-damas__nav {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  z-index: 9999;
+}
+.m-damas__nav-btn {
+  width: 50px;
+  height: 50px;
+  background: rgba(86, 62, 134, 0.8);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  text-decoration: none;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+.m-damas__nav-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: white;
+  stroke-width: 2;
+  transition: all 0.3s ease;
+}
+.m-damas__nav-btn:hover {
+  background: rgb(86, 62, 134);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+.m-damas__nav-btn:hover svg {
+  stroke: #ffffff;
+  transform: scale(1.1);
+}
+.m-damas__nav-btn--active {
+  background: #ffd700;
+  transform: scale(1.1);
+}
+.m-damas__nav-btn--active svg {
+  stroke: #563e86;
+}
+.m-damas__nav-btn--active:hover {
+  background: #ffd700;
+}
+.m-damas__nav-btn--active:hover svg {
+  stroke: #563e86;
+}

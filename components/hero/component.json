@@ -1,0 +1,77 @@
+{
+  "name": "hero",
+  "title": "Hero Banner",
+  "description": "Banner principal com título, subtítulo, imagem de fundo e call-to-action",
+  "version": "1.0.0",
+  "min_size": 4,
+  "max_size": 6,
+  "fields": {
+    "title": {
+      "type": "text",
+      "label": "Título Principal",
+      "required": true,
+      "max_length": 100,
+      "default": "Bem-vindo ao AEGIS"
+    },
+    "subtitle": {
+      "type": "textarea",
+      "label": "Subtítulo",
+      "required": false,
+      "max_length": 300,
+      "default": "Framework PHP modular e seguro"
+    },
+    "background_image": {
+      "type": "url",
+      "label": "URL da Imagem de Fundo",
+      "required": false,
+      "default": ""
+    },
+    "background_color": {
+      "type": "text",
+      "label": "Cor de Fundo (caso sem imagem)",
+      "required": false,
+      "default": "#667eea"
+    },
+    "text_color": {
+      "type": "select",
+      "label": "Cor do Texto",
+      "required": false,
+      "options": ["light", "dark"],
+      "default": "light"
+    },
+    "height": {
+      "type": "select",
+      "label": "Altura do Banner",
+      "required": false,
+      "options": ["small", "medium", "large", "fullscreen"],
+      "default": "medium"
+    },
+    "cta_text": {
+      "type": "text",
+      "label": "Texto do Botão",
+      "required": false,
+      "max_length": 50,
+      "default": "Saiba Mais"
+    },
+    "cta_link": {
+      "type": "url",
+      "label": "Link do Botão",
+      "required": false,
+      "default": ""
+    },
+    "cta_style": {
+      "type": "select",
+      "label": "Estilo do Botão",
+      "required": false,
+      "options": ["primary", "secondary", "outline"],
+      "default": "primary"
+    },
+    "alignment": {
+      "type": "select",
+      "label": "Alinhamento do Conteúdo",
+      "required": false,
+      "options": ["left", "center", "right"],
+      "default": "center"
+    }
+  }
+}

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="🚨protocolodeerro">🚨 PROTOCOLO DE ERRO</h1>
+
+<blockquote>
+<p><strong>Regra única:</strong> Errou → Verifica Known Issues → Para → Analisa → Reporta → Aguarda</p>
+</blockquote>
+
+<hr />
+
+<h2 id="⚠️quandousar">⚠️ QUANDO USAR</h2>
+
+<p><strong>SEMPRE que algo der errado:</strong></p>
+
+<ul>
+<li>Erro 404/500</li>
+<li>Comportamento inesperado</li>
+<li>Algo não aparece</li>
+<li>Usuário diz &#8220;não funcionou&#8221;</li>
+<li>Warning/Notice que bloqueia execução</li>
+</ul>
+
+<p><strong>QUANDO NÃO USAR:</strong></p>
+
+<ul>
+<li>Warnings de lint não críticos</li>
+<li>Deprecated notices que não quebram</li>
+<li>Erros já resolvidos (verificar known-issues primeiro)</li>
+</ul>
+
+<hr />
+
+<h2 id="📋passosobrigatÓriosnaordem">📋 PASSOS OBRIGATÓRIOS (NA ORDEM)</h2>
+
+<h3 id="0️⃣verificarknownissuesprimeiro">0️⃣ VERIFICAR KNOWN ISSUES PRIMEIRO</h3>
+
+<p><strong>ANTES de reportar, ler:</strong></p>
+
+<pre><code>docs/slash/memory/known-issues.md
+</code></pre>
+
+<p><strong>Problemas já resolvidos:</strong></p>
+
+<ol>
+<li>Edit Tool falha (tabs vs spaces) → Usar Write</li>
+<li>Duplicatas no menu → Verificar existing antes de insert</li>
+<li>Páginas públicas não aparecem → MenuBuilder ordem de verificação</li>
+<li>[E mais 9 problemas documentados]</li>
+</ol>
+
+<p><strong>Se encontrar solução:</strong> Aplicar e continuar.
+<strong>Se não encontrar:</strong> Seguir para passo 1.</p>
+
+<hr />
+
+<h3 id="1️⃣pararimediatamente">1️⃣ PARAR IMEDIATAMENTE</h3>
+
+<ul>
+<li>❌ NÃO criar mais arquivos</li>
+<li>❌ NÃO editar mais código</li>
+<li>❌ NÃO tentar &#8220;consertar&#8221; sozinho</li>
+<li>❌ NÃO assumir que &#8220;deve ser X&#8221;</li>
+</ul>
+
+<hr />
+
+<h3 id="2️⃣analisaroerro">2️⃣ ANALISAR O ERRO</h3>
+
+<p><strong>Checklist obrigatório:</strong></p>
+
+<pre><code>□ O que EU mudei? (listar arquivos + linhas específicas)
+□ O que deu errado? (erro exato ou comportamento observado)
+□ Dados no banco estão corretos? (rodar query SELECT e mostrar resultado)
+□ Arquivo existe no path esperado? (ls/find)
+□ Sintaxe está válida? (php -l para PHP)
+□ Rota está registrada? (grep no routes.php)
+□ Verificado known-issues.md? (sim/não)
+□ Causa provável? (hipótese fundamentada ou &quot;não sei&quot;)
+</code></pre>
+
+<p><strong>Comandos úteis:</strong></p>
+
+<pre><code class="bash"># Verificar sintaxe PHP
+php -l arquivo.php
+
+# Verificar se rota existe
+grep &quot;nome-rota&quot; routes/*.php
+
+# Verificar dados no banco
+mysql -e &quot;SELECT * FROM tabela WHERE condição&quot;
+</code></pre>
+
+<hr />
+
+<h3 id="3️⃣reportaraochezzi">3️⃣ REPORTAR AO CHEZZI</h3>
+
+<p><strong>Template obrigatório:</strong></p>
+
+<pre><code>Mudei:
+- [Arquivo X linha Y]: [o que mudei]
+- [Arquivo Z]: (criado novo)
+
+Deu erro:
+- [Erro exato copiado OU comportamento observado]
+
+Verificações:
+- Dados no banco: [resultado da query]
+- Sintaxe: [php -l resultado]
+- Rota registrada: [sim/não + grep resultado]
+- Known issues: [verificado - não encontrado]
+
+Causa provável:
+- [Hipótese fundamentada] OU [Não sei]
+
+Possíveis ações:
+A) [Opção 1]
+B) [Opção 2]
+C) Reverter mudanças
+
+Aguardo decisão.
+</code></pre>
+
+<p><strong>Formato de rollback (se necessário):</strong></p>
+
+<pre><code>Reverter:
+1. Deletar: [arquivo X, arquivo Y]
+2. Restaurar: [arquivo Z para estado anterior]
+3. Query SQL: [DELETE/UPDATE se alterou banco]
+</code></pre>
+
+<hr />
+
+<h3 id="4️⃣aguardardecisÃo">4️⃣ AGUARDAR DECISÃO</h3>
+
+<ul>
+<li>⏸️ NÃO fazer nada até Chezzi responder</li>
+<li>⏸️ NÃO assumir solução</li>
+<li>⏸️ NÃO tentar &#8220;outra abordagem&#8221;</li>
+<li>⏸️ NÃO criar arquivos de debug/teste</li>
+</ul>
+
+<hr />
+
+<h2 id="❌proibido">❌ PROIBIDO</h2>
+
+<p><strong>Nunca fazer:</strong></p>
+
+<ul>
+<li>❌ Criar arquivo &#8220;debug.php&#8221; para investigar</li>
+<li>❌ Tentar &#8220;outra abordagem&#8221; sem autorização</li>
+<li>❌ Modificar mais coisas &#8220;testando&#8221;</li>
+<li>❌ Assumir causa sem dados concretos</li>
+<li>❌ Usar Edit múltiplas vezes (tabs vs spaces → usar Write)</li>
+<li>❌ Reportar sem verificar known-issues.md primeiro</li>
+</ul>
+
+<hr />
+
+<h2 id="✅exemplocorreto">✅ EXEMPLO CORRETO</h2>
+
+<h3 id="situação:crieirotaadmincheckdeu404">Situação: Criei rota <code>/admin/check</code>, deu 404</h3>
+
+<p><strong>❌ ERRADO:</strong></p>
+
+<pre><code>Claude: &quot;Deixa eu criar outra rota...&quot;
+Claude: &quot;Vou modificar .htaccess...&quot;
+Claude: &quot;Talvez seja problema de permissão...&quot;
+[Cria 5 arquivos sem parar]
+</code></pre>
+
+<p><strong>✅ CERTO:</strong></p>
+
+<pre><code>Claude: &quot;Mudei:
+- routes/admin.php linha 82: adicionei Router::get('/admin/check', ...)
+- Criado: admin/check.php
+
+Deu erro:
+- 404 ao acessar /admin/check
+
+Verificações:
+- Rota registrada: grep encontrou em routes/admin.php linha 82
+- Arquivo existe: ls confirma admin/check.php existe
+- Sintaxe: php -l admin/check.php → OK
+- Known issues: verificado - não encontrado
+
+Causa provável:
+- Rota específica pode estar DEPOIS de rota genérica (REGRAS.md #10)
+- Ou cache de rotas não foi limpo
+
+Possíveis ações:
+A) Verificar ordem das rotas em routes/admin.php
+B) Limpar cache em storage/cache/
+C) Reverter (deletar admin/check.php e linha 82)
+
+Aguardo decisão.&quot;
+
+[PARA e AGUARDA]
+</code></pre>
+
+<hr />
+
+<h2 id="🎯classificaÇÃodeerros">🎯 CLASSIFICAÇÃO DE ERROS</h2>
+
+<h3 id="🔴crÍticopararimediatamente">🔴 CRÍTICO (Parar imediatamente)</h3>
+
+<ul>
+<li>Erro 500 (quebra aplicação)</li>
+<li>Erro SQL que impede funcionamento</li>
+<li>Breaking change em schema</li>
+<li>Perda de dados</li>
+</ul>
+
+<h3 id="🟡moderadopararereportar">🟡 MODERADO (Parar e reportar)</h3>
+
+<ul>
+<li>Erro 404 em funcionalidade nova</li>
+<li>Comportamento inesperado</li>
+<li>Warning que bloqueia feature</li>
+<li>Duplicatas/inconsistências</li>
+</ul>
+
+<h3 id="🟢levecorrigiredocumentar">🟢 LEVE (Corrigir e documentar)</h3>
+
+<ul>
+<li>Warning de deprecated (não crítico)</li>
+<li>Notice de PHP (não bloqueia)</li>
+<li>Lint warnings (corrigir após feature funcionar)</li>
+</ul>
+
+<p><strong>Regra:</strong> Na dúvida, tratar como MODERADO.</p>
+
+<hr />
+
+<h2 id="🔄protocoloderollback">🔄 PROTOCOLO DE ROLLBACK</h2>
+
+<p><strong>Se Chezzi pedir rollback:</strong></p>
+
+<ol>
+<li><strong>Deletar arquivos criados:</strong></li>
+</ol>
+
+<pre><code class="bash">rm arquivo1.php arquivo2.php
+</code></pre>
+
+<ol>
+<li><strong>Reverter arquivos modificados:</strong></li>
+</ol>
+
+<pre><code class="bash">git checkout -- arquivo.php
+# OU usar Read + Write para versão anterior
+</code></pre>
+
+<ol>
+<li><strong>Reverter banco (se necessário):</strong></li>
+</ol>
+
+<pre><code class="sql">DELETE FROM tabela WHERE id = 'uuid-criado';
+-- OU
+UPDATE tabela SET campo = 'valor-anterior' WHERE condição;
+</code></pre>
+
+<ol>
+<li><strong>Confirmar rollback:</strong></li>
+</ol>
+
+<pre><code>Rollback concluído:
+- Deletados: [lista]
+- Revertidos: [lista]
+- Banco: [query executada]
+
+Sistema restaurado ao estado anterior.
+</code></pre>
+
+<hr />
+
+<h2 id="📊integraÇÃocomoutrosdocs">📊 INTEGRAÇÃO COM OUTROS DOCS</h2>
+
+<p><strong>Fluxo completo:</strong></p>
+
+<ol>
+<li>Erro acontece</li>
+<li>Ler <code>docs/slash/memory/known-issues.md</code> → Solução conhecida?</li>
+<li>Se não: Seguir ERRO-PROTOCOL</li>
+<li>Se envolver classe core: Consultar <code>docs/slash/REFACTORING-GUIDE.md</code></li>
+<li>Se envolver regras violadas: Reler <code>docs/slash/REGRAS.md</code></li>
+</ol>
+
+<hr />
+
+<h2 id="🎯mantras">🎯 MANTRAS</h2>
+
+<p><strong>FAZER:</strong></p>
+
+<blockquote>
+<p>&#8220;Para → Verifica Known Issues → Analisa → Reporta → Aguarda&#8221;</p>
+</blockquote>
+
+<p><strong>NÃO FAZER:</strong></p>
+
+<blockquote>
+<p>~~&#8220;Tenta → Assume → Cria → Viaja → Quebra Mais&#8221;~~</p>
+</blockquote>
+
+<p><strong>LEMBRAR:</strong></p>
+
+<blockquote>
+<p>&#8220;Edit falha? Write. Erro? Para. Dúvida? Pergunta.&#8221;</p>
+</blockquote>
+
+<hr />
+
+<p><strong>Versão:</strong> 2.0.0
+<strong>Data:</strong> 2026&#8211;02&#8211;14
+<strong>Changelog:</strong> Adicionado passo 0 (known-issues), classificação de erros, protocolo de rollback, integração com outros docs</p>
+
+</body>
+</html>
+

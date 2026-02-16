@@ -1,0 +1,57 @@
+// versão: 2.0
+// criação: 2024/02/23
+// última atualização: 2025/03/17
+
+/* oleg - classes - start */
+@use 'responsive' as *;
+
+//display
+
+.u-displaynone
+	display: none !important
+
+.u-displayblock
+	display: block !important	   
+
+.u-no-up-tablet
+	display: block !important	
+	@include responsive-min($tablet)
+		display: none !important	
+
+.u-no-up-tabletwide
+	display: block !important	
+	@include responsive-min($tabletWide)
+		display: none !important			
+
+.u-no-up-desktop
+	display: block !important	
+	@include responsive-min($desktop)
+		display: none	 !important	
+
+.u-no-up-desktopwide
+	display: block !important	
+	@include responsive-min($desktopWide)
+		display: none	 !important			
+
+.u-no-down-tablet
+	display: none !important	
+	@include responsive-min($tablet)
+		display: block !important	  
+
+.u-no-down-tabletwide
+	display: none !important	
+	@include responsive-min($tabletWide)
+		display: block !important	 		  
+
+.u-no-down-desktop
+	display: none !important	
+	@include responsive-min($desktop)
+		display: block !important	
+
+.u-no-down-desktopwide
+	display: none !important	
+	@include responsive-min($desktopWide)
+		display: block !important			
+
+/* oleg - classes - end */
+	

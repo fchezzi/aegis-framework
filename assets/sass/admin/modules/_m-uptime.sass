@@ -1,0 +1,290 @@
+@use 'sass:color'
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+// UptimeRobot Dashboard Module
+
+.uptime-container
+  max-width: 1400px
+  margin: 2rem auto
+  padding: 0 1rem
+
+.uptime-header
+  background: #fff
+  border-radius: 8px
+  padding: 2rem
+  margin-bottom: 2rem
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1)
+  display: flex
+  justify-content: space-between
+  align-items: center
+
+  &__title
+    margin: 0 0 0.5rem 0
+
+  &__subtitle
+    color: #6b7280
+    margin: 0
+
+  &__actions
+    display: flex
+    gap: 0.5rem
+
+    form
+      display: inline
+
+// Summary Cards
+.summary-grid
+  display: grid
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))
+  gap: 25px
+  margin-bottom: 50px
+
+.summary-card
+  background: white
+  border: 2px solid $color-second
+  border-radius: 8px
+  padding: 25px
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1)
+
+  &__label
+    font-size: 19px
+    color: $gray-70
+    margin-bottom: 10px
+    @include flex(row, center, flex-start, wrap)
+
+  &__lucide
+    width: 25px
+    height: 25px
+    margin: 0 10px 0 0
+
+  &__value
+    font-size: 33px
+    font-weight: 700
+    color: $gray-30
+
+    &--success
+      color: #0e45ea
+
+    &--primary
+      color: #3b82f6
+
+// Monitor Cards
+.uptime-grid
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr))
+  gap: 1.5rem
+
+.uptime-card
+  background: #fff
+  border-radius: 8px
+  padding: 1.5rem
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1)
+  border-left: 4px solid #e5e7eb
+
+  &--online
+    border-left-color: #356dd4
+
+  &--offline
+    border-left-color: #ef4444
+
+  &--paused
+    border-left-color: #6b7280
+
+  &__header
+    display: flex
+    align-items: flex-start
+    gap: 0.75rem
+    margin-bottom: 1rem
+
+  &__icon
+    width: 40px
+    height: 40px
+    border-radius: 50%
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-shrink: 0
+
+    &--online
+      background: #88bff9
+      color: #0424c6
+
+    &--offline
+      background: #fee2e2
+      color: #991b1b
+
+    &--paused
+      background: #f3f4f6
+      color: #6b7280
+
+  &__lucide
+    width: 20px
+    height: 20px
+
+  &__badge-wrapper
+    margin-bottom: 0.5rem
+
+  &__badge
+    display: inline-block
+    padding: 0.25rem 0.75rem
+    border-radius: 9999px
+    font-size: 0.75rem
+    font-weight: 500
+
+    &--online
+      background: #88bff9
+      color: #164990
+
+    &--offline
+      background: #fee2e2
+      color: #991b1b
+
+    &--paused
+      background: #f3f4f6
+      color: #6b7280
+
+  &__title
+    flex: 1
+
+  &__name
+    font-size: 1rem
+    font-weight: 600
+    margin: 0 0 0.25rem 0
+
+  &__url
+    font-size: 0.875rem
+    color: #6b7280
+    word-break: break-all
+
+  &__meta
+    font-size: 0.75rem
+    color: #9ca3af
+    margin-top: 0.5rem
+
+  &__sparkline
+    height: 50px
+    max-height: 50px
+    margin: 1rem 0
+    display: block
+    width: 100%
+
+  &__stats
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: 1rem
+    margin-top: 1rem
+    padding-top: 1rem
+    border-top: 1px solid #e5e7eb
+
+  &__stat
+    text-align: center
+
+  &__stat-value
+    font-size: 1.5rem
+    font-weight: 700
+    margin-bottom: 0.25rem
+
+    &--good
+      color: #1949b3
+
+    &--ok
+      color: #3b82f6
+
+  &__stat-label
+    font-size: 0.75rem
+    color: #6b7280
+    text-transform: uppercase
+
+  &__minmax
+    display: flex
+    justify-content: space-between
+    font-size: 0.75rem
+    color: #6b7280
+    margin-top: 0.5rem
+
+  &__incident
+    background: #fef3c7
+    border: 1px solid #fde68a
+    border-radius: 4px
+    padding: 0.75rem
+    margin-top: 1rem
+    font-size: 0.875rem
+
+    strong
+      color: #92400e
+
+// Buttons
+.btn
+  padding: 0.75rem 1.5rem
+  border-radius: 4px
+  font-size: 0.875rem
+  font-weight: 500
+  cursor: pointer
+  border: none
+  text-decoration: none
+  display: inline-flex
+  align-items: center
+  gap: 0.5rem
+
+  &__lucide
+    width: 16px
+    height: 16px
+
+  &--primary
+    background: #3b82f6
+    color: white
+
+    &:hover
+      background: #2563eb
+
+  &--secondary
+    background: #e5e7eb
+    color: #374151
+
+    &:hover
+      background: #d1d5db
+
+// Alerts
+.alert
+  padding: 1rem
+  border-radius: 4px
+  margin-bottom: 1rem
+
+  &--success
+    background: #d1fae5
+    color: #070f7a
+    border: 1px solid #4168da
+
+  &--error
+    background: #fee2e2
+    color: #991b1b
+    border: 1px solid #fca5a5
+
+// Empty State
+.empty-state
+  background: #fff
+  border-radius: 8px
+  padding: 3rem
+  text-align: center
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1)
+
+  &__lucide
+    width: 80px
+    height: 80px
+    margin: 0 auto 1rem
+    color: #9ca3af
+
+  &__title
+    font-size: 1.25rem
+    font-weight: 600
+    margin-bottom: 0.5rem
+
+  &__text
+    color: #6b7280
+    margin-bottom: 1.5rem
+
+  form
+    display: inline

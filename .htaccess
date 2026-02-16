@@ -1,0 +1,52 @@
+# ==================================================
+# AEGIS Framework - Security & Routing
+# ==================================================
+
+# Bloquear acesso a arquivos sensíveis
+<FilesMatch "^(_config\.php|\.env|composer\.json|composer\.lock|\.git.*|\.htaccess)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Bloquear acesso direto aos arquivos PHP do core e database (comentado temporariamente)
+# RedirectMatch 403 ^.*/core/.*\.php$
+# RedirectMatch 403 ^.*/database/.*\.php$
+# RedirectMatch 403 ^.*/database/.*\.sql$
+
+# Bloquear listagem de diretórios
+Options -Indexes
+
+# Proteger contra clickjacking
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "DENY"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Desabilitar server signature
+ServerSignature Off
+
+# Limitar upload size (ajuste conforme necessário)
+LimitRequestBody 10485760
+
+# Routing
+RewriteEngine On
+RewriteBase /aegis/
+
+# Permitir acesso direto a assets (CSS, JS, imagens) e storage
+RewriteRule ^(assets|storage)/ - [L]
+
+# Permitir acesso direto a uploads (servir de public/uploads)
+RewriteCond %{REQUEST_URI} ^/aegis/uploads/
+RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
+
+# Permitir acesso direto ao sitemap.xml e robots.txt
+RewriteRule ^sitemap\.xml$ public/sitemap.xml [L]
+RewriteRule ^robots\.txt$ public/robots.txt [L]
+
+# Não redirecionar arquivos que existem
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Redirecionar tudo para index.php
+RewriteRule ^(.*)$ index.php [QSA,L]

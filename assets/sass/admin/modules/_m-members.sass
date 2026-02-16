@@ -1,0 +1,55 @@
+// ========================================
+// MEMBERS - Gerenciamento de membros
+// ========================================
+
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+@use '../../shared/colors' as *
+
+.m-membersbody
+  background: #fafbfc
+  font-family: $font-text
+
+.m-members
+  // Table
+  &__table
+    width: 100%
+    background: white
+    border-radius: $radius-md
+    overflow: hidden
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05)
+    border-collapse: collapse
+
+    thead
+      background: $color-main 
+
+      th
+        padding: 12px
+        text-align: left
+        color: white
+        font-weight: 600
+        font-family: $font-title
+        font-size: 14px
+
+    tbody
+      td
+        padding: 12px
+        border-bottom: 1px solid $gray-10
+        font-size: 14px
+        color: $gray-70
+        font-family: $font-text
+
+      tr:hover
+        background: $gray-05
+
+  // Badges de grupo (verde)
+  &__badge
+    display: inline-block
+    background: $color-info
+    color: white
+    padding: 4px 8px
+    border-radius: 4px
+    font-size: 11px
+    margin-right: 4px
+    font-weight: 600

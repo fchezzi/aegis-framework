@@ -1,0 +1,27 @@
+# ========================================
+# CONFIGURAÇÃO DE DEPLOY AUTOMÁTICO
+# ========================================
+# 1. Copie este arquivo para .deploy-config
+# 2. Preencha com suas credenciais FTP
+# 3. Execute: ./deploy.sh
+# ========================================
+
+# Dados do servidor FTP
+FTP_HOST=ftp.seuservidor.com
+FTP_USER=seu-usuario-ftp
+FTP_PASS=sua-senha-ftp
+FTP_DIR=public_html
+
+# Dados do servidor SSH (opcional)
+SSH_HOST=seuservidor.com
+SSH_USER=seu-usuario-ssh
+SSH_PORT=22
+SSH_DIR=/caminho/completo/public_html
+
+# ========================================
+# IMPORTANTE:
+# ========================================
+# - Adicione .deploy-config no .gitignore
+# - NUNCA commite suas senhas no Git!
+# - Use SSH ao invés de FTP quando possível (mais seguro)
+# ========================================

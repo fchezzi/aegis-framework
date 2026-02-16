@@ -1,0 +1,172 @@
+// Header Module
+// Header fixo do dashboard baseado em Cork
+
+
+
+
+
+@use 'sass:color'
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+
+.m-header
+	width: 90%
+	height: 100%
+	display: flex
+	align-items: center
+	justify-content: space-between
+	margin: 0 auto
+
+	// Brand
+	&__brand
+		display: block
+		padding: 10px 0
+
+		img, svg
+			height: 34px
+			width: auto
+			display: block
+			color: $bgdashlogo // Cor no light mode
+
+			body.dark &
+				color: $bgdashlogodark // Cor no dark mode
+
+	// Actions
+	&__actions
+		display: flex
+		list-style: none
+		margin: 0
+		padding: 0
+		gap: 15px
+
+		.theme-toggle-item
+			display: flex
+
+		.theme-toggle
+			display: flex
+			align-items: center
+			justify-content: center
+			cursor: pointer
+			text-decoration: none
+
+			svg
+				width: 24px
+				height: 24px
+				color: #e0e6ed
+				stroke: #e0e6ed
+
+			.dark-mode
+				display: none
+
+			.light-mode
+				color: #ff6201
+				stroke: #ff6201
+
+			body.dark &
+				.light-mode
+					display: none
+
+				.dark-mode
+					display: block
+
+		.user-profile-item
+			display: flex
+			position: relative
+
+		.user-profile
+			display: flex
+			align-items: center
+			justify-content: center
+			cursor: pointer
+			text-decoration: none
+
+			.avatar-container
+				width: 36px
+				height: 36px
+
+			.avatar
+				width: 100%
+				height: 100%
+				border-radius: 50%
+				object-fit: cover
+				box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5)
+				display: block
+
+	// Dropdown
+	&__dropdown
+		position: absolute
+		top: calc(100% + 13px)
+		right: 0
+		background: #26214a
+		border-radius: 0 0 7px 7px
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3)
+		min-width: 200px
+		opacity: 0
+		visibility: hidden
+		transform: translateY(-10px)
+		transition: all 0.2s ease
+		font-family: $font-text
+
+		body:not(.dark) &
+			background: linear-gradient(135deg, $gray-05 0%, $gray-15 100%)
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1)
+
+		&--active
+			opacity: 1
+			visibility: visible
+			transform: translateY(0)
+
+		.dropdown-header
+			padding: 20px 24px
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1)
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05)
+
+			body:not(.dark) &
+				border-bottom: 1px solid rgba(0, 0, 0, 0.1)
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03)
+
+			.user-name
+				font-size: 16px
+				font-weight: 600
+				color: #e0e6ed
+
+				body:not(.dark) &
+					color: #0e1726
+
+		.dropdown-item
+			padding: 0
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1)
+
+			body:not(.dark) &
+				border-bottom: 1px solid rgba(0, 0, 0, 0.05)
+
+			&:last-child
+				border-bottom: none
+
+			a
+				display: flex
+				align-items: center
+				gap: 14px
+				padding: 16px 24px
+				color: #e0e6ed
+				text-decoration: none
+				transition: background 0.2s ease
+
+				body:not(.dark) &
+					color: #0e1726
+
+				&:hover
+					background: rgba(255, 255, 255, 0.05)
+
+					body:not(.dark) &
+						background: rgba(0, 0, 0, 0.03)
+
+				svg
+					width: 18px
+					height: 18px
+					stroke: currentColor
+
+				span
+					font-size: 14px

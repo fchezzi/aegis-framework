@@ -1,0 +1,47 @@
+{
+  "name": "filtromes",
+  "title": "Filtro de Mês e Ano",
+  "description": "Filtro com dropdowns separados para mês e ano",
+  "version": "1.0.0",
+  "min_size": 1,
+  "max_size": 12,
+  "fields": {
+    "filter_group": {
+      "type": "text",
+      "label": "Grupo do Filtro",
+      "required": true,
+      "default": "default",
+      "help": "Nome do grupo. Componentes do mesmo grupo trabalham juntos (ex: grupo-youtube, grupo-website)"
+    },
+    "show_month": {
+      "type": "select",
+      "label": "Mostrar Filtro de Mês?",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "yes",
+      "help": "Exibir dropdown de seleção de mês"
+    },
+    "show_year": {
+      "type": "select",
+      "label": "Mostrar Filtro de Ano?",
+      "required": false,
+      "options": ["yes", "no"],
+      "default": "yes",
+      "help": "Exibir dropdown de seleção de ano"
+    },
+    "start_year": {
+      "type": "text",
+      "label": "Ano Inicial",
+      "required": false,
+      "default": "2020",
+      "help": "Primeiro ano disponível no dropdown"
+    },
+    "end_year": {
+      "type": "text",
+      "label": "Ano Final",
+      "required": false,
+      "default": "",
+      "help": "Último ano disponível (vazio = ano atual + 2)"
+    }
+  }
+}

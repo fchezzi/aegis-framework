@@ -1,0 +1,303 @@
+
+
+
+
+@use 'sass:color'
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *
+
+// ============================================
+// MÓDULO: Profile
+// Página de perfil do usuário (avatar + senha)
+// ============================================
+
+.profile-section
+	padding: 30px 0
+
+.profile-grid
+	display: grid
+	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr))
+	gap: 24px
+
+	@include responsive-max($tabletSmall)
+		grid-template-columns: 1fr
+
+.profile-card
+	background: white
+	border: 1px solid var(--border-color)
+	border-radius: 12px
+	padding: 0
+	transition: all 0.3s ease
+
+	body.dark &
+		background: rgba(0, 0, 0, 0.2)
+
+.profile-card-header
+	padding: 24px
+	border-bottom: 1px solid var(--border-color)
+
+	h3
+		font-size: 20px
+		letter-spacing: 0.25px
+		color: #e7515a
+		margin: 0 0 4px 0
+		font-weight: normal
+		font-family: 'inter' !important
+
+		body:not(.dark) &
+			color: #0056ff
+
+	p
+		font-size: 14px
+		color: #999
+		margin: 0
+
+.profile-card-body
+	padding: 24px
+
+// ============================================
+// PROFILE INFO (read-only)
+// ============================================
+
+.profile-info
+	display: flex
+	flex-direction: column
+	gap: 20px
+
+.info-item
+	label
+		display: block
+		font-size: 12px
+		font-weight: 600
+		text-transform: uppercase
+		letter-spacing: 0.5px
+		color: #999
+		margin-bottom: 8px
+
+	p
+		font-size: 14px
+		color: #fff
+		margin: 0
+		padding: 15px 20px
+		background: rgba(255, 255, 255, 0.05)
+		border-radius: 6px
+		border: 1px solid var(--border-color)
+
+		body:not(.dark) &
+			color: #333
+			background: #f5f5f5
+
+// ============================================
+// AVATAR SECTION
+// ============================================
+
+.avatar-section
+	text-align: center
+
+	.form-group
+		text-align: center
+
+.avatar-preview
+	width: 120px
+	height: 120px
+	margin: 0 auto 24px
+	border-radius: 50%
+	overflow: hidden
+	border: 3px solid var(--border-color)
+	display: flex
+	align-items: center
+	justify-content: center
+	background: var(--card-bg)
+
+	body.dark &
+		background: rgba(255, 255, 255, 0.05)
+
+	img
+		width: 100%
+		height: 100%
+		object-fit: cover
+
+.avatar-placeholder
+	width: 100%
+	height: 100%
+	display: flex
+	align-items: center
+	justify-content: center
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+
+	i
+		width: 48px
+		height: 48px
+		color: white
+
+.btn-upload
+	display: inline-flex
+	align-items: center
+	justify-content: center
+	gap: 6px
+	background: #5b1d5c
+	color: white
+	padding: 15px 20px
+	border-radius: 6px
+	cursor: pointer
+	font-weight: 500
+	font-size: 14px
+	transition: all 0.3s ease
+	border: none
+	margin: 0 auto
+
+	body:not(.dark) &
+		background: #0056ff
+		color: white
+
+		span
+			color: white
+
+	&:hover
+		background: #764ba2
+
+	i
+		width: 14px
+		height: 14px
+
+.upload-info
+	margin-top: 12px
+
+	p
+		font-size: 12px
+		color: #999
+		margin: 0
+
+// ============================================
+// FORM ELEMENTS
+// ============================================
+
+.form-group
+	margin-bottom: 20px
+	text-align: left
+
+	label
+		display: block
+		font-size: 14px
+		font-weight: 500
+		margin-bottom: 8px
+		color: #fff
+
+		body:not(.dark) &
+			color: #333
+
+.form-control
+	width: 100%
+	padding: 15px 20px
+	border: 1px solid transparent
+	border-radius: 6px !important
+	font-size: 14px
+	background: rgba(255, 255, 255, 0.05)
+	color: #fff
+	transition: all 0.3s ease
+	outline: none
+
+	body:not(.dark) &
+		background: #f5f5f5
+		color: #333
+
+	&:focus
+		border-color: #5b1d5c
+
+	&::placeholder
+		color: #666
+
+.form-help
+	display: block
+	font-size: 12px
+	color: #999
+	margin-top: 4px
+
+.profile-section .btn-primary
+	display: inline-flex
+	align-items: center
+	justify-content: center
+	gap: 6px
+	background: #5b1d5c
+	color: white
+	padding: 15px 20px
+	border-radius: 6px
+	border: none
+	cursor: pointer
+	font-weight: 500
+	font-size: 14px
+	transition: all 0.3s ease
+	width: 100%
+	box-shadow: none !important
+	transform: none !important
+
+	body:not(.dark) &
+		background: #0056ff
+
+	&:hover
+		background: #764ba2 !important
+		box-shadow: none !important
+		transform: none !important
+
+	&:disabled
+		opacity: 0.5
+		cursor: not-allowed
+
+	i
+		width: 14px
+		height: 14px
+
+// ============================================
+// ALERTS
+// ============================================
+
+.alert
+	padding: 16px
+	border-radius: 8px
+	margin-bottom: 24px
+	font-size: 14px
+
+.alert-success
+	background: #d4edda
+	color: #155724
+	border: 1px solid #c3e6cb
+
+	body.dark &
+		background: rgba(40, 167, 69, 0.2)
+		color: #8bff8b
+		border-color: rgba(40, 167, 69, 0.3)
+
+.alert-error
+	background: #f8d7da
+	color: #721c24
+	border: 1px solid #f5c6cb
+
+	body.dark &
+		background: rgba(220, 53, 69, 0.2)
+		color: #ff9999
+		border-color: rgba(220, 53, 69, 0.3)
+
+// ============================================
+// LOADING STATE
+// ============================================
+
+.loading
+	opacity: 0.6
+	pointer-events: none
+
+	&::after
+		content: ''
+		display: inline-block
+		width: 16px
+		height: 16px
+		border: 2px solid #fff
+		border-top-color: transparent
+		border-radius: 50%
+		animation: spin 0.6s linear infinite
+		margin-left: 8px
+
+@keyframes spin
+	to
+		transform: rotate(360deg)

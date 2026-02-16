@@ -1,0 +1,115 @@
+// Componente: Última Atualização
+// Estilos para exibir última data de atualização
+
+.ultima-atualizacao
+  font-family: 'roboto'
+  color: white !important
+
+  i[data-lucide]
+    width: 16px
+    height: 16px
+    display: inline-block
+    vertical-align: middle
+    margin-right: 8px
+
+  &__text
+    margin-right: 8px
+    color: white !important
+
+  &__date
+    font-weight: 600
+    color: white !important
+
+  // Estilo: Default (parágrafo simples)
+  &--default
+    color: white !important
+    font-size: 16px
+    margin: 16px 0
+
+  // Estilo: Badge (destaque colorido)
+  &--badge
+    display: inline-flex
+    align-items: center
+    gap: 8px
+    font-size: 14px
+    color: white !important
+
+    .ultima-atualizacao__badge
+      background: var(--primary-color)
+      color: white
+      padding: 4px 12px
+      border-radius: 12px
+      font-size: 13px
+      font-weight: 500
+
+  // Estilo: Card (box com sombra)
+  &--card
+    display: flex
+    align-items: center
+    gap: 16px
+    padding: 16px
+    background: white
+    border-radius: 8px
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+    margin: 16px 0
+
+    .ultima-atualizacao__icon-wrapper
+      flex-shrink: 0
+      width: 40px
+      height: 40px
+      display: flex
+      align-items: center
+      justify-content: center
+      background: var(--primary-light)
+      border-radius: 50%
+
+      i[data-lucide]
+        width: 20px
+        height: 20px
+        margin: 0
+        color: var(--primary-color)
+
+    .ultima-atualizacao__content
+      display: flex
+      flex-direction: column
+      gap: 4px
+
+      .ultima-atualizacao__text
+        font-size: 12px
+        color: var(--text-secondary)
+        margin: 0
+
+      .ultima-atualizacao__date
+        font-size: 16px
+        color: var(--text-primary)
+
+  // Estilo: Inline (texto inline)
+  &--inline
+    display: inline
+    font-size: inherit
+    color: inherit
+
+    i[data-lucide]
+      width: 14px
+      height: 14px
+      margin-right: 4px
+
+    .ultima-atualizacao__text
+      margin-right: 4px
+
+  // Estados especiais
+  &--empty,
+  &--error
+    padding: 12px
+    border-radius: 4px
+    font-size: 14px
+    text-align: center
+
+  &--empty
+    background: #f5f5f5
+    color: #999
+
+  &--error
+    background: #fff3cd
+    color: #856404
+    border: 1px solid #ffeaa7

@@ -1,0 +1,48 @@
+{
+    "name": "palpites",
+    "title": "Palpites de Futebol",
+    "label": "Palpites - Exibição",
+    "description": "Sistema de palpites esportivos com ranking e exibição ao vivo",
+    "version": "1.0.0",
+    "author": "AEGIS Framework",
+    "public": true,
+    "public_url": "/palpites/exibicao-palpites",
+    "public_pages": [
+        {
+            "slug": "palpites/exibicao-palpites",
+            "title": "Palpites - Exibição ao Vivo"
+        },
+        {
+            "slug": "palpites/exibicao-resultados",
+            "title": "Palpites - Resultados"
+        },
+        {
+            "slug": "palpites/exibicao-ranking",
+            "title": "Palpites - Ranking"
+        }
+    ],
+    "dependencies": [],
+    "page": {
+        "title": "Palpites de Futebol",
+        "slug": "module_palpites",
+        "description": "Acesso ao módulo de palpites esportivos"
+    },
+    "routes": "routes.php",
+    "admin_menu": {
+        "icon": "⚽",
+        "label": "Palpites",
+        "url": "/admin/palpites"
+    },
+    "tables": [
+        "tbl_palpiteiros",
+        "tbl_times",
+        "tbl_jogos_palpites",
+        "tbl_palpites",
+        "tbl_resultados_reais",
+        "cache_ranking_palpiteiros"
+    ],
+    "views": [
+        "vw_pontuacao_palpites",
+        "vw_ranking_palpiteiros"
+    ]
+}

@@ -1,0 +1,80 @@
+{
+    "name": "artigos",
+    "label": "Artigos Científicos",
+    "title": "Artigos Científicos",
+    "description": "Sistema de artigos científicos com captura de leads",
+    "version": "1.0.0",
+    "author": "Instituto Atualli",
+    "public": true,
+    "public_url": "/artigos",
+    "homepage": "/artigos",
+    "adminRoute": "/admin/artigos",
+    "dependencies": {
+        "core": [
+            "DB",
+            "Security",
+            "Auth",
+            "Upload",
+            "Core"
+        ],
+        "tables": [
+            "tbl_artigos",
+            "tbl_artigos_leads"
+        ],
+        "requires_members": false
+    },
+    "features": [
+        "CRUD completo de artigos",
+        "Upload de imagem destaque",
+        "Data customizável do artigo",
+        "Autor em texto livre",
+        "Link externo para artigo completo",
+        "Formulário de captura de leads (nome, email, WhatsApp)",
+        "Contador de visualizações",
+        "Slug SEO-friendly",
+        "Paginação (10 por página)",
+        "Busca AJAX em tempo real",
+        "Filtro por ano"
+    ],
+    "permissions": {
+        "admin": true,
+        "public": true,
+        "members_only": false
+    },
+    "installation": {
+        "schemas": {
+            "mysql": "database/mysql-schema.sql",
+            "supabase": "database/supabase-schema.sql"
+        },
+        "rollback": "database/rollback.sql",
+        "auto_install": true
+    },
+    "menu": {
+        "admin": [
+            {
+                "label": "Artigos",
+                "route": "/admin/artigos",
+                "icon": "📄"
+            }
+        ],
+        "public": [
+            {
+                "label": "Artigos Científicos",
+                "route": "/artigos",
+                "icon": "📚"
+            }
+        ]
+    },
+    "configuration": {
+        "posts_per_page": 10,
+        "max_image_size": 5242880,
+        "allowed_image_types": [
+            "jpg",
+            "jpeg",
+            "png",
+            "webp"
+        ],
+        "enable_views_counter": true,
+        "enable_lead_capture": true
+    }
+}

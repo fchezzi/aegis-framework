@@ -1,0 +1,69 @@
+// ====================================
+// Data Sources - Fontes de Dados
+// ====================================
+
+.datasource-form-row
+  display: grid
+  grid-template-columns: repeat(3, 1fr)
+  gap: 15px
+  margin-bottom: 20px
+
+.datasource-date-filter,
+.datasource-condition
+  margin-bottom: 15px
+  padding: 15px
+  background: #f8f9fa
+  border-radius: 6px
+  border: 1px solid #ddd
+
+.datasource-filter-controls
+  display: flex
+  gap: 10px
+  margin-bottom: 10px
+
+  > *
+    flex: 1
+
+  button
+    flex: 0 0 auto
+
+.datasource-month-inputs,
+.datasource-period-inputs
+  display: flex
+  gap: 10px
+
+.datasource-month-inputs
+  flex-direction: column
+
+  > div
+    display: flex
+    gap: 10px
+
+.datasource-period-inputs
+  > div
+    display: flex
+    gap: 10px
+
+  span
+    padding: 10px
+    align-self: center
+
+.datasource-month-display
+  font-size: 13px
+  color: #666
+  background: white
+  padding: 8px
+  border-radius: 4px
+
+.datasource-preview
+  margin-top: 20px
+  padding: 15px
+  background: #f8f9fa
+  border-radius: 8px
+  display: none
+
+  pre
+    background: #fff
+    padding: 10px
+    border-radius: 4px
+    overflow-x: auto

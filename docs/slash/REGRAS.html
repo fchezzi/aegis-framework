@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="regrasaegis-lersempreantesdequalqueração">REGRAS AEGIS - Ler SEMPRE Antes de Qualquer Ação</h1>
+
+<blockquote>
+<p>12 regras invioláveis que previnem 95% dos erros. Não pule nenhuma.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="top12regrasinviolÁveis">TOP 12 REGRAS INVIOLÁVEIS</h2>
+
+<h3 id="1.databaseconnection">1. Database Connection</h3>
+
+<pre><code class="php">$db = DB::connect();  // ✅ CERTO
+$db = DB::getInstance();  // ❌ ERRADO
+</code></pre>
+
+<h3 id="2.tabeladeadmins">2. Tabela de Admins</h3>
+
+<pre><code class="sql">REFERENCES users(id)   -- ✅ CERTO (tabela se chama &quot;users&quot;)
+REFERENCES admins(id)  -- ❌ ERRADO (não existe)
+</code></pre>
+
+<h3 id="3.idssãouuid">3. IDs são UUID</h3>
+
+<pre><code class="php">$id = Core::generateUUID();  // ✅ CERTO
+$id = AUTO_INCREMENT         // ❌ ERRADO (nunca usar)
+</code></pre>
+
+<h3 id="4.sqlinjection-preparedstatements">4. SQL Injection - Prepared Statements</h3>
+
+<pre><code class="php">// ❌ ERRADO - Vulnerável
+$query = &quot;SELECT * FROM users WHERE email = '$email'&quot;;
+
+// ✅ CERTO - Prepared statement
+$stmt = $db-&gt;prepare(&quot;SELECT * FROM users WHERE email = ?&quot;);
+$stmt-&gt;execute([$email]);
+</code></pre>
+
+<h3 id="5.csrfemformspost">5. CSRF em Forms POST</h3>
+
+<pre><code class="php">// No form:
+&lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+
+// No controller:
+Security::validateCSRF($_POST['csrf_token']);  // ✅ COM parâmetro
+</code></pre>
+
+<h3 id="6.sanitizarinputs">6. Sanitizar Inputs</h3>
+
+<pre><code class="php">$nome = Security::sanitize($_POST['nome']);  // ✅ SEMPRE
+echo htmlspecialchars($nome, ENT_QUOTES, 'UTF-8');  // ✅ Output
+</code></pre>
+
+<h3 id="7.authemcontrollersadmin">7. Auth em Controllers Admin</h3>
+
+<pre><code class="php">public function index() {
+    Auth::require();  // ✅ PRIMEIRA LINHA, SEMPRE
+    // resto do código
+}
+</code></pre>
+
+<h3 id="8.routeréestático">8. Router é Estático</h3>
+
+<pre><code class="php">Router::get('/path', ...);   // ✅ CERTO
+$router-&gt;add('/path', ...);  // ❌ ERRADO
+</code></pre>
+
+<h3 id="9.uploaddearquivos">9. Upload de Arquivos</h3>
+
+<pre><code class="php">$result = Upload::image($_FILES['foto'], 'destino');  // ✅ CERTO
+
+if ($result['success']) {
+    $path = $result['path'];      // ✅ 'path' não 'file'
+} else {
+    $erro = $result['message'];   // ✅ 'message' não 'error'
+}
+
+// Deletar arquivo
+Upload::delete($path);  // ✅ CERTO (não unlink)
+</code></pre>
+
+<h3 id="10.módulos≠páginas">10. Módulos ≠ Páginas</h3>
+
+<pre><code>Módulos → module.json é fonte de verdade
+Páginas → tabela pages é fonte de verdade
+
+NUNCA misturar os dois
+</code></pre>
+
+<h3 id="11.ordemderotas">11. Ordem de Rotas</h3>
+
+<pre><code class="php">// ✅ CERTO: Específicas ANTES de genéricas
+Router::get('/blog', ...);           // 1. Fixo
+Router::get('/blog/:slug', ...);     // 2. Com param
+Router::get('/:slug', ...);          // 3. Genérico (ÚLTIMO)
+
+// ❌ ERRADO: Genérico primeiro captura tudo
+Router::get('/:slug', ...);          // Captura /blog!
+Router::get('/blog', ...);           // Nunca executa
+</code></pre>
+
+<h3 id="12.sasspuronãoscss">12. SASS Puro (não SCSS)</h3>
+
+<pre><code class="sass">// ✅ CERTO - .sass com 2 tabs indentação
+.container
+  display: flex
+  padding: 20px
+
+  .item
+    color: red
+    font-size: 16px
+
+// ❌ ERRADO - SCSS com chaves
+.container {
+  display: flex;
+}
+</code></pre>
+
+<hr />
+
+<h2 id="checklistantesdemodificarcÓdigo">CHECKLIST ANTES DE MODIFICAR CÓDIGO</h2>
+
+<pre><code>□ DB::connect() (não getInstance)
+□ REFERENCES users(id) (não admins)
+□ Core::generateUUID() para IDs
+□ Prepared statements (não concatenar SQL)
+□ Security::validateCSRF($_POST['csrf_token'])
+□ Security::sanitize() em inputs
+□ Auth::require() primeira linha admin
+□ Upload::image() e Upload::delete()
+□ Router::get() estático
+□ Router order: específicas ANTES
+□ SASS .sass com 2 tabs (não SCSS)
+□ module.json para módulos
+</code></pre>
+
+<hr />
+
+<h2 id="quandoerroacontecer">QUANDO ERRO ACONTECER</h2>
+
+<p><strong>PARE IMEDIATAMENTE e siga este fluxo:</strong></p>
+
+<ol>
+<li><strong>LER</strong> <code>ERRO-PROTOCOL.md</code> (protocolo obrigatório)</li>
+<li><strong>VERIFICAR</strong> <code>memory/known-issues.md</code> (5 problemas conhecidos)</li>
+<li><strong>REPORTAR</strong> se não encontrar solução</li>
+<li><strong>AGUARDAR</strong> decisão do usuário</li>
+</ol>
+
+<p><strong>NÃO:</strong></p>
+
+<ul>
+<li>❌ Continuar modificando código</li>
+<li>❌ Criar arquivos de debug</li>
+<li>❌ Tentar &#8220;outra abordagem&#8221;</li>
+<li>❌ Assumir que consertou</li>
+</ul>
+
+<hr />
+
+<h2 id="padrÕesdecÓdigoprontos">PADRÕES DE CÓDIGO PRONTOS</h2>
+
+<p><strong>Para código completo copiar/colar, consultar:</strong></p>
+
+<ul>
+<li><code>memory/code-patterns.md</code> - Controller CRUD, Upload, SASS, Router</li>
+<li><code>memory/module-guide.md</code> - Criar módulos (checklist + templates)</li>
+</ul>
+
+<hr />
+
+<p><strong>Versão:</strong> 3.0.0
+<strong>Data:</strong> 2026&#8211;02&#8211;14
+<strong>Linhas:</strong> 100 (reduzido de 318)</p>
+
+</body>
+</html>
+

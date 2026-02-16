@@ -1,0 +1,33 @@
+// Variables Members Dashboard
+// Cores e configurações do dashboard de membros
+
+// Cores da marca (compartilhadas com frontend)
+$color-main: #361452
+$color-second: #FAEA26
+$color-third: #1D4872
+$color-four: #A39D8F
+$color-five: #A39D8F
+
+// Propriedades de dashboard (editáveis via admin)
+$bgdashmain: #160f47
+$bgdashsecond: #4C4C4E
+$bgdashmaindark: #E5E6E7
+$bgdashseconddark: #4C4C4E
+$bgdashbread: #282542
+$bgdashbreaddark: #F0F0F0
+$bgdashaside: #0056ff
+$bgdashlogo: #0056ff
+$bgdashlogodark: #FFFFFF
+$bgdashheader: linear-gradient(135deg, #160f47 0%, #5b1d5c 100%)
+$bgdashheaderdark: linear-gradient(45deg, #E5E6E7 0%, #BBBDBF 100%)
+
+// Fontes (compartilhadas)
+$font-title: Roboto
+$font-text: Inter
+
+// Configurações básicas de tipografia
+p, a, ul, li, button, label, table
+	font-family: $font-text
+
+h1, h2, h3, h4, h5, h6
+	font-family: $font-title

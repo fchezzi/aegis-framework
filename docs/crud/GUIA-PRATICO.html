@@ -1,0 +1,3068 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="guiaprÁtico-refatorarcriarcrud">GUIA PRÁTICO - REFATORAR/CRIAR CRUD</h1>
+
+<p><strong>Use este documento como seu ponto de partida.</strong> Ele contém a ordem exata de ações e checklists para refatorar um CRUD existente ou criar um novo.</p>
+
+<hr />
+
+<h2 id="⚠️instruÇÕesobrigatÓriasparaclaude">⚠️ INSTRUÇÕES OBRIGATÓRIAS PARA CLAUDE</h2>
+
+<p><strong>QUANDO O USUÁRIO PEDIR &#8220;CRIE CRUD DE X&#8221; OU &#8220;IMPLEMENTE CRUD DE Y&#8221;:</strong></p>
+
+<h3 id="❌nÃofaÇaisso:">❌ NÃO FAÇA ISSO:</h3>
+
+<ul>
+<li>Criar código imediatamente</li>
+<li>&#8220;Já sei fazer, não preciso do guia&#8221;</li>
+<li>Pular passos para ir mais rápido</li>
+<li>Marcar como completo sem testar</li>
+</ul>
+
+<h3 id="✅faÇaissoobrigatÓrio:">✅ FAÇA ISSO (OBRIGATÓRIO):</h3>
+
+<p><strong>1. ANUNCIAR QUE VAI SEGUIR O GUIA:</strong></p>
+
+<pre><code>&quot;Vou seguir o GUIA-PRATICO.md rigorosamente.
+Iniciando PASSO -2: Coletar requisitos...&quot;
+</code></pre>
+
+<p><strong>2. ABRIR CHECKLIST DE EXECUÇÃO:</strong></p>
+
+<pre><code>&quot;Abrindo CHECKLIST-EXECUCAO.md para tracking...&quot;
+</code></pre>
+
+<p><strong>3. REPORTAR CADA PASSO:</strong></p>
+
+<pre><code>&quot;PASSO 4 [3/9]: Sanitização completa ✓&quot;
+&quot;PASSO 4 [6/9]: Logger.audit() adicionado ✓&quot;
+</code></pre>
+
+<p><strong>4. PARAR EM CADA CHECKPOINT:</strong></p>
+
+<pre><code>&quot;⛔ CHECKPOINT CSRF:
+[ ] validateCSRF() como primeira linha? ✓
+[ ] Localização correta? ✓
+CHECKPOINT APROVADO. Prosseguindo...&quot;
+</code></pre>
+
+<p><strong>5. ANUNCIAR GATES:</strong></p>
+
+<pre><code>&quot;🔒 GATE PASSO 8: Iniciando validação...
+Checkpoint 1/3: Segurança Crítica... ✓
+Checkpoint 2/3: Validações e Feedback... ✓
+Checkpoint 3/3: Estrutura e Nomenclatura... ✓
+GATE APROVADO. Liberado para PASSO 9.&quot;
+</code></pre>
+
+<p><strong>6. RODAR TESTES DO PASSO 12:</strong></p>
+
+<pre><code>&quot;🧪 TESTE 1: Funcionalidade Básica
+[ ] GET /admin/banners → 200 OK ✓
+[ ] POST create → registro criado ✓
+...
+
+🧪 TESTE 2: Segurança
+[ ] CSRF bloqueou? ✓
+[ ] Rate limit ativo? ✓
+...&quot;
+</code></pre>
+
+<p><strong>7. VALIDAÇÃO AUTOMÁTICA (se disponível):</strong></p>
+
+<pre><code class="bash">php /scripts/validate-crud.php BannerController
+</code></pre>
+
+<h3 id="🚨importante">🚨 IMPORTANTE</h3>
+
+<p><strong>SE VOCÊ PULAR O GUIA:</strong></p>
+
+<ul>
+<li>❌ CRUD estará incompleto</li>
+<li>❌ Faltará segurança (CSRF, RateLimit, Logger)</li>
+<li>❌ Usuário terá que debugar e corrigir</li>
+<li>❌ Perda de confiança</li>
+</ul>
+
+<p><strong>SE VOCÊ SEGUIR O GUIA:</strong></p>
+
+<ul>
+<li>✅ CRUD 98% correto de primeira</li>
+<li>✅ Todas camadas de segurança</li>
+<li>✅ Auditoria completa</li>
+<li>✅ Código pronto para produção</li>
+</ul>
+
+<p><strong>O guia existe para VOCÊ não errar. Use-o.</strong></p>
+
+<hr />
+
+<h2 id="📋antesdecomeÇar">📋 ANTES DE COMEÇAR</h2>
+
+<p><strong>⚠️ ABRA AGORA E MANTENHA VISÍVEL:</strong></p>
+
+<pre><code>/docs/crud/CHECKLIST-EXECUCAO.md
+</code></pre>
+
+<p>Você vai marcar cada checkbox conforme avança.</p>
+
+<p><strong>Só entregue o CRUD se TODOS os checkboxes estiverem marcados ✓</strong></p>
+
+<hr />
+
+<h2 id="passo-2:fazerperguntasecoletarrequisitos">PASSO -2: FAZER PERGUNTAS E COLETAR REQUISITOS</h2>
+
+<h3 id="⚠️verdadeabsolutasobrecrudemaegis">⚠️ VERDADE ABSOLUTA SOBRE CRUD EM AEGIS</h3>
+
+<p><strong>Existe UM único padrão para criar CRUDs:</strong></p>
+
+<ol>
+<li><strong>Local sempre</strong>: <code>/admin/controllers/[Recurso]Controller.php</code></li>
+<li><strong>Métodos sempre</strong>: <code>index</code>, <code>create</code>, <code>store</code>, <code>edit</code>, <code>update</code>, <code>destroy</code> (6 métodos, sempre)</li>
+<li><strong>Herança sempre</strong>: <code>BaseController</code></li>
+<li><strong>O que muda</strong>: Nome da tabela, campos, validações específicas</li>
+<li><strong>O que NÃO muda</strong>: A estrutura dos 6 métodos é IDÊNTICA</li>
+</ol>
+
+<p><strong>Ponto crítico: O CRUD não sabe (nem precisa saber) ONDE seus dados vão ser exibidos.</strong></p>
+
+<hr />
+
+<h3 id="🎯oqueumcrudfaz">🎯 O Que um CRUD Faz</h3>
+
+<p>✅ Gerenciar dados (create, read, update, delete)
+✅ Exibir em admin (<code>/admin/recurso</code>)
+✅ Fornecer dados para qualquer outra página consumir</p>
+
+<p>❌ Decidir onde exibir
+❌ Decidir como exibir (carrossel, lista, grid)
+❌ Conhecer quem vai consumir seus dados</p>
+
+<hr />
+
+<h3 id="🔄comofuncionaaexibição">🔄 Como Funciona a Exibição</h3>
+
+<p><strong>Se você quer exibir banners na home:</strong></p>
+
+<pre><code>1. O CRUD (BannerController) gerencia banners
+   → /admin/banners (gerenciar)
+   → $controller-&gt;index() retorna todos os banners
+
+2. A HOME (home.php) quer exibir banners
+   → Chama o método que precisa: $controller-&gt;index()
+   → O CRUD não sabe que é na home
+   → O CRUD não sabe se é carrossel, lista ou grid
+   → Aquilo é responsabilidade da HOME decidir
+</code></pre>
+
+<p><strong>Analogia: Restaurante</strong></p>
+
+<ul>
+<li>CRUD = cozinha (produz pratos)</li>
+<li>Home = uma mesa (pede prato do restaurante)</li>
+<li>Blog = outra mesa (pede prato do restaurante)</li>
+<li>Relatório = outra mesa (pede prato do restaurante)</li>
+</ul>
+
+<p><strong>A cozinha NÃO sabe (nem precisa saber) qual mesa vai comer o prato.</strong></p>
+
+<hr />
+
+<h3 id="⚠️oqueÉumcrud">⚠️ O QUE É UM CRUD</h3>
+
+<p><strong>Um CRUD SEMPRE terá os 6 métodos:</strong></p>
+
+<ul>
+<li><code>index</code> (listar todos)</li>
+<li><code>create</code> (exibir formulário de criação)</li>
+<li><code>store</code> (processar POST de criação)</li>
+<li><code>edit</code> (exibir formulário de edição)</li>
+<li><code>update</code> (processar POST de edição)</li>
+<li><code>destroy</code> (processar DELETE)</li>
+</ul>
+
+<p><strong>Se você pediu &#8220;CRUD&#8221;, vai ter os 6 métodos. Sempre.</strong></p>
+
+<hr />
+
+<h3 id="📋perguntasobrigatórias">📋 Perguntas Obrigatórias</h3>
+
+<pre><code>1️⃣  NOME do CRUD (para identificação):
+
+    ❓ POR QUÊ PERGUNTAR ISSO?
+    Este nome será usado em comentários, documentação e para referência.
+    Ajuda a diferenciar quando você tem vários CRUDs parecidos.
+
+    📝 COMO RESPONDER:
+    - Use nome descritivo que explica O QUE É + ONDE/COMO USA
+    - Pode ser composto (2-4 palavras)
+    - Pense: &quot;Se eu ver este nome daqui 6 meses, vou lembrar o que é?&quot;
+
+    ✅ EXEMPLOS REAIS:
+    - &quot;Banner Hero Homepage&quot; (banner principal que vai na home)
+    - &quot;Depoimentos Clientes Rodapé&quot; (depoimentos que aparecem no footer)
+    - &quot;Produtos Loja Virtual&quot; (produtos do e-commerce)
+    - &quot;Parceiros Logos&quot; (logos de parceiros/clientes)
+    - &quot;FAQ Perguntas Frequentes&quot; (seção de dúvidas)
+    - &quot;Galeria Fotos Projetos&quot; (galeria de imagens de trabalhos)
+
+    ❌ EVITE:
+    - &quot;Banner&quot; (muito genérico, qual banner?)
+    - &quot;Dados&quot; (não diz nada)
+    - &quot;Conteúdo&quot; (muito vago)
+
+---
+
+2️⃣  O QUE é este recurso (nome técnico)?
+
+    ❓ POR QUÊ PERGUNTAR ISSO?
+    Este será o nome técnico usado em:
+    - Nome da tabela no banco (ex: banners)
+    - Nome do controller (ex: BannerController.php)
+    - Rotas (ex: /admin/banners)
+    - Variáveis no código (ex: $banner, $banners)
+
+    📝 COMO RESPONDER:
+    - UMA palavra, no singular
+    - Sem espaços, sem caracteres especiais
+    - Primeira letra maiúscula
+    - Em português (padrão AEGIS)
+
+    ✅ EXEMPLOS REAIS:
+    - Banner
+    - Depoimento
+    - Produto
+    - Categoria
+    - Parceiro
+    - Servico (sem ç)
+    - Artigo
+    - Pergunta
+    - Galeria
+
+    ❌ EVITE:
+    - &quot;Banner Hero&quot; (2 palavras)
+    - &quot;banner&quot; (minúscula)
+    - &quot;Banners&quot; (plural)
+    - &quot;Serviço&quot; (caractere especial ç)
+
+---
+
+3️⃣  QUEM acessa o admin deste CRUD?
+
+    ❓ POR QUÊ PERGUNTAR ISSO?
+    Define qual nível de permissão é necessário para gerenciar este recurso.
+
+    📝 OPÇÕES DISPONÍVEIS:
+
+    [ ] Admin geral (Auth::require()) ← PADRÃO - ESCOLHA ESTA 99% DAS VEZES
+        → Qualquer usuário logado no admin pode gerenciar
+        → Exemplos: Banners, Produtos, Depoimentos, Categorias
+        → Usado em: 95% dos CRUDs normais
+
+    [ ] Apenas super admin (Role check)
+        → Somente super admins podem gerenciar
+        → Exemplos: Usuários do Sistema, Configurações Globais, Logs de Auditoria
+        → Usado em: Recursos críticos ou sensíveis
+
+    [ ] Proprietários de conteúdo (Permission check)
+        → Usuários só gerenciam o próprio conteúdo
+        → Exemplos: Autores veem apenas próprios Artigos, Vendedores veem apenas próprias Vendas
+        → Usado em: Sistemas multi-usuário com isolamento de dados
+
+    ✅ COMO RESPONDER:
+    - Na dúvida? Escolha &quot;Admin geral&quot;
+    - É configuração crítica do sistema? Escolha &quot;Super admin&quot;
+    - É conteúdo por usuário? Escolha &quot;Proprietários&quot;
+
+---
+
+4️⃣  QUAIS são os campos necessários?
+
+    ❓ POR QUÊ PERGUNTAR ISSO?
+    Define a estrutura da tabela do banco e dos formulários admin.
+
+    📝 COMO RESPONDER:
+    Liste TODOS os campos que precisa, indicando:
+    - Nome do campo
+    - Tipo (ver lista abaixo)
+    - Obrigatório ou Opcional
+
+    📋 FORMATO DE RESPOSTA:
+    - title (VARCHAR 255, obrigatório) - Título principal
+    - subtitle (VARCHAR 255, opcional) - Subtítulo secundário
+    - image (VARCHAR 255 path, obrigatório) - Imagem de destaque
+    - order (INT, obrigatório) - Ordem de exibição
+    - ativo (TINYINT 1/0, obrigatório) - Status ativo/inativo
+
+    💡 TIPOS DE CAMPOS DISPONÍVEIS:
+
+    📝 TEXTO CURTO (VARCHAR 255):
+    ✅ title → &quot;Título do Banner Hero&quot;
+    ✅ name → &quot;João da Silva&quot;
+    ✅ subtitle → &quot;Subtítulo opcional&quot;
+    ✅ email → &quot;contato@empresa.com&quot;
+    ✅ url → &quot;https://site.com/pagina&quot;
+    ✅ slug → &quot;meu-produto-incrivel&quot;
+
+    Quando usar: Textos até 255 caracteres (títulos, nomes, links, emails)
+
+    📝 TEXTO LONGO (TEXT):
+    ✅ description → &quot;Esta é uma descrição longa do produto com vários parágrafos...&quot;
+    ✅ content → &quot;Conteúdo completo do artigo com formatação...&quot;
+    ✅ bio → &quot;Biografia completa do autor...&quot;
+    ✅ notes → &quot;Observações internas...&quot;
+
+    Quando usar: Textos longos, parágrafos, descrições detalhadas
+
+    🔢 NÚMEROS INTEIROS (INT):
+    ✅ order → 1, 2, 3 (ordem de exibição)
+    ✅ quantity → 50 (quantidade em estoque)
+    ✅ views → 1523 (contador de visualizações)
+    ✅ age → 25 (idade)
+
+    Quando usar: Números sem casas decimais
+
+    🔢 NÚMEROS DECIMAIS (DECIMAL):
+    ✅ price → 99.90 (preço de produto)
+    ✅ rating → 4.5 (avaliação de 0 a 5)
+    ✅ percentage → 15.75 (porcentagem)
+
+    Quando usar: Números com casas decimais (preços, notas, porcentagens)
+
+    📅 DATA E HORA (DATETIME):
+    ✅ published_at → &quot;2025-03-15 14:30:00&quot; (quando foi publicado)
+    ✅ expires_at → &quot;2025-12-31 23:59:59&quot; (quando expira)
+    ✅ event_date → &quot;2025-06-20 19:00:00&quot; (data do evento)
+
+    Quando usar: Datas com horário específico
+
+    📅 APENAS DATA (DATE):
+    ✅ birth_date → &quot;1990-05-15&quot; (data de nascimento)
+    ✅ deadline → &quot;2025-08-30&quot; (prazo sem hora)
+
+    Quando usar: Datas sem necessidade de horário
+
+    🔘 VERDADEIRO/FALSO (TINYINT 1/0):
+    ✅ ativo → 1 (sim, está ativo) ou 0 (não, está inativo)
+    ✅ featured → 1 (destaque) ou 0 (não destaque)
+    ✅ published → 1 (publicado) ou 0 (rascunho)
+    ✅ visible → 1 (visível) ou 0 (oculto)
+
+    Quando usar: Campos de sim/não, ligado/desligado, ativo/inativo
+
+    📁 UPLOAD DE IMAGEM (VARCHAR 255 path):
+    ✅ image → &quot;/storage/uploads/banners/banner_123.jpg&quot;
+    ✅ avatar → &quot;/storage/uploads/users/avatar_456.png&quot;
+    ✅ logo → &quot;/storage/uploads/parceiros/logo_789.webp&quot;
+    ✅ thumbnail → &quot;/storage/uploads/produtos/thumb_012.jpg&quot;
+
+    Quando usar: Upload de imagens (JPG, PNG, GIF, WEBP)
+    Importante: O campo guarda o CAMINHO do arquivo, não o arquivo
+
+    📁 UPLOAD DE ARQUIVO (VARCHAR 255 path):
+    ✅ pdf → &quot;/storage/uploads/documentos/catalogo.pdf&quot;
+    ✅ document → &quot;/storage/uploads/contratos/contrato_123.docx&quot;
+    ✅ attachment → &quot;/storage/uploads/anexos/arquivo.zip&quot;
+
+    Quando usar: Upload de PDFs, documentos, arquivos em geral
+    Importante: O campo guarda o CAMINHO do arquivo, não o arquivo
+
+    🔗 RELACIONAMENTO (CHAR 36 UUID):
+    ✅ user_id → &quot;550e8400-e29b-41d4-a716-446655440000&quot; (qual usuário criou)
+    ✅ category_id → &quot;6ba7b810-9dad-11d1-80b4-00c04fd430c8&quot; (qual categoria pertence)
+    ✅ author_id → &quot;7c9e6679-7425-40de-944b-e07fc1f90ae7&quot; (qual autor escreveu)
+    ✅ parent_id → &quot;123e4567-e89b-12d3-a456-426614174000&quot; (categoria pai em hierarquia)
+
+    Quando usar: Relacionamento com outra tabela (Foreign Key)
+    Importante: AEGIS usa UUID (36 caracteres), não INT auto increment
+
+    🎨 COR HEXADECIMAL (VARCHAR 7):
+    ✅ color → &quot;#FF5733&quot; (cor de fundo)
+    ✅ text_color → &quot;#FFFFFF&quot; (cor do texto)
+    ✅ border_color → &quot;#000000&quot; (cor da borda)
+
+    Quando usar: Campos de cor com color picker
+
+    🎨 DADOS JSON (TEXT):
+    ✅ settings → {&quot;theme&quot;: &quot;dark&quot;, &quot;notifications&quot;: true}
+    ✅ metadata → {&quot;views&quot;: 100, &quot;shares&quot;: 25}
+
+    Quando usar: Dados estruturados complexos, configurações dinâmicas
+
+    🔗 PARES DE CAMPOS (2 campos juntos):
+
+    💡 CTA BUTTON:
+    ✅ button_text (VARCHAR 255) → &quot;Saiba Mais&quot;
+    ✅ button_url (VARCHAR 255) → &quot;https://site.com/produto&quot;
+
+    Quando usar: Botões de ação que precisam texto E link
+
+    💡 LINK COM TEXTO:
+    ✅ link_text (VARCHAR 255) → &quot;Ver Detalhes&quot;
+    ✅ link_url (VARCHAR 255) → &quot;/produtos/detalhes&quot;
+
+    Quando usar: Links com texto customizável
+
+    💡 TELEFONE COM LABEL:
+    ✅ phone_label (VARCHAR 255) → &quot;WhatsApp&quot;
+    ✅ phone_number (VARCHAR 255) → &quot;(11) 98765-4321&quot;
+
+    Quando usar: Telefones com descrição (Comercial, Celular, WhatsApp)
+
+    💡 REDES SOCIAIS:
+    ✅ social_name (VARCHAR 255) → &quot;Instagram&quot;
+    ✅ social_url (VARCHAR 255) → &quot;https://instagram.com/empresa&quot;
+
+    Quando usar: Links de redes sociais com nome da rede
+
+    ✅ EXEMPLO COMPLETO DE RESPOSTA (Banner):
+    - title (VARCHAR 255, obrigatório) - Título principal do banner
+    - subtitle (VARCHAR 255, opcional) - Subtítulo complementar
+    - image (VARCHAR 255 path, obrigatório) - Imagem de fundo JPG/PNG/WEBP
+    - button_text (VARCHAR 255, obrigatório) - Texto do botão CTA
+    - button_url (VARCHAR 255, obrigatório) - URL do botão CTA
+    - order (INT, obrigatório, default 0) - Ordem de exibição
+    - ativo (TINYINT 1/0, obrigatório, default 1) - Status ativo/inativo
+
+    ✅ EXEMPLO COMPLETO DE RESPOSTA (Produto):
+    - name (VARCHAR 255, obrigatório) - Nome do produto
+    - description (TEXT, obrigatório) - Descrição completa
+    - price (DECIMAL 10,2, obrigatório) - Preço em reais
+    - image (VARCHAR 255 path, obrigatório) - Foto principal
+    - category_id (CHAR 36 UUID, obrigatório) - Categoria do produto
+    - quantity (INT, obrigatório, default 0) - Estoque disponível
+    - featured (TINYINT 1/0, obrigatório, default 0) - Produto destaque
+    - ativo (TINYINT 1/0, obrigatório, default 1) - Status ativo/inativo
+
+---
+
+5️⃣  COMPORTAMENTOS especiais?
+
+    ❓ POR QUÊ PERGUNTAR ISSO?
+    Alguns recursos precisam de funcionalidades extras além do CRUD básico.
+
+    📝 COMO RESPONDER:
+    Marque SIM ou NÃO para cada comportamento abaixo.
+
+    [ ] Upload de arquivo? (SIM/NÃO)
+        ↳ Se SIM: Usar PASSO 4B (validação de upload)
+        ↳ Exemplos SIM: Banners (imagem), Documentos (PDF), Produtos (foto)
+        ↳ Exemplos NÃO: Categorias (só texto), Configurações (só dados)
+
+    [ ] Ordenação/ranking? (SIM/NÃO)
+        ↳ Se SIM: Adicionar campo &quot;order&quot; (INT) na tabela
+        ↳ Exemplos SIM: Banners (ordem do carrossel), Depoimentos (ordem de exibição)
+        ↳ Exemplos NÃO: Produtos (ordenam por data), Artigos (ordenam por data)
+
+    [ ] Status ativo/inativo? (SIM/NÃO)
+        ↳ Se SIM: Adicionar campo &quot;ativo&quot; (TINYINT 1/0) na tabela
+        ↳ Exemplos SIM: Quase TODOS os CRUDs (banners, produtos, categorias)
+        ↳ Exemplos NÃO: Logs (não tem sentido ativar/desativar log)
+
+    [ ] Datas especiais (published_at, expires_at)? (SIM/NÃO)
+        ↳ Se SIM: Adicionar campo(s) DATETIME na tabela
+        ↳ Exemplos SIM: Artigos (published_at), Promoções (expires_at)
+        ↳ Exemplos NÃO: Categorias, Banners fixos
+
+    [ ] Relacionamentos com outras tabelas? (SIM/NÃO, quais?)
+        ↳ Se SIM: Adicionar campo(s) _id (CHAR 36 UUID) na tabela
+        ↳ Exemplos SIM:
+            - Produtos → category_id (relaciona com categorias)
+            - Artigos → author_id (relaciona com usuários)
+            - Comentários → post_id (relaciona com posts)
+        ↳ Exemplos NÃO: Categorias standalone, Configurações globais
+
+    ✅ EXEMPLO COMPLETO DE RESPOSTA (Banner):
+    [X] Upload de arquivo? SIM (imagem JPG/PNG/WEBP, máximo 5MB)
+    [X] Ordenação/ranking? SIM (campo &quot;order&quot;)
+    [X] Status ativo/inativo? SIM (campo &quot;ativo&quot;)
+    [ ] Datas especiais? NÃO
+    [ ] Relacionamentos? NÃO
+
+    ✅ EXEMPLO COMPLETO DE RESPOSTA (Artigo):
+    [X] Upload de arquivo? SIM (imagem destaque JPG/PNG, máximo 2MB)
+    [ ] Ordenação/ranking? NÃO (ordena por published_at)
+    [X] Status ativo/inativo? SIM (campo &quot;ativo&quot;)
+    [X] Datas especiais? SIM (published_at DATETIME)
+    [X] Relacionamentos? SIM (category_id, author_id)
+
+---
+
+6️⃣  Vai ter DISPLAY FRONTEND?
+
+    ❓ POR QUÊ PERGUNTAR ISSO?
+    Define se este recurso será exibido no site (frontend) ou é apenas gerenciamento (admin).
+
+    📝 OPÇÕES DISPONÍVEIS:
+
+    [ ] NÃO → Pronto, só existe o CRUD Admin
+        ↳ Quando usar: Recursos apenas de gerenciamento interno
+        ↳ Exemplos:
+            - Usuários do sistema (admin apenas)
+            - Configurações globais (admin apenas)
+            - Logs de auditoria (admin apenas)
+            - Permissões (admin apenas)
+        ↳ Resultado: Apenas BannerController com 6 métodos admin
+
+    [ ] SIM → Criar partial reutilizável + preview no admin
+        ↳ Quando usar: Recursos que aparecem no site
+        ↳ Exemplos:
+            - Banners (carrossel na home)
+            - Depoimentos (seção de feedback)
+            - Produtos (listagem na loja)
+            - Parceiros (logos no rodapé)
+            - FAQ (página de dúvidas)
+        ↳ Resultado:
+            1. BannerController (admin CRUD)
+            2. FrontendBannerController (fornece dados ativos)
+            3. /views/partials/banner-hero.php (componente reutilizável)
+            4. /assets/sass/frontend/components/_banner-hero.sass (estilos)
+            5. Preview no admin com código para copiar
+
+    ⚠️ NOVA ABORDAGEM AEGIS:
+    - NÃO perguntamos mais &quot;onde vai aparecer?&quot; (home, blog, etc)
+    - NÃO acoplamos a página específica
+    - Criamos PARTIAL GENÉRICA que funciona em qualquer lugar
+    - Preview no admin mostra código pronto:
+      &lt;?php include __DIR__ . '/partials/banner-hero.php'; ?&gt;
+    - Usuário DECIDE onde usar: home, múltiplas páginas, includes, etc
+
+    ✅ EXEMPLO DE RESPOSTA (Banner):
+    [X] SIM - Vai aparecer no frontend
+        → Criar FrontendBannerController
+        → Criar /views/partials/banner-hero.php
+        → Criar /assets/sass/frontend/components/_banner-hero.sass
+        → Adicionar preview no admin/views/banners/index.php
+
+    ✅ EXEMPLO DE RESPOSTA (Usuários):
+    [ ] NÃO - Apenas gerenciamento admin
+        → Só criar UserController com CRUD admin
+        → Sem display frontend
+</code></pre>
+
+<hr />
+
+<h3 id="✅exemplocorretodeplanejamento">✅ Exemplo Correto de Planejamento</h3>
+
+<p><strong>Cenário: Criar Banner CRUD</strong></p>
+
+<pre><code>User: Vou criar um CRUD de banners
+
+Eu faço as perguntas:
+
+1. Nome do CRUD? → &quot;Banner Hero&quot;
+2. Recurso técnico? → Banner (tabela: banners)
+3. Quem acessa? → Todos os admins
+4. Quais campos? → title, subtitle, image, cta_button, cta_url, order, ativo
+5. Comportamentos? → Upload (imagem JPG/PNG/GIF/WEBP 5MB), ordenação, status
+6. Display frontend? → SIM
+
+Meu plano:
+✅ 1. Criar tabela: banners
+✅ 2. Criar CRUD Admin: BannerController (6 métodos)
+✅ 3. Criar views admin: index, create, edit
+✅ 4. Adicionar 6 rotas admin
+✅ 5. Criar FrontendBannerController (getActive)
+✅ 6. Criar partial: banner-hero.php (carrossel reutilizável)
+✅ 7. Adicionar preview no admin/views/banners/index.php
+✅ 8. Preview mostra código para copiar
+✅ 9. Usuário decide onde usar (home, múltiplas páginas, includes)
+
+⚠️ NOVA ABORDAGEM: Não acoplamos a página específica
+⚠️ Partial pode ser usada em qualquer lugar
+⚠️ Preview no admin + código pronto para copiar
+</code></pre>
+
+<hr />
+
+<h3 id="📊checklistantesdecomeçar">📊 Checklist Antes de Começar</h3>
+
+<pre><code>OBRIGATÓRIO:
+[ ] Responder: Nome do CRUD (identificação)?
+[ ] Responder: O que é este recurso (técnico)?
+[ ] Responder: Quem acessa admin?
+[ ] Responder: Quais campos?
+[ ] Responder: Comportamentos especiais?
+
+OPCIONAL:
+[ ] Responder: Vai ter display frontend? (SIM/NÃO)
+
+RESULTADO:
+[ ] Entender que CRUD Admin é SEMPRE em /admin/controllers/
+[ ] Entender que CRUD SEMPRE tem 6 métodos
+[ ] Entender que frontend é responsável por exibição
+[ ] Entender que CRUD não muda por causa do frontend
+</code></pre>
+
+<hr />
+
+<h3 id="🚀próximopasso">🚀 Próximo Passo</h3>
+
+<p>Responder as 6 perguntas acima → Ir para PASSO -1</p>
+
+<p><strong>Próximo</strong>: Passo -1</p>
+
+<hr />
+
+<h2 id="passo-1:criartabelanobanco">PASSO -1: CRIAR TABELA NO BANCO</h2>
+
+<h3 id="⚠️cuidado:sqlreservedkeywords">⚠️ CUIDADO: SQL Reserved Keywords</h3>
+
+<p><strong>NUNCA use nomes de colunas que sejam SQL reserved keywords sem BACKTICKS:</strong></p>
+
+<pre><code class="sql">❌ ERRADO (vai quebrar):
+SELECT * FROM banners WHERE order = 1
+
+✅ CORRETO (sempre com backticks):
+SELECT * FROM banners WHERE `order` = 1
+</code></pre>
+
+<p><strong>Reserved keywords comuns:</strong></p>
+
+<ul>
+<li><code>order</code> - ORDER BY</li>
+<li><code>group</code> - GROUP BY</li>
+<li><code>key</code> - PRIMARY KEY</li>
+<li><code>value</code> - valores</li>
+<li><code>type</code> - tipos de dados</li>
+<li><code>status</code> - estado</li>
+</ul>
+
+<p><strong>Se usar algum desses como coluna, SEMPRE usar backticks em TODAS as queries:</strong></p>
+
+<ul>
+<li>SQL: <code>`order`</code></li>
+<li>PHP prepared: <code>?</code> (o backtick vai na SQL string)</li>
+</ul>
+
+<p><strong>⛔ CHECKPOINT OBRIGATÓRIO - NÃO PROSSIGA SEM COMPLETAR:</strong></p>
+
+<pre><code class="sql">-- ✅ CORRETO - backticks em reserved keywords
+CREATE TABLE `banners` (
+  `order` INT DEFAULT 0,  -- ← backticks
+  KEY `idx_order` (`order`)  -- ← backticks
+)
+
+SELECT * FROM banners WHERE `order` = ?  -- ← backticks
+SELECT * FROM banners ORDER BY `order` ASC  -- ← backticks
+
+-- ❌ ERRADO - sem backticks
+CREATE TABLE banners (
+  order INT DEFAULT 0  -- ← ERRO! 35% DE CHANCE
+)
+SELECT * FROM banners WHERE order = ?  -- ← ERRO!
+</code></pre>
+
+<p><strong>CHECKLIST OBRIGATÓRIO (35% de chance de erro - VERIFICAR AGORA):</strong></p>
+
+<pre><code>[ ] Tenho coluna com reserved keyword (order, group, key, value, type, status)?
+[ ] Se SIM: TODAS as ocorrências têm backticks?
+[ ] CREATE TABLE: `order` ✓
+[ ] SELECT: WHERE `order` = ? ✓
+[ ] ORDER BY: ORDER BY `order` ✓
+[ ] INDEX: KEY `idx_order` (`order`) ✓
+
+⚠️ SE ALGUMA QUERY NÃO TEM BACKTICKS, ADICIONE AGORA!
+⚠️ ERRO DE BACKTICK = SQL SYNTAX ERROR = CÓDIGO QUEBRADO!
+</code></pre>
+
+<h3 id="sqlmigration">SQL Migration</h3>
+
+<p><strong>Crie o arquivo SQL em <code>/migrations/</code></strong></p>
+
+<p>Exemplo: <code>/migrations/001_create_banners_table.sql</code></p>
+
+<pre><code class="sql">CREATE TABLE IF NOT EXISTS `banners` (
+  `id` CHAR(36) PRIMARY KEY COMMENT 'UUID v4',
+  `title` VARCHAR(255) NOT NULL,
+  `subtitle` VARCHAR(500),
+  `image` VARCHAR(255),
+  `cta_url` VARCHAR(255) NOT NULL,
+  `cta_text` VARCHAR(100),
+  `order` INT DEFAULT 0,
+  `ativo` TINYINT(1) DEFAULT 1,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY `idx_ativo` (`ativo`),
+  KEY `idx_order` (`order`),
+  KEY `idx_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+</code></pre>
+
+<h3 id="checklistdesql">Checklist de SQL</h3>
+
+<pre><code>[ ] Nenhuma coluna com reserved keyword SEM backticks
+[ ] Se usar reserved keyword, documentar que precisa backtick em queries
+[ ] Charset: utf8mb4
+[ ] Collation: utf8mb4_unicode_ci
+[ ] Índices em colunas frequently queried
+</code></pre>
+
+<h3 id="executarmigration">Executar Migration</h3>
+
+<pre><code class="bash">php /scripts/migrate.php
+</code></pre>
+
+<p>OU manualmente no MySQL:</p>
+
+<pre><code class="bash">mysql -u root -p -S /Applications/MAMP/tmp/mysql/mysql.sock &lt; /migrations/001_create_banners_table.sql
+</code></pre>
+
+<h3 id="checklist">Checklist</h3>
+
+<pre><code>[ ] Arquivo SQL criado em /migrations/
+[ ] Tabela criada no banco
+[ ] Colunas corretas
+[ ] PRIMARY KEY é UUID (CHAR(36))
+[ ] Campos obrigatórios SEM NULL
+[ ] Campos opcionais COM NULL
+[ ] Timestamps: created_at, updated_at
+[ ] Índices em: ativo, order, created_at (ou relevantes para query)
+[ ] Charset: utf8mb4
+[ ] Collation: utf8mb4_unicode_ci
+</code></pre>
+
+<hr />
+
+<h2 id="passo0:preparaÇÃo">PASSO 0: PREPARAÇÃO</h2>
+
+<h3 id="informaçõesdocrud">Informações do CRUD</h3>
+
+<pre><code>[ ] Nome do recurso: _________________________
+[ ] Tipo: [ ] Admin [ ] Module [ ] API
+[ ] Arquivo atual/novo: _________________________
+</code></pre>
+
+<p><strong>Se for refatorar:</strong></p>
+
+<pre><code>[ ] Abra o arquivo atual em um editor
+[ ] Identifique os 5-6 métodos existentes
+</code></pre>
+
+<p><strong>Se for criar novo:</strong></p>
+
+<pre><code>[ ] Decida o tipo (Admin/Module/API)
+[ ] Crie arquivo vazio
+</code></pre>
+
+<hr />
+
+<h2 id="passo0.5:verificarnomesdeclassescrÍtico">PASSO 0.5: VERIFICAR NOMES DE CLASSES (CRÍTICO!)</h2>
+
+<h3 id="⚠️importante:vocêestácriandoapenasadmincrud">⚠️ IMPORTANTE: Você Está Criando Apenas Admin CRUD</h3>
+
+<p><strong>Este passo é APENAS sobre Admin CRUD em <code>/admin/controllers/</code></strong></p>
+
+<p>Se no futuro precisar de Frontend Display, será um Passo separado (PASSO 11B).</p>
+
+<h3 id="checklist:antesdecriaraclasse">Checklist: Antes de Criar a Classe</h3>
+
+<pre><code>[ ] Pesquisar: o nome desta classe já existe em /admin/controllers/?
+    find /admin/controllers -name &quot;*BannerController*&quot; -type f
+
+[ ] Se não existe: usar nome simples
+    Correto: BannerController
+    Arquivo: /admin/controllers/BannerController.php
+
+[ ] O ARQUIVO deve ter EXATAMENTE o mesmo nome da CLASSE
+    Classe: BannerController → Arquivo: BannerController.php
+
+[ ] Confirmado que é um nome ÚNICO em /admin/controllers/?
+</code></pre>
+
+<hr />
+
+<h2 id="passo0.6:regrasobrigatÓriasparaviewsadmin">PASSO 0.6: REGRAS OBRIGATÓRIAS PARA VIEWS ADMIN</h2>
+
+<h3 id="⚠️critical:pathsdeincludesnasviews">⚠️ CRITICAL: Paths de Includes nas Views</h3>
+
+<p><strong>Views admin ficam em:</strong> <code>/admin/views/{resource}/</code>
+<strong>Includes admin ficam em:</strong> <code>/admin/includes/</code></p>
+
+<p><strong>De <code>admin/views/{resource}/</code> até <code>admin/includes/</code> = 2 NÍVEIS ACIMA</strong></p>
+
+<pre><code class="php">// ✅ CORRETO (2 níveis: ../.. )
+require_once __DIR__ . '/../../includes/_admin-head.php';
+require_once __DIR__ . '/../../includes/header.php';
+
+// ❌ ERRADO (3 níveis - vai para raiz!)
+require_once __DIR__ . '/../../../includes/_admin-head.php';
+</code></pre>
+
+<p><strong>Estrutura:</strong></p>
+
+<pre><code>admin/
+├── views/
+│   └── banners/          ← Você está AQUI
+│       ├── index.php
+│       ├── create.php
+│       └── edit.php
+├── includes/             ← Quer chegar AQUI
+│   ├── _admin-head.php
+│   └── header.php
+└── controllers/
+</code></pre>
+
+<p><strong>De <code>banners/</code> até <code>includes/</code>:</strong></p>
+
+<ol>
+<li><code>../</code> = sobe para <code>views/</code></li>
+<li><code>../</code> = sobe para <code>admin/</code></li>
+<li><code>includes/</code> = entra em <code>includes/</code></li>
+</ol>
+
+<p><strong>Total: <code>../../includes/</code></strong> (NÃO <code>../../../</code>)</p>
+
+<h3 id="⚠️critical:variáveisobrigatóriasparaviewsadmin">⚠️ CRITICAL: Variáveis Obrigatórias para Views Admin</h3>
+
+<p><strong>TODAS as views admin que incluem <code>header.php</code> precisam de <code>$user</code> definida.</strong></p>
+
+<p><strong>No Controller, ANTES de <code>require view.php</code>:</strong></p>
+
+<pre><code class="php">// ✅ CORRETO - Sempre definir $user
+public function index() {
+    Auth::require();
+    $user = Auth::user();  // ← OBRIGATÓRIO!
+
+    $items = $this-&gt;db()-&gt;query(&quot;SELECT * FROM items&quot;);
+
+    require __DIR__ . '/../views/items/index.php';
+}
+
+public function create() {
+    Auth::require();
+    $user = Auth::user();  // ← OBRIGATÓRIO!
+
+    require __DIR__ . '/../views/items/create.php';
+}
+
+public function edit($id) {
+    Auth::require();
+    $user = Auth::user();  // ← OBRIGATÓRIO!
+
+    $item = $this-&gt;db()-&gt;selectOne('items', ['id' =&gt; $id]);
+
+    require __DIR__ . '/../views/items/edit.php';
+}
+
+// ❌ ERRADO - Sem $user
+public function index() {
+    Auth::require();
+    // Faltou: $user = Auth::user();
+
+    require __DIR__ . '/../views/items/index.php';  // ERRO!
+}
+</code></pre>
+
+<p><strong>Por quê?</strong></p>
+
+<p><code>/admin/includes/header.php</code> usa:</p>
+
+<pre><code class="php">&lt;span&gt;Olá, &lt;?= htmlspecialchars($user['name']) ?&gt;&lt;/span&gt;
+</code></pre>
+
+<p>Se <code>$user</code> não existir = <strong>ErrorException: Undefined variable $user</strong></p>
+
+<h3 id="⚠️critical:loggeréopcionalnãoobrigatório">⚠️ CRITICAL: Logger é OPCIONAL (Não Obrigatório)</h3>
+
+<p><strong>Logger NÃO é estático. Se for usar, precisa getInstance():</strong></p>
+
+<pre><code class="php">// ✅ CORRETO - Se quiser log de auditoria
+Logger::getInstance()-&gt;audit('banner_created', Auth::user()['id'], [
+    'banner_id' =&gt; $id,
+    'title' =&gt; $title
+]);
+
+// ✅ CORRETO - Sem logger (funciona também)
+// (simplesmente não adicione Logger)
+
+// ❌ ERRADO - Logger::audit() estático
+Logger::audit('banner_created', [...]);  // ERRO: Non-static method
+</code></pre>
+
+<p><strong>Logger é OPCIONAL. Se não adicionar, CRUD funciona normalmente.</strong></p>
+
+<h3 id="checklistpré-views">Checklist Pré-Views</h3>
+
+<pre><code>[ ] Paths de include corretos: ../../includes/ (2 níveis)
+[ ] $user = Auth::user() em index()
+[ ] $user = Auth::user() em create()
+[ ] $user = Auth::user() em edit()
+[ ] BaseController: extends BaseController
+[ ] Database: usar $this-&gt;db() (não DB::connect())
+[ ] Logger: OPCIONAL - se usar, getInstance()-&gt;audit()
+</code></pre>
+
+<hr />
+
+<hr />
+
+<h2 id="passo1:escolhertemplate">PASSO 1: ESCOLHER TEMPLATE</h2>
+
+<p><strong>Consulte conforme seu tipo:</strong></p>
+
+<ul>
+<li>[ ] <strong>ADMIN</strong> → Abra <code>/docs/crud/templates/TEMPLATE-CRUD-ADMIN.md</code></li>
+<li>[ ] <strong>MODULE</strong> → Abra <code>/docs/crud/templates/TEMPLATE-CRUD-MODULO.md</code></li>
+<li>[ ] <strong>API</strong> → Abra <code>/docs/crud/templates/TEMPLATE-CRUD-API.md</code></li>
+</ul>
+
+<p><strong>Ação</strong>: Copie a estrutura base do template para seu arquivo.</p>
+
+<hr />
+
+<h2 id="passo2:implementarmÉtodoindex">PASSO 2: IMPLEMENTAR MÉTODO index()</h2>
+
+<h3 id="checklistdeimplementação">Checklist de Implementação</h3>
+
+<pre><code>[ ] Autenticação adicionada
+  - Admin/Module: Auth::require() ou $this-&gt;requireAuth()
+  - API: Auth::requireJWT()
+
+[ ] Database query implementada
+  - Usar prepared statements (?, placeholders)
+  - SELECT com ORDER BY
+
+[ ] Paginação (se muitos registros)
+  - GET params: page, per_page
+  - LIMIT ? OFFSET ?
+
+[ ] Response estruturada
+  - Admin/Module: render() ou require view
+  - API: json(200, [...])
+</code></pre>
+
+<h3 id="validaçãorápida">Validação Rápida</h3>
+
+<pre><code>[ ] Não tem SQL injection (sem concatenação de strings)
+[ ] Não tem XSS (outputs vão ser sanitizados na view)
+</code></pre>
+
+<p><strong>Próximo</strong>: Passo 3</p>
+
+<hr />
+
+<h2 id="adminmoduleapenas">PASSO 3: IMPLEMENTAR MÉTODO create()</h2>
+
+<h3 id="checklistdeimplementação">Checklist de Implementação</h3>
+
+<pre><code>[ ] Autenticação adicionada
+  - Auth::require() ou $this-&gt;requireAuth()
+
+[ ] Dados relacionados buscados (se necessário)
+  - Ex: categorias, grupos, tags
+
+[ ] View renderizada com dados
+  - Passar array de dados para render/require
+</code></pre>
+
+<h3 id="validaçãorápida">Validação Rápida</h3>
+
+<pre><code>[ ] Nada de database write aqui (apenas leitura)
+[ ] View vai ter form com CSRF token
+</code></pre>
+
+<p><strong>Próximo</strong>: Passo 4</p>
+
+<hr />
+
+<h2 id="create">PASSO 4: IMPLEMENTAR MÉTODO store()</h2>
+
+<h3 id="checklistemordemrigorosa">Checklist em Ordem Rigorosa</h3>
+
+<h4 id="1csrfvalidation-primeiracoisa">[1] CSRF VALIDATION - PRIMEIRA COISA</h4>
+
+<pre><code>[ ] Código adicionado:
+  - Admin/Module: $this-&gt;validateCSRF()
+  - API: (não precisa, usa JWT)
+
+[ ] Localização: PRIMEIRA linha do try/catch
+[ ] Sem exceção: validação deve der antes de qualquer outra ação
+</code></pre>
+
+<p><strong>⛔ CHECKPOINT OBRIGATÓRIO - NÃO PROSSIGA SEM COMPLETAR:</strong></p>
+
+<pre><code class="php">// ✅ CORRETO - CSRF como primeira linha
+public function store() {
+    $this-&gt;requireAuth();
+    try {
+        $this-&gt;validateCSRF(); // ← PRIMEIRA COISA
+        // resto do código...
+    }
+}
+
+// ❌ ERRADO - CSRF depois de outras ações
+public function store() {
+    $this-&gt;requireAuth();
+    try {
+        $name = $_POST['name'];
+        $this-&gt;validateCSRF(); // ← TARDE DEMAIS
+    }
+}
+</code></pre>
+
+<p><strong>CHECKLIST DE SEGURANÇA (40% de chance de erro - VERIFICAR AGORA):</strong></p>
+
+<pre><code>[ ] Linha 1 do try é $this-&gt;validateCSRF()? (NADA ANTES)
+[ ] Se for API: posso pular CSRF (usa JWT)
+[ ] Se for Admin/Module: CSRF é OBRIGATÓRIO
+
+⚠️ SE ALGUMA RESPOSTA FOR &quot;NÃO&quot;, VOLTE E CORRIJA AGORA!
+</code></pre>
+
+<h4 id="2ratelimiting-segundacoisa">[2] RATE LIMITING - SEGUNDA COISA</h4>
+
+<pre><code>[ ] Código adicionado:
+  - RateLimiter::check('recurso_create', $ip, 5, 60)
+  - RateLimiter::increment('recurso_create', $ip, 60)
+
+[ ] Localização: Logo após CSRF, antes de validações
+
+[ ] Limite correto:
+  - store/update/destroy: 5 tentativas em 60s
+  - API index: 60 tentativas em 60s
+
+[ ] HTTP 429 retornado se bloqueado
+</code></pre>
+
+<p><strong>⛔ CHECKPOINT OBRIGATÓRIO - NÃO PROSSIGA SEM COMPLETAR:</strong></p>
+
+<pre><code class="php">// ✅ CORRETO - check() e increment()
+$ip = $_SERVER['REMOTE_ADDR'];
+if (!RateLimiter::check('banner_create', $ip, 5, 60)) {
+    http_response_code(429);
+    die('Muitas requisições. Aguarde 1 minuto.');
+}
+
+// ... código create ...
+
+RateLimiter::increment('banner_create', $ip, 60); // ← DEPOIS do sucesso
+
+// ❌ ERRADO - só check, sem increment
+if (!RateLimiter::check(...)) { die(); }
+// ... código ...
+// ESQUECEU increment() ← 20% DE CHANCE DESSE ERRO!
+</code></pre>
+
+<p><strong>CHECKLIST DE SEGURANÇA (20% de chance de erro - VERIFICAR AGORA):</strong></p>
+
+<pre><code>[ ] RateLimiter::check() existe ANTES de validações?
+[ ] HTTP 429 retornado se bloqueado?
+[ ] RateLimiter::increment() existe DEPOIS do insert?
+[ ] Nome da ação consistente ('banner_create' em ambos)?
+
+⚠️ SE ESQUECEU increment(), VOLTE E ADICIONE AGORA!
+</code></pre>
+
+<h4 id="3sanitizaÇÃo-antesdevalidar">[3] SANITIZAÇÃO - ANTES DE VALIDAR</h4>
+
+<pre><code>[ ] Todos os inputs foram sanitizados:
+  - Strings: Security::sanitize()
+  - IDs/UUIDs: VALIDAR não sanitizar
+  - Passwords: NÃO sanitizar, hash depois
+
+Exemplo correto:
+  $name = Security::sanitize($_POST['name'] ?? '');
+  $email = strtolower(Security::sanitize($_POST['email'] ?? ''));
+</code></pre>
+
+<hr />
+
+<h2 id="passo4b:uploaddearquivossehouver">PASSO 4B: UPLOAD DE ARQUIVOS (SE HOUVER)</h2>
+
+<h3 id="⚠️quandousarestepasso">⚠️ QUANDO USAR ESTE PASSO</h3>
+
+<p><strong>Use APENAS se seu CRUD tem upload de arquivos (imagem, PDF, etc).</strong></p>
+
+<p>Se não tem upload, <strong>pule para PASSO 4 item [4] VALIDAÇÕES</strong>.</p>
+
+<hr />
+
+<h3 id="📁padrãodediretóriosaegis">📁 Padrão de Diretórios AEGIS</h3>
+
+<p><strong>SEMPRE salvar em:</strong></p>
+
+<pre><code>/storage/uploads/[recurso_minusculo]/
+</code></pre>
+
+<p><strong>Exemplos:</strong></p>
+
+<ul>
+<li>Banners → <code>/storage/uploads/banners/</code></li>
+<li>Blog posts → <code>/storage/uploads/blog/</code></li>
+<li>Avatares de membros → <code>/storage/uploads/members/</code></li>
+<li>Logos → <code>/storage/uploads/logos/</code></li>
+</ul>
+
+<p><strong>NÃO salvar em:</strong></p>
+
+<ul>
+<li>❌ <code>/public/uploads/</code> (inseguro)</li>
+<li>❌ <code>/assets/uploads/</code> (não é asset)</li>
+<li>❌ <code>/uploads/</code> (sem organização)</li>
+</ul>
+
+<hr />
+
+<h3 id="🔐segurançadeuploadobrigatÓrio">🔐 Segurança de Upload (OBRIGATÓRIO)</h3>
+
+<h4 id="validaçõesantesdeaceitarupload">Validações ANTES de Aceitar Upload</h4>
+
+<pre><code class="php">// [1] Verificar se arquivo foi enviado
+if (empty($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+    throw new Exception('Arquivo não enviado ou erro no upload');
+}
+
+// [2] Validar tamanho (exemplo: 5MB)
+$maxSize = 5 * 1024 * 1024; // 5MB em bytes
+if ($_FILES['image']['size'] &gt; $maxSize) {
+    throw new Exception('Arquivo muito grande. Máximo: 5MB');
+}
+
+// [3] Validar tipo MIME (CRÍTICO - previne upload de malware)
+$allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$mimeType = finfo_file($finfo, $_FILES['image']['tmp_name']);
+finfo_close($finfo);
+
+if (!in_array($mimeType, $allowedMimes)) {
+    throw new Exception('Tipo de arquivo não permitido. Use: JPG, PNG, GIF, WEBP');
+}
+
+// [4] Validar extensão (dupla proteção)
+$extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+if (!in_array($extension, $allowedExtensions)) {
+    throw new Exception('Extensão não permitida');
+}
+</code></pre>
+
+<hr />
+
+<h3 id="📂criardiretóriodeuploadsenãoexiste">📂 Criar Diretório de Upload (Se Não Existe)</h3>
+
+<pre><code class="php">// Diretório base de uploads
+$uploadDir = ROOT_PATH . 'storage/uploads/banners/';
+
+// Criar diretório se não existir
+if (!is_dir($uploadDir)) {
+    if (!mkdir($uploadDir, 0755, true)) {
+        throw new Exception('Erro ao criar diretório de upload');
+    }
+}
+
+// Verificar permissões de escrita
+if (!is_writable($uploadDir)) {
+    throw new Exception('Diretório de upload sem permissão de escrita');
+}
+</code></pre>
+
+<hr />
+
+<h3 id="🏷️gerarnomeÚnicoeseguro">🏷️ Gerar Nome Único e Seguro</h3>
+
+<pre><code class="php">// NUNCA usar nome original do arquivo (risco de segurança)
+// SEMPRE gerar nome único
+
+// [1] Gerar UUID para o nome
+$fileId = Security::generateUUID();
+
+// [2] Adicionar timestamp (evita colisões mesmo com UUID)
+$timestamp = time();
+
+// [3] Adicionar extensão validada
+$fileName = $fileId . '_' . $timestamp . '.' . $extension;
+
+// [4] Path completo
+$filePath = $uploadDir . $fileName;
+
+// Exemplo de resultado:
+// /storage/uploads/banners/a1b2c3d4-5678-90ab-cdef-1234567890ab_1707847200.jpg
+</code></pre>
+
+<hr />
+
+<h3 id="💾moverarquivocomsegurança">💾 Mover Arquivo com Segurança</h3>
+
+<pre><code class="php">// [1] Mover arquivo do temp para destino final
+if (!move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
+    throw new Exception('Erro ao salvar arquivo');
+}
+
+// [2] Definir permissões corretas (OBRIGATÓRIO)
+chmod($filePath, 0644);
+// 0644 = owner read+write, group read, others read
+// Apache consegue ler ✅
+// Ninguém consegue executar ✅
+
+// [3] Salvar APENAS o path relativo no banco (NÃO o path absoluto)
+$relativeFilePath = '/storage/uploads/banners/' . $fileName;
+
+// Exemplo:
+// ✅ CORRETO: /storage/uploads/banners/abc123_1707847200.jpg
+// ❌ ERRADO: /Users/fabio/Documents/aegis/storage/uploads/banners/abc123.jpg
+</code></pre>
+
+<hr />
+
+<h3 id="🗄️salvarpathnobanconÃooarquivo">🗄️ Salvar Path no Banco (NÃO o Arquivo)</h3>
+
+<pre><code class="php">// IMPORTANTE: Salvar apenas o PATH, não o conteúdo do arquivo
+$data = [
+    'id' =&gt; $id,
+    'title' =&gt; $title,
+    'image' =&gt; $relativeFilePath,  // ← PATH, não arquivo
+    'created_at' =&gt; date('Y-m-d H:i:s')
+];
+
+$this-&gt;db()-&gt;insert('banners', $data);
+</code></pre>
+
+<hr />
+
+<h3 id="🔄update:deletararquivoantigo">🔄 Update: Deletar Arquivo Antigo</h3>
+
+<p><strong>Se for UPDATE e usuário enviou novo arquivo:</strong></p>
+
+<pre><code class="php">// [1] Buscar registro atual
+$banner = $this-&gt;db()-&gt;select('banners', ['id' =&gt; $id]);
+
+// [2] Se tinha imagem antiga E nova foi enviada
+if (!empty($banner[0]['image']) &amp;&amp; !empty($_FILES['image']['tmp_name'])) {
+
+    // [3] Deletar arquivo físico antigo
+    $oldFilePath = ROOT_PATH . ltrim($banner[0]['image'], '/');
+
+    if (file_exists($oldFilePath)) {
+        unlink($oldFilePath);
+    }
+}
+
+// [4] Processar novo upload (mesmo código do CREATE)
+</code></pre>
+
+<hr />
+
+<h3 id="🗑️delete:deletararquivofísico">🗑️ Delete: Deletar Arquivo Físico</h3>
+
+<p><strong>No método destroy(), SEMPRE deletar arquivo físico:</strong></p>
+
+<pre><code class="php">// [1] Buscar registro ANTES de deletar (para ter path do arquivo)
+$banner = $this-&gt;db()-&gt;select('banners', ['id' =&gt; $id]);
+
+if (empty($banner)) {
+    throw new Exception('Banner não encontrado');
+}
+
+// [2] Deletar arquivo físico PRIMEIRO
+if (!empty($banner[0]['image'])) {
+    $filePath = ROOT_PATH . ltrim($banner[0]['image'], '/');
+
+    if (file_exists($filePath)) {
+        unlink($filePath);
+    }
+}
+
+// [3] Deletar registro do banco DEPOIS
+$this-&gt;db()-&gt;delete('banners', ['id' =&gt; $id]);
+
+// [4] Logger com snapshot (incluindo path do arquivo deletado)
+Logger::getInstance()-&gt;audit('DELETE_BANNER', $this-&gt;getUser()['id'], [
+    'banner_id' =&gt; $id,
+    'title' =&gt; $banner[0]['title'],
+    'image_path' =&gt; $banner[0]['image'],  // ← IMPORTANTE para auditoria
+    'table' =&gt; 'banners'
+]);
+</code></pre>
+
+<hr />
+
+<h3 id="⛔checkpointobrigatÓrio-uploaddearquivos">⛔ CHECKPOINT OBRIGATÓRIO - UPLOAD DE ARQUIVOS</h3>
+
+<p><strong>NÃO PROSSIGA SEM COMPLETAR TODOS OS CHECKS:</strong></p>
+
+<pre><code>🔒 SEGURANÇA:
+[ ] Validação de tamanho implementada? (max 5MB)
+[ ] Validação de MIME type implementada? (finfo_file)
+[ ] Validação de extensão implementada? (dupla proteção)
+[ ] Nome gerado com UUID + timestamp? (NUNCA nome original)
+[ ] Permissões 0644 aplicadas? (chmod após move_uploaded_file)
+
+📁 ESTRUTURA:
+[ ] Diretório: /storage/uploads/[recurso]/?
+[ ] Diretório criado se não existir? (mkdir 0755)
+[ ] Verificação de is_writable()?
+
+💾 BANCO DE DADOS:
+[ ] Salvando PATH relativo (não absoluto)?
+[ ] Coluna VARCHAR(255) ou TEXT?
+[ ] Path começa com /storage/uploads/?
+
+🗑️ LIMPEZA:
+[ ] UPDATE deleta arquivo antigo se novo for enviado?
+[ ] DELETE deleta arquivo físico + registro?
+[ ] Logger de DELETE tem path do arquivo?
+
+⚠️ SE ALGUM CHECK FALHOU, VOLTE E CORRIJA AGORA!
+⚠️ UPLOAD SEM VALIDAÇÃO = VULNERABILIDADE CRÍTICA!
+</code></pre>
+
+<hr />
+
+<h3 id="📋códigocompletodeexemplo">📋 Código Completo de Exemplo</h3>
+
+<pre><code class="php">// PASSO 4B: Upload de imagem em store()
+public function store() {
+    $this-&gt;requireAuth();
+
+    try {
+        // [1] CSRF
+        $this-&gt;validateCSRF();
+
+        // [2] Rate Limiting
+        $ip = $_SERVER['REMOTE_ADDR'];
+        if (!RateLimiter::check('banner_create', $ip, 5, 60)) {
+            http_response_code(429);
+            die('Muitas requisições');
+        }
+
+        // [3] Sanitização
+        $title = Security::sanitize($_POST['title'] ?? '');
+
+        // [4] UPLOAD DE ARQUIVO
+        if (empty($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            throw new Exception('Imagem obrigatória');
+        }
+
+        // Validar tamanho (5MB)
+        if ($_FILES['image']['size'] &gt; 5 * 1024 * 1024) {
+            throw new Exception('Imagem muito grande. Máximo: 5MB');
+        }
+
+        // Validar MIME
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $_FILES['image']['tmp_name']);
+        finfo_close($finfo);
+
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($mimeType, $allowedMimes)) {
+            throw new Exception('Tipo de arquivo não permitido');
+        }
+
+        // Validar extensão
+        $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (!in_array($extension, $allowedExtensions)) {
+            throw new Exception('Extensão não permitida');
+        }
+
+        // Criar diretório se não existir
+        $uploadDir = ROOT_PATH . 'storage/uploads/banners/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // Gerar nome único
+        $fileId = Security::generateUUID();
+        $fileName = $fileId . '_' . time() . '.' . $extension;
+        $filePath = $uploadDir . $fileName;
+
+        // Mover arquivo
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
+            throw new Exception('Erro ao salvar arquivo');
+        }
+
+        // Permissões
+        chmod($filePath, 0644);
+
+        // Path relativo para o banco
+        $relativeFilePath = '/storage/uploads/banners/' . $fileName;
+
+        // [5] Validações de campos
+        if (empty($title)) {
+            throw new Exception('Título obrigatório');
+        }
+
+        // [6] CREATE
+        $id = Security::generateUUID();
+        $this-&gt;db()-&gt;insert('banners', [
+            'id' =&gt; $id,
+            'title' =&gt; $title,
+            'image' =&gt; $relativeFilePath,
+            'created_at' =&gt; date('Y-m-d H:i:s')
+        ]);
+
+        // [7] Audit Log
+        Logger::getInstance()-&gt;audit('CREATE_BANNER', $this-&gt;getUser()['id'], [
+            'banner_id' =&gt; $id,
+            'title' =&gt; $title,
+            'image_path' =&gt; $relativeFilePath,
+            'table' =&gt; 'banners'
+        ]);
+
+        // [8] Rate Limit Increment
+        RateLimiter::increment('banner_create', $ip, 60);
+
+        // [9] Feedback
+        $this-&gt;success('Banner criado!');
+        $this-&gt;redirect('/admin/banners');
+
+    } catch (Exception $e) {
+        Logger::getInstance()-&gt;warning('CREATE_BANNER_FAILED', [
+            'reason' =&gt; $e-&gt;getMessage(),
+            'user_id' =&gt; $this-&gt;getUser()['id']
+        ]);
+        $this-&gt;error($e-&gt;getMessage());
+        $this-&gt;redirect('/admin/banners/create');
+    }
+}
+</code></pre>
+
+<hr />
+
+<h3 id="✅uploadimplementado">✅ Upload Implementado</h3>
+
+<p><strong>Se você completou este PASSO 4B:</strong></p>
+
+<ul>
+<li>✅ Upload seguro implementado</li>
+<li>✅ Validações de MIME + extensão + tamanho</li>
+<li>✅ Arquivo salvo em <code>/storage/uploads/[recurso]/</code></li>
+<li>✅ Path relativo salvo no banco</li>
+<li>✅ Permissões corretas (0644)</li>
+</ul>
+
+<p><strong>Próximo:</strong> Continue para PASSO 4 item [4] VALIDAÇÕES</p>
+
+<hr />
+
+<h4 id="4validaÇÕes-emsequÊncia">[4] VALIDAÇÕES - EM SEQUÊNCIA</h4>
+
+<pre><code>[ ] Campos obrigatórios
+  - if (empty($name)) throw new Exception('...')
+  - Fazer para CADA campo obrigatório
+
+[ ] Email (se houver campo email)
+  - Security::validateEmail($email)
+  - Verificar unicidade: $db-&gt;select('table', ['email' =&gt; $email])
+
+[ ] Senha (se houver campo password)
+  - Security::validatePasswordStrength($password)
+  - Mínimo 8 caracteres, maiúscula, minúscula, número, especial
+
+[ ] UUID (se houver IDs relacionados)
+  - Security::isValidUUID($categoryId)
+  - Verificar existência: $db-&gt;select('categories', ['id' =&gt; $categoryId])
+
+[ ] Strings (tamanho)
+  - strlen($name) &gt;= 3 &amp;&amp; strlen($name) &lt;= 255
+
+[ ] Slug (se houver)
+  - preg_match('/^[a-z0-9-]+$/', $slug)
+  - Verificar unicidade: $db-&gt;select('table', ['slug' =&gt; $slug])
+
+[ ] Arrays (se houver multi-select)
+  - is_array($items)
+  - Filtrar cada elemento: Security::isValidUUID($id)
+  - Verificar quantity: count($items) &gt; 0
+</code></pre>
+
+<h4 id="5create-inserirnobd">[5] CREATE - INSERIR NO BD</h4>
+
+<pre><code>[ ] Gerar UUID para novo ID
+  - $id = Security::generateUUID()
+
+[ ] Preparar dados (apenas sanitizados/validados)
+  - $data = ['id' =&gt; $id, 'name' =&gt; $name, 'email' =&gt; $email, ...]
+
+[ ] Inserir com prepared statements
+  - $db-&gt;insert('table', $data)
+  - OU $db-&gt;query(&quot;INSERT INTO ... VALUES (...)&quot;, [$bindings])
+
+[ ] Sem concatenação de strings em SQL
+</code></pre>
+
+<h4 id="6auditlog-logoapÓscreate">[6] AUDIT LOG - LOGO APÓS CREATE</h4>
+
+<pre><code>[ ] Logger::getInstance()-&gt;audit() adicionado
+  - Nome de ação: CREATE_RECURSO (maiúsculas, singular)
+  - Exemplo: CREATE_CATEGORY, CREATE_MEMBER, CREATE_POST
+
+[ ] Parâmetros corretos:
+  Logger::getInstance()-&gt;audit('CREATE_CATEGORY', Auth::userId(), [
+    'category_id' =&gt; $categoryId,
+    'name' =&gt; $name,
+    'table' =&gt; 'categories'
+  ]);
+
+[ ] Campos obrigatórios presentes:
+  - resource_id ✓
+  - table ✓
+  - contexto relevante (name, email, etc) ✓
+
+[ ] user_id e ip são automáticos (Logger adiciona)
+</code></pre>
+
+<p><strong>⛔ CHECKPOINT OBRIGATÓRIO - NÃO PROSSIGA SEM COMPLETAR:</strong></p>
+
+<pre><code class="php">// ✅ CORRETO - Logger completo
+$id = Security::generateUUID();
+$this-&gt;db()-&gt;insert('banners', ['id' =&gt; $id, 'title' =&gt; $title]);
+
+Logger::getInstance()-&gt;audit('CREATE_BANNER', $this-&gt;getUser()['id'], [
+    'banner_id' =&gt; $id,  // ← resource_id
+    'title' =&gt; $title,    // ← contexto
+    'table' =&gt; 'banners'  // ← OBRIGATÓRIO
+]);
+
+// ❌ ERRADO - esqueceu Logger
+$this-&gt;db()-&gt;insert('banners', ['id' =&gt; $id, 'title' =&gt; $title]);
+// NADA AQUI ← 15% DE CHANCE DESSE ERRO!
+</code></pre>
+
+<p><strong>CHECKLIST DE AUDITORIA (15% de chance de erro - VERIFICAR AGORA):</strong></p>
+
+<pre><code>[ ] Logger::getInstance()-&gt;audit() existe DEPOIS do insert?
+[ ] Nome: CREATE_[RECURSO] (maiúsculas, singular)?
+[ ] Parâmetro 1: user_id correto?
+[ ] Array tem 'resource_id' (banner_id, category_id, etc)?
+[ ] Array tem 'table' com nome da tabela?
+[ ] Array tem contexto relevante (title, name, etc)?
+
+⚠️ SE LOGGER NÃO EXISTE, VOLTE E ADICIONE AGORA!
+⚠️ SEM LOGGER = SEM AUDITORIA = SISTEMA CEGO!
+</code></pre>
+
+<h4 id="7incrementratelimit-apÓslog">[7] INCREMENT RATE LIMIT - APÓS LOG</h4>
+
+<pre><code>[ ] Código adicionado:
+  - RateLimiter::increment('recurso_create', $ip, 60)
+
+[ ] Localização: APÓS db-&gt;insert() bem-sucedido
+</code></pre>
+
+<h4 id="8feedbackredirect">[8] FEEDBACK &amp; REDIRECT</h4>
+
+<pre><code>[ ] Mensagem de sucesso
+  - Admin/Module: $this-&gt;success() ou $_SESSION['success']
+  - API: json(201, ['success' =&gt; true, 'data' =&gt; ...])
+
+[ ] Redirect/Response
+  - Admin/Module: $this-&gt;redirect() ou Core::redirect()
+  - API: return $this-&gt;json(201, [...]) e exit
+</code></pre>
+
+<h4 id="9exceptionhandling">[9] EXCEPTION HANDLING</h4>
+
+<pre><code>[ ] catch (Exception $e) adicionado
+
+[ ] Logger::getInstance()-&gt;warning() para falha
+  Logger::getInstance()-&gt;warning('CREATE_CATEGORY_FAILED', [
+    'reason' =&gt; $e-&gt;getMessage(),
+    'user_id' =&gt; Auth::userId()
+  ]);
+
+[ ] Feedback de erro
+  - Admin/Module: $this-&gt;error() ou $_SESSION['error']
+  - API: json(400, ['success' =&gt; false, 'error' =&gt; $e-&gt;getMessage()])
+
+[ ] Redirect/Response apropriado
+</code></pre>
+
+<h3 id="validaçãofinaldestore">Validação Final de store()</h3>
+
+<pre><code>SEGURANÇA:
+[ ] CSRF validation presente
+[ ] RateLimit check + increment
+[ ] Prepared statements (sem SQL injection)
+[ ] Inputs sanitizados
+[ ] Outputs escapados em views
+
+AUDITORIA:
+[ ] Logger::audit() presente
+[ ] Nome de ação correto (CREATE_*)
+[ ] Campos: resource_id, table, contexto
+
+VALIDAÇÃO:
+[ ] Empty checks
+[ ] Email validation + uniqueness
+[ ] UUID validation + existence
+[ ] String sizes
+[ ] Slug (pattern + uniqueness)
+</code></pre>
+
+<p><strong>Próximo</strong>: Passo 5</p>
+
+<hr />
+
+<h2 id="adminmoduleapenas">PASSO 5: IMPLEMENTAR MÉTODO edit()</h2>
+
+<h3 id="checklistdeimplementação">Checklist de Implementação</h3>
+
+<pre><code>[ ] Autenticação
+  - Auth::require() ou $this-&gt;requireAuth()
+
+[ ] UUID validation do parâmetro
+  - if (!Security::isValidUUID($id)) throw/redirect
+
+[ ] Database select
+  - $record = $db-&gt;select('table', ['id' =&gt; $id])
+  - if (empty($record)) throw/redirect
+
+[ ] Dados relacionados buscados (se necessário)
+
+[ ] View renderizada com dados do registro
+</code></pre>
+
+<h3 id="validaçãorápida">Validação Rápida</h3>
+
+<pre><code>[ ] Não há database write aqui
+[ ] UUID validado
+[ ] Registro verificado se existe
+</code></pre>
+
+<p><strong>Próximo</strong>: Passo 6</p>
+
+<hr />
+
+<h2 id="passo6:implementarmÉtodoupdate">PASSO 6: IMPLEMENTAR MÉTODO update()</h2>
+
+<h3 id="checklistemordemrigorosa">Checklist em Ordem Rigorosa</h3>
+
+<p><strong>Praticamente idêntico ao store(), com diferenças:</strong></p>
+
+<h4 id="1csrf-primeiracoisa">[1] CSRF - PRIMEIRA COISA</h4>
+
+<pre><code>[ ] Validação adicionada
+</code></pre>
+
+<h4 id="2uuidvalidation-segundacoisa">[2] UUID VALIDATION - SEGUNDA COISA</h4>
+
+<pre><code>[ ] if (!Security::isValidUUID($id)) throw new Exception(...)
+[ ] Localização: ANTES de qualquer database query
+</code></pre>
+
+<h4 id="3ratelimiting">[3] RATE LIMITING</h4>
+
+<pre><code>[ ] RateLimiter::check('recurso_update', $ip, 10, 60)
+[ ] Limite um pouco mais permissivo (10 vs 5)
+</code></pre>
+
+<h4 id="4sanitizaÇÃo">[4] SANITIZAÇÃO</h4>
+
+<pre><code>[ ] Mesma coisa que em store()
+</code></pre>
+
+<h4 id="5validaÇÕes">[5] VALIDAÇÕES</h4>
+
+<pre><code>[ ] Campos obrigatórios: SIM
+[ ] Email: 
+  - Security::validateEmail()
+  - Uniqueness: WHERE email = ? AND id != ? (EXCLUIR O PRÓPRIO)
+[ ] Senha: APENAS se preenchida
+[ ] Strings, UUIDs, Slug: mesmo que store()
+</code></pre>
+
+<h4 id="6update-nobd">[6] UPDATE - NO BD</h4>
+
+<pre><code>[ ] Preparar dados com APENAS campos que mudam
+  - Não incluir 'id', 'created_at'
+  - Incluir 'updated_at': date('Y-m-d H:i:s')
+
+[ ] $db-&gt;update('table', $data, ['id' =&gt; $id])
+  - OU $db-&gt;query(&quot;UPDATE table SET ... WHERE id = ?&quot;, [...])
+
+[ ] SEM concatenação de strings
+</code></pre>
+
+<h4 id="7auditlog">[7] AUDIT LOG</h4>
+
+<pre><code>[ ] Logger::getInstance()-&gt;audit('UPDATE_RECURSO', Auth::userId(), [
+  'resource_id' =&gt; $id,
+  'fields_updated' =&gt; array_keys($data),
+  'table' =&gt; 'table'
+]);
+
+[ ] Incluir QUAIS campos foram alterados (array de chaves)
+</code></pre>
+
+<h4 id="8incrementratelimit">[8] INCREMENT RATE LIMIT</h4>
+
+<pre><code>[ ] RateLimiter::increment('recurso_update', $ip, 60)
+</code></pre>
+
+<h4 id="9feedbackredirect">[9] FEEDBACK &amp; REDIRECT</h4>
+
+<pre><code>[ ] Sucesso com mensagem
+[ ] Erro com mensagem e redirect de volta
+</code></pre>
+
+<h3 id="validaçãofinaldeupdate">Validação Final de update()</h3>
+
+<pre><code>SEGURANÇA:
+[ ] CSRF validation
+[ ] UUID validation
+[ ] RateLimit check + increment
+[ ] Prepared statements
+[ ] Email uniqueness exclui próprio (id != ?)
+[ ] Senha validada apenas se preenchida
+
+AUDITORIA:
+[ ] Logger::audit('UPDATE_*')
+[ ] Campos alterados inclusos
+
+VALIDAÇÃO:
+[ ] Todos os checks como em store()
+</code></pre>
+
+<p><strong>Próximo</strong>: Passo 7</p>
+
+<hr />
+
+<h2 id="delete">PASSO 7: IMPLEMENTAR MÉTODO destroy()</h2>
+
+<h3 id="checklistemordemrigorosa">Checklist em Ordem Rigorosa</h3>
+
+<h4 id="1csrf-primeiracoisa">[1] CSRF - PRIMEIRA COISA</h4>
+
+<pre><code>[ ] Validação adicionada
+</code></pre>
+
+<h4 id="2uuidvalidation">[2] UUID VALIDATION</h4>
+
+<pre><code>[ ] if (!Security::isValidUUID($id)) throw/redirect
+</code></pre>
+
+<h4 id="3ratelimiting">[3] RATE LIMITING</h4>
+
+<pre><code>[ ] RateLimiter::check('recurso_delete', $ip, 5, 60)
+</code></pre>
+
+<h4 id="4selectvalidateexistence">[4] SELECT &amp; VALIDATE EXISTENCE</h4>
+
+<pre><code>[ ] $record = $db-&gt;select('table', ['id' =&gt; $id])
+[ ] if (empty($record)) throw/redirect
+[ ] ⚠️ IMPORTANTE: guardar $record para audit log depois
+</code></pre>
+
+<h4 id="5validaÇÕesadicionaissehouver">[5] VALIDAÇÕES ADICIONAIS (se houver)</h4>
+
+<pre><code>[ ] Não pode deletar admin principal?
+[ ] Não pode deletar se tem relacionamentos?
+[ ] Adicionar checks específicos do recurso
+</code></pre>
+
+<h4 id="6delete-nobd">[6] DELETE - NO BD</h4>
+
+<pre><code>[ ] $db-&gt;delete('table', ['id' =&gt; $id])
+  - OU $db-&gt;query(&quot;DELETE FROM table WHERE id = ?&quot;, [$id])
+
+[ ] SEM concatenação de strings
+</code></pre>
+
+<h4 id="7auditlog-comsnapshot">[7] AUDIT LOG - COM SNAPSHOT</h4>
+
+<pre><code>[ ] Logger::getInstance()-&gt;audit('DELETE_RECURSO', Auth::userId(), [
+  'resource_id' =&gt; $id,
+  'name' =&gt; $record['name'],        ← dados antes de deletar
+  'email' =&gt; $record['email'],      ← snapshot completo
+  'table' =&gt; 'table'
+]);
+
+[ ] MUITO IMPORTANTE: incluir dados do registro deletado
+   (para poder recuperar/auditar depois)
+</code></pre>
+
+<h4 id="8incrementratelimit">[8] INCREMENT RATE LIMIT</h4>
+
+<pre><code>[ ] RateLimiter::increment('recurso_delete', $ip, 60)
+</code></pre>
+
+<h4 id="9feedbackredirect">[9] FEEDBACK &amp; REDIRECT</h4>
+
+<pre><code>[ ] Sucesso com mensagem
+[ ] Erro com mensagem
+</code></pre>
+
+<h3 id="validaçãofinaldedestroy">Validação Final de destroy()</h3>
+
+<pre><code>SEGURANÇA:
+[ ] CSRF validation
+[ ] UUID validation
+[ ] RateLimit check + increment
+[ ] Prepared statements
+
+AUDITORIA:
+[ ] Logger::audit('DELETE_*')
+[ ] Snapshot de dados do registro deletado
+
+VALIDAÇÃO:
+[ ] UUID validado
+[ ] Registro verificado se existe
+</code></pre>
+
+<p><strong>Próximo</strong>: Passo 8</p>
+
+<hr />
+
+<h2 id="passo8a:criarviewsadmincrud">PASSO 8A: CRIAR VIEWS (Admin CRUD)</h2>
+
+<h3 id="📋usartemplatesprontosrecomendado">📋 Usar Templates Prontos (RECOMENDADO)</h3>
+
+<p><strong>AEGIS possui templates prontos com padrão correto:</strong></p>
+
+<p><strong>Localização:</strong> <code>/docs/crud/templates/views/</code></p>
+
+<pre><code>index.template.php   → Listagem com tabela
+create.template.php  → Formulário de criação
+edit.template.php    → Formulário de edição
+</code></pre>
+
+<p><strong>Como usar:</strong></p>
+
+<ol>
+<li><strong>Copiar template para seu CRUD:</strong></li>
+</ol>
+
+<pre><code class="bash">cp docs/crud/templates/views/index.template.php admin/views/banners/index.php
+cp docs/crud/templates/views/create.template.php admin/views/banners/create.php
+cp docs/crud/templates/views/edit.template.php admin/views/banners/edit.php
+</code></pre>
+
+<ol>
+<li><strong>Substituir placeholders:</strong></li>
+</ol>
+
+<pre><code>{{RESOURCE_PLURAL}} → &quot;Banners Hero&quot;
+{{RESOURCE_SINGULAR}} → &quot;Banner&quot;
+{{resource_slug}} → &quot;banners&quot;
+{{resource_var_plural}} → $banners
+{{resource_var_singular}} → $banner
+</code></pre>
+
+<ol>
+<li><strong>Personalizar campos:</strong></li>
+</ol>
+
+<ul>
+<li>Ajustar colunas da tabela (index.php)</li>
+<li>Ajustar campos do formulário (create.php, edit.php)</li>
+<li>Remover campos de exemplo não necessários</li>
+</ul>
+
+<p><strong>✅ Vantagens dos templates:</strong></p>
+
+<ul>
+<li>Padrão AEGIS já aplicado (classes corretas)</li>
+<li>Ícones Lucide incluídos</li>
+<li>Alerts configurados</li>
+<li>CSRF token incluído</li>
+<li>Instruções de uso no final do arquivo</li>
+<li>Exemplos de todos os tipos de campo</li>
+</ul>
+
+<p><strong>📚 Cada template tem instruções completas no final do arquivo!</strong></p>
+
+<hr />
+
+<h3 id="admincontrollersusamsemprethis-render">Admin Controllers Usam Sempre <code>$this-&gt;render()</code></h3>
+
+<p><strong>Para Admin CRUD, SEMPRE use:</strong></p>
+
+<pre><code class="php">$this-&gt;render('banners/index', ['data' =&gt; $data]);
+// Procura em: ROOT_PATH . 'admin/views/banners/index.php'
+</code></pre>
+
+<h3 id="checklistderenderização">Checklist de Renderização</h3>
+
+<pre><code>[ ] Admin controller → usar $this-&gt;render()
+
+[ ] Path da view correto:
+    - render('banners/index') → /admin/views/banners/index.php
+
+[ ] Diretório da view existe?
+    mkdir -p /admin/views/banners
+
+[ ] Arquivo .php criado com nome correto (minúsculo)
+    index.php (não Index.php)
+</code></pre>
+
+<h3 id="⚠️crÍtico:permissõesdearquivo">⚠️ CRÍTICO: Permissões de Arquivo</h3>
+
+<p><strong>Se criar view com permissões erradas, Apache NÃO consegue ler → ERROR 500 silencioso</strong></p>
+
+<p><strong>Sempre que criar arquivo de view:</strong></p>
+
+<pre><code class="bash">chmod 644 /admin/views/banners/index.php
+</code></pre>
+
+<p><strong>Permissões corretas:</strong></p>
+
+<ul>
+<li><code>644</code> = owner read+write, group read, others read</li>
+<li>Apache consegue ler ✅</li>
+<li>Owner consegue editar ✅</li>
+</ul>
+
+<p><strong>Se esquecer:</strong></p>
+
+<ul>
+<li>Arquivo fica <code>600</code> (só owner consegue ler)</li>
+<li>Apache não consegue ler</li>
+<li>Resultado: ERROR 500 &#8220;View not found&#8221; ou silencioso</li>
+<li>Debug: muito difícil de encontrar</li>
+</ul>
+
+<p><strong>⛔ CHECKPOINT OBRIGATÓRIO - NÃO PROSSIGA SEM COMPLETAR:</strong></p>
+
+<pre><code class="bash"># ✅ CORRETO - chmod 644 IMEDIATAMENTE após criar
+touch /admin/views/banners/index.php
+chmod 644 /admin/views/banners/index.php  # ← OBRIGATÓRIO
+
+# ❌ ERRADO - esqueceu chmod
+touch /admin/views/banners/index.php
+# NADA ← 30% DE CHANCE DESSE ERRO!
+# Resultado: ERROR 500 silencioso
+</code></pre>
+
+<p><strong>CHECKLIST OBRIGATÓRIO (30% de chance de erro - VERIFICAR AGORA):</strong></p>
+
+<pre><code>[ ] Arquivo view criado?
+[ ] CHMOD 644 executado? (USE O COMANDO AGORA)
+[ ] Testado no browser: não há erro 500?
+[ ] Se erro 500, EXECUTAR: chmod 644 [arquivo]
+
+⚠️ TESTE AGORA: curl http://localhost:5757/aegis/admin/banners
+⚠️ SE DER ERRO 500, PRIMEIRA COISA: chmod 644 na view!
+</code></pre>
+
+<h3 id="estruturabásicadeview">Estrutura Básica de View</h3>
+
+<p><strong>Exemplo: /admin/views/banners/index.php</strong></p>
+
+<pre><code class="php">&lt;?php
+// Dados passados via render()
+// $banners já está disponível aqui
+?&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+    &lt;div class=&quot;header&quot;&gt;
+        &lt;h1&gt;Banners&lt;/h1&gt;
+        &lt;a href=&quot;&lt;?= url('admin/banners/create') ?&gt;&quot; class=&quot;btn&quot;&gt;+ Novo&lt;/a&gt;
+    &lt;/div&gt;
+
+    &lt;?php if (!empty($banners)): ?&gt;
+        &lt;table&gt;
+            &lt;?php foreach ($banners as $banner): ?&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;&lt;?= htmlspecialchars($banner['title']) ?&gt;&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;a href=&quot;&lt;?= url('admin/banners/' . $banner['id'] . '/edit') ?&gt;&quot;&gt;Editar&lt;/a&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;?php endforeach; ?&gt;
+        &lt;/table&gt;
+    &lt;?php else: ?&gt;
+        &lt;p&gt;Nenhum banner encontrado. &lt;a href=&quot;&lt;?= url('admin/banners/create') ?&gt;&quot;&gt;Criar o primeiro?&lt;/a&gt;&lt;/p&gt;
+    &lt;?php endif; ?&gt;
+&lt;/div&gt;
+</code></pre>
+
+<hr />
+
+<h3 id="exemplo:create.php">Exemplo: create.php</h3>
+
+<pre><code class="php">&lt;?php
+// Dados: $user (disponível automaticamente)
+?&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+    &lt;h1&gt;Novo Banner&lt;/h1&gt;
+    &lt;p&gt;&lt;a href=&quot;&lt;?= url('admin/banners') ?&gt;&quot;&gt;← Voltar&lt;/a&gt;&lt;/p&gt;
+
+    &lt;form method=&quot;POST&quot; action=&quot;&lt;?= url('admin/banners') ?&gt;&quot; enctype=&quot;multipart/form-data&quot;&gt;
+        &lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+
+        &lt;label&gt;Título *&lt;/label&gt;
+        &lt;input type=&quot;text&quot; name=&quot;title&quot; required maxlength=&quot;255&quot;&gt;
+
+        &lt;label&gt;Imagem *&lt;/label&gt;
+        &lt;input type=&quot;file&quot; name=&quot;image&quot; required accept=&quot;image/*&quot;&gt;
+
+        &lt;label&gt;
+            &lt;input type=&quot;checkbox&quot; name=&quot;ativo&quot; checked&gt;
+            Ativo
+        &lt;/label&gt;
+
+        &lt;button type=&quot;submit&quot;&gt;Criar&lt;/button&gt;
+        &lt;a href=&quot;&lt;?= url('admin/banners') ?&gt;&quot;&gt;Cancelar&lt;/a&gt;
+    &lt;/form&gt;
+&lt;/div&gt;
+</code></pre>
+
+<hr />
+
+<h3 id="exemplo:edit.php">Exemplo: edit.php</h3>
+
+<pre><code class="php">&lt;?php
+// Dados: $banner, $user
+?&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+    &lt;h1&gt;Editar Banner&lt;/h1&gt;
+    &lt;p&gt;&lt;a href=&quot;&lt;?= url('admin/banners') ?&gt;&quot;&gt;← Voltar&lt;/a&gt;&lt;/p&gt;
+
+    &lt;form method=&quot;POST&quot; action=&quot;&lt;?= url('admin/banners/' . $banner['id']) ?&gt;&quot; enctype=&quot;multipart/form-data&quot;&gt;
+        &lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+
+        &lt;label&gt;Título *&lt;/label&gt;
+        &lt;input type=&quot;text&quot; name=&quot;title&quot; value=&quot;&lt;?= htmlspecialchars($banner['title']) ?&gt;&quot; required&gt;
+
+        &lt;label&gt;Imagem Atual:&lt;/label&gt;
+        &lt;img src=&quot;&lt;?= htmlspecialchars($banner['image']) ?&gt;&quot; width=&quot;200&quot;&gt;
+
+        &lt;label&gt;Nova Imagem (deixe vazio para manter)&lt;/label&gt;
+        &lt;input type=&quot;file&quot; name=&quot;image&quot; accept=&quot;image/*&quot;&gt;
+
+        &lt;label&gt;
+            &lt;input type=&quot;checkbox&quot; name=&quot;ativo&quot; &lt;?= $banner['ativo'] ? 'checked' : '' ?&gt;&gt;
+            Ativo
+        &lt;/label&gt;
+
+        &lt;button type=&quot;submit&quot;&gt;Salvar&lt;/button&gt;
+        &lt;a href=&quot;&lt;?= url('admin/banners') ?&gt;&quot;&gt;Cancelar&lt;/a&gt;
+    &lt;/form&gt;
+&lt;/div&gt;
+</code></pre>
+
+<hr />
+
+<h3 id="⚠️crÍtico:csrftoken">⚠️ CRÍTICO: CSRF Token</h3>
+
+<p><strong>TODAS as views com <code>&lt;form method=&quot;POST&quot;&gt;</code> DEVEM ter:</strong></p>
+
+<pre><code class="php">&lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+</code></pre>
+
+<p><strong>❌ ERRADO:</strong></p>
+
+<ul>
+<li><code>Security::generateCSRFToken()</code> (método não existe)</li>
+<li><code>htmlspecialchars(Security::generateCSRF())</code> (desnecessário)</li>
+<li>Esquecer o token (form será bloqueado)</li>
+</ul>
+
+<p><strong>✅ CORRETO:</strong></p>
+
+<ul>
+<li><code>Security::generateCSRF()</code> (sem htmlspecialchars)</li>
+</ul>
+
+<hr />
+
+<h3 id="erroscomuns">Erros Comuns</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Erro </th>
+	<th> Causa </th>
+	<th> Solução </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 500 ao acessar </td>
+	<td> Permissão do arquivo </td>
+	<td> <code>chmod 644</code> </td>
+</tr>
+<tr>
+	<td> 500 no create </td>
+	<td> <code>generateCSRFToken()</code> errado </td>
+	<td> Usar <code>generateCSRF()</code> </td>
+</tr>
+<tr>
+	<td> &#8220;View not found&#8221; </td>
+	<td> Path incorreto </td>
+	<td> Verificar <code>render()</code> path </td>
+</tr>
+<tr>
+	<td> Variáveis não aparecem </td>
+	<td> Não passou em <code>render()</code> </td>
+	<td> Passar array <code>['banners' =&gt; $data]</code> </td>
+</tr>
+<tr>
+	<td> XSS na página </td>
+	<td> Não sanitizou output </td>
+	<td> Sempre usar <code>htmlspecialchars()</code> </td>
+</tr>
+<tr>
+	<td> CSRF block </td>
+	<td> Token ausente/errado </td>
+	<td> Adicionar <code>Security::generateCSRF()</code> </td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="passo8:verificaÇÃofinal">PASSO 8: VERIFICAÇÃO FINAL</h2>
+
+<h3 id="🔒gatedeseguranÇa-bloqueiototalatÉcompletar">🔒 GATE DE SEGURANÇA - BLOQUEIO TOTAL ATÉ COMPLETAR</h3>
+
+<p><strong>⛔ VOCÊ NÃO PODE PROSSEGUIR PARA PASSO 9 ATÉ COMPLETAR 100% DESTE CHECKPOINT</strong></p>
+
+<p>Esta é sua última chance de evitar criar código inseguro. <strong>SE VOCÊ PULAR ESTE PASSO, SEU CRUD ESTARÁ VULNERÁVEL.</strong></p>
+
+<hr />
+
+<h3 id="🚨checkpoint1:seguranÇacrÍticaobrigatÓrio">🚨 CHECKPOINT 1: SEGURANÇA CRÍTICA (OBRIGATÓRIO)</h3>
+
+<p><strong>ESTES 4 CHECKS BLOQUEIAM O PROSSEGUIMENTO. NÃO CONTINUE SE ALGUM ESTIVER FALTANDO.</strong></p>
+
+<pre><code>🔴 CSRF VALIDATION (store/update/destroy):
+[ ] store() tem $this-&gt;validateCSRF() como PRIMEIRA LINHA?
+[ ] update() tem $this-&gt;validateCSRF() como PRIMEIRA LINHA?
+[ ] destroy() tem $this-&gt;validateCSRF() como PRIMEIRA LINHA?
+⚠️ SE ALGUM &quot;NÃO&quot;: PARE AGORA E ADICIONE!
+
+🔴 RATE LIMITING (store/update/destroy):
+[ ] store() tem RateLimiter::check() ANTES de validações?
+[ ] store() tem RateLimiter::increment() DEPOIS do insert?
+[ ] update() tem check + increment?
+[ ] destroy() tem check + increment?
+⚠️ SE ALGUM &quot;NÃO&quot;: PARE AGORA E ADICIONE!
+
+🔴 AUDIT LOGGING (store/update/destroy):
+[ ] store() tem Logger::audit('CREATE_*') DEPOIS do insert?
+[ ] update() tem Logger::audit('UPDATE_*') DEPOIS do update?
+[ ] destroy() tem Logger::audit('DELETE_*') DEPOIS do delete?
+[ ] destroy() Logger tem snapshot de dados deletados?
+⚠️ SE ALGUM &quot;NÃO&quot;: PARE AGORA E ADICIONE!
+
+🔴 SQL INJECTION PREVENTION (TODOS métodos):
+[ ] TODAS queries usam prepared statements (?)?
+[ ] NENHUMA query concatena strings com variáveis?
+[ ] Se tem reserved keyword: TODAS ocorrências têm backticks?
+⚠️ SE ALGUM &quot;NÃO&quot;: PARE AGORA E CORRIJA!
+</code></pre>
+
+<p><strong>❌ SE QUALQUER UM DOS 4 CHECKS ACIMA FALHOU: NÃO PROSSIGA</strong></p>
+
+<p><strong>✅ SE TODOS OS 4 CHECKS PASSARAM: CONTINUE PARA CHECKPOINT 2</strong></p>
+
+<hr />
+
+<h3 id="🟡checkpoint2:validaÇÕesefeedbackobrigatÓrio">🟡 CHECKPOINT 2: VALIDAÇÕES E FEEDBACK (OBRIGATÓRIO)</h3>
+
+<pre><code>VALIDAÇÃO (store/update):
+[ ] Empty checks para campos obrigatórios?
+[ ] Email: Security::validateEmail() + uniqueness?
+[ ] Senha: Security::validatePasswordStrength() (create)?
+[ ] Senha: validada apenas se preenchida (update)?
+[ ] UUID: Security::isValidUUID() + verificação de existência?
+[ ] Strings: strlen() min/max verificados?
+[ ] Slug: regex pattern + uniqueness?
+⚠️ SE ALGUM &quot;NÃO&quot;: CORRIJA ANTES DE PROSSEGUIR!
+
+FEEDBACK E EXCEPTION HANDLING:
+[ ] Todos métodos têm try/catch?
+[ ] catch tem Logger::warning('[ACTION]_FAILED')?
+[ ] Sucesso tem mensagem clara?
+[ ] Erro tem mensagem clara?
+[ ] Redirect/Response apropriado?
+⚠️ SE ALGUM &quot;NÃO&quot;: ADICIONE ANTES DE PROSSEGUIR!
+</code></pre>
+
+<p><strong>❌ SE CHECKPOINT 2 FALHOU: NÃO PROSSIGA</strong></p>
+
+<p><strong>✅ SE CHECKPOINT 2 PASSOU: CONTINUE PARA CHECKPOINT 3</strong></p>
+
+<hr />
+
+<h3 id="🟢checkpoint3:estruturaenomenclaturaobrigatÓrio">🟢 CHECKPOINT 3: ESTRUTURA E NOMENCLATURA (OBRIGATÓRIO)</h3>
+
+<pre><code>ESTRUTURA GERAL:
+[ ] Arquivo tem EXATAMENTE 6 métodos (index, create, store, edit, update, destroy)?
+[ ] Herança correta (BaseController)?
+[ ] Auth presente em TODOS métodos?
+[ ] Nenhuma função duplicada?
+
+NOMENCLATURA CONSISTENTE:
+[ ] Logger actions: CREATE_[RECURSO], UPDATE_[RECURSO], DELETE_[RECURSO]?
+[ ] RateLimiter keys: recurso_create, recurso_update, recurso_delete?
+[ ] Tudo em MAIÚSCULAS e SINGULAR?
+⚠️ SE ALGUM &quot;NÃO&quot;: CORRIJA AGORA!
+</code></pre>
+
+<p><strong>❌ SE CHECKPOINT 3 FALHOU: NÃO PROSSIGA</strong></p>
+
+<p><strong>✅ SE CHECKPOINT 3 PASSOU: VOCÊ ESTÁ LIBERADO PARA PASSO 9</strong></p>
+
+<hr />
+
+<h3 id="✅aprovaÇÃofinal">✅ APROVAÇÃO FINAL</h3>
+
+<p><strong>SE VOCÊ CHEGOU AQUI E TODOS OS 3 CHECKPOINTS PASSARAM:</strong></p>
+
+<pre><code>🎉 SEU CONTROLLER ESTÁ SEGURO E COMPLETO!
+👉 PODE PROSSEGUIR PARA PASSO 9 (Adicionar Routes)
+</code></pre>
+
+<p><strong>SE ALGUM CHECKPOINT FALHOU:</strong></p>
+
+<pre><code>⛔ VOLTE E CORRIJA OS ERROS IMEDIATAMENTE
+⛔ NÃO TENTE CONTINUAR SEM 100% DOS CHECKS
+⛔ CÓDIGO INCOMPLETO = VULNERABILIDADES = ATAQUE
+</code></pre>
+
+<h3 id="testerápidoopcional">Teste Rápido (Opcional)</h3>
+
+<pre><code>[ ] Abra arquivo no editor
+[ ] Procure por: 
+  - &quot;validateCSRF&quot; → deve estar em store/update/destroy
+  - &quot;RateLimiter&quot; → deve estar em store/update/destroy
+  - &quot;Logger::audit&quot; → deve estar em store/update/destroy
+  - &quot;SELECT&quot; → deve ter ? ou prepared statement
+
+[ ] Se faltar algo: volte ao passo correspondente
+</code></pre>
+
+<hr />
+
+<h2 id="passo9:adicionarroutes">PASSO 9: ADICIONAR ROUTES</h2>
+
+<h3 id="ondeadicionarasrotas">Onde Adicionar as Rotas</h3>
+
+<p><strong>Se for ADMIN CRUD:</strong></p>
+
+<ul>
+<li>Arquivo: <code>/routes/admin.php</code></li>
+<li>Prefixo: <code>/admin/</code></li>
+</ul>
+
+<p><strong>Se for FRONTEND/PUBLIC:</strong></p>
+
+<ul>
+<li>Arquivo: <code>/routes/public.php</code></li>
+<li>Prefixo: <code>/</code> (nenhum)</li>
+</ul>
+
+<p><strong>Se for API:</strong></p>
+
+<ul>
+<li>Arquivo: <code>/routes/api.php</code></li>
+<li>Prefixo: <code>/api/v1/</code> (versionado)</li>
+</ul>
+
+<h3 id="padrãodeurlsrest">Padrão de URLs REST</h3>
+
+<p><strong>Para recurso &#8220;banners&#8221; (exemplo):</strong></p>
+
+<pre><code class="php">// INDEX - Listar todos
+GET /admin/banners
+
+// CREATE - Formulário criar
+GET /admin/banners/create
+
+// STORE - Salvar novo
+POST /admin/banners
+
+// EDIT - Formulário editar
+GET /admin/banners/:id/edit
+
+// UPDATE - Salvar edição
+POST /admin/banners/:id
+
+// DESTROY - Deletar
+POST /admin/banners/:id/delete
+</code></pre>
+
+<h3 id="implementaçãocompletaderoutes">Implementação Completa de Routes</h3>
+
+<p><strong>Adicione em <code>/routes/admin.php</code> (ou public.php):</strong></p>
+
+<pre><code class="php">// ================================================
+// BANNERS - Carrossel de banners rotativos
+// ================================================
+
+// INDEX: Listar banners
+Router::get('/admin/banners', function() {
+    $controller = new BannerController();
+    $controller-&gt;index();
+});
+
+// CREATE: Exibir formulário criar
+Router::get('/admin/banners/create', function() {
+    $controller = new BannerController();
+    $controller-&gt;create();
+});
+
+// STORE: Processar criação
+Router::post('/admin/banners', function() {
+    $controller = new BannerController();
+    $controller-&gt;store();
+});
+
+// EDIT: Exibir formulário editar
+Router::get('/admin/banners/:id/edit', function($id) {
+    $controller = new BannerController();
+    $controller-&gt;edit($id);
+});
+
+// UPDATE: Processar edição
+Router::post('/admin/banners/:id', function($id) {
+    $controller = new BannerController();
+    $controller-&gt;update($id);
+});
+
+// DESTROY: Processar deleção
+Router::post('/admin/banners/:id/delete', function($id) {
+    $controller = new BannerController();
+    $controller-&gt;destroy($id);
+});
+</code></pre>
+
+<h3 id="checklistderoutes">Checklist de Routes</h3>
+
+<pre><code>[ ] Arquivo correto (admin.php ou public.php ou api.php)
+[ ] 6 rotas adicionadas (index, create, store, edit, update, destroy)
+[ ] GET para pages (index, create, edit)
+[ ] POST para actions (store, update, destroy)
+[ ] :id com parametro em URL (edit, update, destroy)
+[ ] Função lambda chama controller correto
+[ ] Parametro $id passado onde necessário (edit, update, destroy)
+[ ] Nomes de URL consistentes e em inglês
+[ ] Prefixo correto (/admin/, /public/, /api/)
+</code></pre>
+
+<h3 id="exemplosreais">Exemplos Reais</h3>
+
+<p><strong>ADMIN CRUD (ex: Categories)</strong></p>
+
+<pre><code class="php">Router::get('/admin/categories', function() { ... });
+Router::get('/admin/categories/create', function() { ... });
+Router::post('/admin/categories', function() { ... });
+Router::get('/admin/categories/:id/edit', function($id) { ... });
+Router::post('/admin/categories/:id', function($id) { ... });
+Router::post('/admin/categories/:id/delete', function($id) { ... });
+</code></pre>
+
+<p><strong>PUBLIC RESOURCE (ex: Blog posts)</strong></p>
+
+<pre><code class="php">Router::get('/posts', function() { ... });
+Router::get('/posts/:slug', function($slug) { ... });
+</code></pre>
+
+<p><strong>API (ex: Users)</strong></p>
+
+<pre><code class="php">Router::get('/api/v1/users', function() { ... });
+Router::post('/api/v1/users', function() { ... });
+Router::get('/api/v1/users/:id', function($id) { ... });
+Router::put('/api/v1/users/:id', function($id) { ... });
+Router::delete('/api/v1/users/:id', function($id) { ... });
+</code></pre>
+
+<hr />
+
+<h2 id="passo10:adicionarroutes">PASSO 10: ADICIONAR ROUTES</h2>
+
+<p>Já coberto no Passo 9 acima.</p>
+
+<hr />
+
+<h2 id="passo11:seuadmincrudestÁpronto🎉">PASSO 11: SEU ADMIN CRUD ESTÁ PRONTO! 🎉</h2>
+
+<h3 id="✅parabénsvocêcompletouoadmincrud">✅ Parabéns! Você Completou o Admin CRUD</h3>
+
+<p><strong>Neste ponto, você tem:</strong></p>
+
+<ul>
+<li>✅ Controller Admin completo em <code>/admin/controllers/</code></li>
+<li>✅ 6 métodos funcionando (index, create, store, edit, update, destroy)</li>
+<li>✅ Views Admin em <code>/admin/views/</code></li>
+<li>✅ Rotas em <code>/routes/admin.php</code></li>
+<li>✅ CRUD 100% funcional</li>
+</ul>
+
+<p><strong>Seu Admin CRUD está COMPLETO e PRONTO para uso.</strong></p>
+
+<hr />
+
+<h3 id="🤔querexibirdadosemfrontend">🤔 Quer Exibir Dados em Frontend?</h3>
+
+<p><strong>Se você quer exibir os dados do Admin CRUD em alguma página frontend (home, blog, sidebar, etc):</strong></p>
+
+<p>👉 <strong>Vá para PASSO 11B</strong> (opcional, logo abaixo)</p>
+
+<p><strong>Caso contrário:</strong></p>
+
+<p>👉 <strong>Vá para PASSO 12</strong> (entregar)</p>
+
+<hr />
+
+<h2 id="passo11b:criardisplayfrontendopcional">PASSO 11B: CRIAR DISPLAY FRONTEND (OPCIONAL)</h2>
+
+<h3 id="⚠️importante:seuadmincrudjáestácompleto">⚠️ IMPORTANTE: Seu Admin CRUD Já Está Completo</h3>
+
+<p><strong>Este passo é APENAS se você quer exibir os dados em alguma página frontend (home, blog, sidebar, etc).</strong></p>
+
+<p><strong>Se não quiser integração frontend, seu CRUD está 100% pronto. Vá para PASSO 12.</strong></p>
+
+<hr />
+
+<h3 id="📋novaabordagem:partialreutilizávelpreviewnoadmin">📋 Nova Abordagem: Partial Reutilizável + Preview no Admin</h3>
+
+<p><strong>Ao invés de perguntar &#8220;onde vai exibir?&#8221;, criamos:</strong></p>
+
+<ol>
+<li>Controller frontend genérico (read-only)</li>
+<li>Partial reutilizável que pode ser incluída em qualquer lugar</li>
+<li>Preview no admin mostrando como ficou + código para copiar</li>
+</ol>
+
+<p><strong>Vantagens:</strong></p>
+
+<ul>
+<li>✅ Código reutilizável (usar em múltiplas páginas)</li>
+<li>✅ Preview direto no admin (feedback visual)</li>
+<li>✅ Código pronto para copiar (facilita implementação)</li>
+<li>✅ Sem acoplamento (não precisa definir página específica)</li>
+</ul>
+
+<hr />
+
+<h3 id="passo11b.1:criarcontrollerfrontend">PASSO 11B.1: Criar Controller Frontend</h3>
+
+<p><strong>Arquivo: <code>/frontend/controllers/Frontend[Recurso]Controller.php</code></strong></p>
+
+<p><strong>Exemplo: <code>FrontendBannerController.php</code></strong></p>
+
+<pre><code class="php">&lt;?php
+/**
+ * FrontendBannerController
+ * Busca dados para exibição frontend (read-only)
+ */
+
+class FrontendBannerController extends BaseController {
+
+    /**
+     * Buscar registros ativos para exibição
+     * @return array Registros ativos ordenados
+     */
+    public function getActive() {
+        try {
+            $data = $this-&gt;db()-&gt;query(
+                &quot;SELECT * FROM [tabela] WHERE ativo = 1 ORDER BY `order` ASC&quot;
+            );
+
+            return $data ?? [];
+
+        } catch (Exception $e) {
+            error_log('Frontend[Recurso]Controller::getActive() ERROR: ' . $e-&gt;getMessage());
+            return [];
+        }
+    }
+}
+</code></pre>
+
+<p><strong>Checklist:</strong></p>
+
+<pre><code>[ ] Arquivo em /frontend/controllers/
+[ ] Nome: Frontend[Recurso]Controller
+[ ] Método getActive() retorna array
+[ ] Query busca apenas ativo = 1
+[ ] Error handling sem expor erro ao público
+[ ] chmod 644
+</code></pre>
+
+<hr />
+
+<h3 id="passo11b.2:criarpartialfrontend">PASSO 11B.2: Criar Partial Frontend</h3>
+
+<p><strong>Arquivo: <code>/frontend/views/partials/[recurso]-display.php</code></strong></p>
+
+<p><strong>Exemplo: <code>banner-hero.php</code> (carrossel)</strong></p>
+
+<pre><code class="php">&lt;?php
+/**
+ * Partial: Banner Hero
+ * Pode ser incluído em qualquer página
+ */
+
+// Buscar banners ativos
+$controller = new FrontendBannerController();
+$banners = $controller-&gt;getActive();
+
+// Se não houver dados, não renderizar
+if (empty($banners)) {
+    return;
+}
+?&gt;
+
+&lt;section class=&quot;hero-carousel&quot;&gt;
+    &lt;?php foreach ($banners as $item): ?&gt;
+        &lt;div class=&quot;slide&quot;&gt;
+            &lt;h1&gt;&lt;?= htmlspecialchars($item['title']) ?&gt;&lt;/h1&gt;
+            &lt;!-- Estrutura HTML aqui --&gt;
+        &lt;/div&gt;
+    &lt;?php endforeach; ?&gt;
+&lt;/section&gt;
+
+&lt;style&gt;
+/* CSS inline ou referência externa */
+&lt;/style&gt;
+
+&lt;script&gt;
+// JavaScript se necessário
+&lt;/script&gt;
+</code></pre>
+
+<p><strong>Checklist:</strong></p>
+
+<pre><code>[ ] Arquivo em /frontend/views/partials/
+[ ] Nome: [recurso]-display.php
+[ ] Instancia Frontend[Recurso]Controller
+[ ] Chama getActive()
+[ ] Return early se vazio
+[ ] htmlspecialchars() em TODAS as saídas
+[ ] chmod 644
+</code></pre>
+
+<hr />
+
+<h3 id="passo11b.3:adicionarpreviewnoadmin">PASSO 11B.3: Adicionar Preview no Admin</h3>
+
+<p><strong>Editar: <code>/admin/views/[recurso]/index.php</code></strong></p>
+
+<p><strong>Adicionar ANTES do <code>&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</code> final:</strong></p>
+
+<pre><code class="php">        &lt;!-- Preview Frontend --&gt;
+        &lt;?php if (!empty($[recurso]s)): ?&gt;
+            &lt;hr style=&quot;margin: 40px 0; border: none; border-top: 2px solid #ddd;&quot;&gt;
+
+            &lt;div style=&quot;margin-bottom: 20px;&quot;&gt;
+                &lt;h2 style=&quot;margin-bottom: 10px;&quot;&gt;Preview Frontend&lt;/h2&gt;
+                &lt;p style=&quot;color: #6c757d; font-size: 14px;&quot;&gt;
+                    Veja como os registros ativos aparecem no site
+                &lt;/p&gt;
+
+                &lt;!-- Código para copiar --&gt;
+                &lt;div style=&quot;background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 4px; margin-top: 15px; font-family: 'Courier New', monospace; font-size: 13px;&quot;&gt;
+                    &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;&quot;&gt;
+                        &lt;strong style=&quot;color: #f8f8f2;&quot;&gt;Incluir em qualquer página:&lt;/strong&gt;
+                        &lt;button onclick=&quot;copyCode()&quot; style=&quot;background: #44475a; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 11px;&quot;&gt;
+                            📋 Copiar
+                        &lt;/button&gt;
+                    &lt;/div&gt;
+                    &lt;code id=&quot;include-code&quot; style=&quot;display: block;&quot;&gt;&amp;lt;?php Core::requireInclude('frontend/views/partials/[recurso]-display.php', true); ?&amp;gt;&lt;/code&gt;
+                &lt;/div&gt;
+
+                &lt;script&gt;
+                function copyCode() {
+                    const code = document.getElementById('include-code').textContent;
+                    navigator.clipboard.writeText(code).then(() =&gt; alert('Código copiado!'));
+                }
+                &lt;/script&gt;
+            &lt;/div&gt;
+
+            &lt;?php
+            // Filtrar apenas ativos para preview
+            $ativos = array_filter($[recurso]s, function($item) {
+                return $item['ativo'] == 1;
+            });
+
+            if (!empty($ativos)):
+            ?&gt;
+                &lt;div style=&quot;background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;&quot;&gt;
+                    &lt;?php Core::requireInclude('frontend/views/partials/[recurso]-display.php', true); ?&gt;
+                &lt;/div&gt;
+            &lt;?php else: ?&gt;
+                &lt;p style=&quot;text-align: center; color: #6c757d; padding: 40px 0; background: #f8f9fa; border-radius: 8px;&quot;&gt;
+                    Nenhum registro ativo para preview. Ative pelo menos um para visualizar.
+                &lt;/p&gt;
+            &lt;?php endif; ?&gt;
+        &lt;?php endif; ?&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p><strong>Checklist:</strong></p>
+
+<pre><code>[ ] Preview aparece APENAS se houver registros
+[ ] Linha separadora (hr) antes do preview
+[ ] Box com código para copiar
+[ ] Botão &quot;Copiar&quot; funcional (JavaScript)
+[ ] Preview renderiza partial real
+[ ] Mostra apenas registros ativos
+[ ] Mensagem se não houver ativos
+</code></pre>
+
+<hr />
+
+<h3 id="passo11b.4:criarsassdocomponentefrontend">PASSO 11B.4: Criar SASS do Componente Frontend</h3>
+
+<p><strong>⚠️ OBRIGATÓRIO:</strong> Todo componente frontend precisa do seu próprio arquivo SASS.</p>
+
+<p><strong>Arquivo: <code>/assets/sass/frontend/components/_[recurso]-display.sass</code></strong></p>
+
+<p><strong>Exemplo: <code>_banner-hero.sass</code></strong></p>
+
+<pre><code class="sass">// ============================================
+// COMPONENTE: Banner Hero
+// Carrossel de banners principais do site
+// ============================================
+
+.c-banner-hero
+  position: relative
+  width: 100%
+  height: 500px
+  overflow: hidden
+  background: #f5f5f5
+
+  &amp;__slide
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    opacity: 0
+    transition: opacity 0.5s ease
+    background-size: cover
+    background-position: center
+
+    &amp;--active
+      opacity: 1
+
+  &amp;__content
+    position: absolute
+    top: 50%
+    left: 50px
+    transform: translateY(-50%)
+    max-width: 600px
+    color: white
+    z-index: 2
+
+  &amp;__title
+    font-size: 48px
+    font-weight: 700
+    margin-bottom: 20px
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5)
+
+  &amp;__subtitle
+    font-size: 24px
+    margin-bottom: 30px
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5)
+
+  &amp;__cta
+    display: inline-block
+    padding: 15px 40px
+    background: #6c10b8
+    color: white
+    text-decoration: none
+    border-radius: 4px
+    font-weight: 600
+    transition: all 0.3s ease
+
+    &amp;:hover
+      background: #5a0d9a
+      transform: translateY(-2px)
+</code></pre>
+
+<p><strong>Checklist de Criação:</strong></p>
+
+<pre><code>[ ] Arquivo criado em /assets/sass/frontend/components/
+[ ] Nome: _[recurso]-display.sass (underscore no início)
+[ ] Nomenclatura BEM: .c-[recurso]__elemento--modificador
+[ ] Prefixo 'c-' para components (diferencia de módulos 'm-')
+[ ] Responsive se necessário (@media)
+[ ] Variáveis do AEGIS ($color-main, $font-title, etc)
+</code></pre>
+
+<p><strong>Adicionar import no compilador:</strong></p>
+
+<p><strong>Arquivo: <code>/assets/sass/frontend/components/_components.sass</code></strong></p>
+
+<pre><code class="sass">// Components Frontend - Compilador
+
+@use 'model'
+@use 'banner-hero'  // ← ADICIONAR ESTA LINHA
+</code></pre>
+
+<p><strong>Recompilar SASS:</strong></p>
+
+<pre><code class="bash">npm run sass
+</code></pre>
+
+<p><strong>Verificar:</strong></p>
+
+<pre><code>[ ] CSS compilado sem erros
+[ ] Arquivo /assets/css/frontend.css atualizado
+[ ] Classes .c-[recurso]__* existem no CSS final
+[ ] Tamanho do arquivo aumentou (confirma que foi incluído)
+</code></pre>
+
+<hr />
+
+<h3 id="passo11b.5:testarpreviewnoadmin">PASSO 11B.5: Testar Preview no Admin</h3>
+
+<p><strong>Acessar: <code>http://localhost:5757/aegis/admin/[recurso]</code></strong></p>
+
+<p><strong>Verificar:</strong></p>
+
+<pre><code>[ ] Se não houver registros → preview não aparece
+[ ] Se houver registros inativos → mensagem &quot;nenhum ativo&quot;
+[ ] Se houver ativos → preview renderiza corretamente
+[ ] Botão &quot;Copiar&quot; funciona
+[ ] Código copiado está correto
+[ ] Preview tem mesmo visual do frontend
+</code></pre>
+
+<hr />
+
+<h3 id="passo11b.5:documentaruso">PASSO 11B.5: Documentar Uso</h3>
+
+<p><strong>No arquivo <code>/docs/crud/implementados/[recurso].md</code>:</strong></p>
+
+<pre><code class="markdown">## 🎨 Frontend Display
+
+**Controller:** `Frontend[Recurso]Controller`
+**Partial:** `/frontend/views/partials/[recurso]-display.php`
+**Preview:** Disponível em `/admin/[recurso]` (scroll down)
+
+### Como usar em qualquer página:
+
+</code></pre>
+
+<pre><code class="php">&lt;?php Core::requireInclude('frontend/views/partials/[recurso]-display.php', true); ?&gt;
+</code></pre>
+
+<h3 id="características:">Características:</h3>
+
+<ul>
+<li>Mostra apenas registros ativos (ativo = 1)</li>
+<li>Ordenado por <code>order</code> ASC</li>
+<li>Reutilizável em múltiplas páginas</li>
+<li>CSS/JS inline (sem dependências externas)</li>
+</ul>
+
+<h3 id="exemplosdeuso:">Exemplos de uso:</h3>
+
+<ul>
+<li>Home: <code>/frontend/pages/home.php</code></li>
+<li>Sidebar: <code>/frontend/views/partials/sidebar.php</code></li>
+<li>Footer: <code>/frontend/views/partials/footer.php</code></li>
+</ul>
+
+<pre><code>
+---
+
+### ✅ Pronto!
+
+**Seu Admin CRUD + Frontend Display está completo:**
+
+- ✅ Admin CRUD gerencia dados
+- ✅ Controller frontend busca dados ativos
+- ✅ Partial reutilizável em qualquer lugar
+- ✅ Preview no admin com código para copiar
+- ✅ Documentação de uso
+
+**Próximo:** PASSO 12 (Validação Automática)
+## PASSO 12: VALIDAÇÃO AUTOMÁTICA (RECOMENDADO)
+
+### 🤖 Validador Automático de CRUD
+
+**Antes de rodar testes manuais, use o validador automático:**
+
+</code></pre>
+
+<pre><code class="bash">php scripts/validate-crud.php BannerController
+</code></pre>
+
+<p><strong>O que ele verifica:</strong></p>
+
+<ul>
+<li>✅ Estrutura: 6 métodos, herança BaseController</li>
+<li>✅ Segurança: CSRF, RateLimit, Auth, Prepared statements</li>
+<li>✅ Auditoria: Logger.audit(), Logger.warning(), Exception handling</li>
+<li>✅ Validação: Sanitize, UUID, Empty checks</li>
+<li>✅ Nomenclatura: Actions maiúsculas, RateLimiter keys consistentes</li>
+</ul>
+
+<p><strong>Resultado esperado:</strong></p>
+
+<pre><code>═══════════════════════════════════════════════════════════════
+SCORE: 15/15 (100%)
+═══════════════════════════════════════════════════════════════
+
+✅ CRUD VÁLIDO!
+
+Seu controller passou em todos os checks obrigatórios.
+Está pronto para produção.
+</code></pre>
+
+<p><strong>Se score &lt; 100%:</strong></p>
+
+<ul>
+<li>Revise os itens marcados com ❌</li>
+<li>Corrija o código</li>
+<li>Rode o validador novamente</li>
+</ul>
+
+<hr />
+
+<h2 id="passo13:entregar">PASSO 13: ENTREGAR</h2>
+
+<h3 id="🔒gatefinal-testesobrigatÓriosantesdeentregar">🔒 GATE FINAL - TESTES OBRIGATÓRIOS ANTES DE ENTREGAR</h3>
+
+<p><strong>⛔ NÃO ENTREGUE SEM PASSAR NESTES TESTES</strong></p>
+
+<pre><code>🧪 TESTE 1: FUNCIONALIDADE BÁSICA (OBRIGATÓRIO)
+[ ] Acessar /admin/[recurso] → lista aparece sem erro 500?
+[ ] Acessar /admin/[recurso]/create → form aparece sem erro 500?
+[ ] Submeter create → registro criado no banco?
+[ ] Acessar /admin/[recurso]/[id]/edit → form aparece com dados?
+[ ] Submeter edit → registro atualizado no banco?
+[ ] Submeter delete → registro removido do banco?
+⚠️ SE ALGUM FALHOU: DEBUGAR E CORRIGIR AGORA!
+
+🔒 TESTE 2: SEGURANÇA (OBRIGATÓRIO)
+[ ] Remover CSRF token do form → submit bloqueado com erro?
+[ ] Fazer 10 submits rápidos → rate limit bloqueou?
+[ ] Verificar banco: tabela logs_audit tem registros CREATE/UPDATE/DELETE?
+[ ] SQL Injection: tentar ' OR 1=1 -- em campo → bloqueado?
+⚠️ SE ALGUM FALHOU: SEU CRUD ESTÁ VULNERÁVEL! CORRIJA!
+
+📁 TESTE 3: PERMISSÕES (OBRIGATÓRIO - 30% de erro)
+[ ] Executar: ls -la /admin/views/[recurso]/*.php
+[ ] TODOS arquivos têm permissão 644?
+[ ] Se NÃO: chmod 644 /admin/views/[recurso]/*.php
+⚠️ PERMISSÕES ERRADAS = ERRO 500 SILENCIOSO!
+
+📊 TESTE 4: LOGS E AUDITORIA (OBRIGATÓRIO)
+[ ] Executar: SELECT * FROM logs_audit WHERE action LIKE 'CREATE_%' ORDER BY created_at DESC LIMIT 5
+[ ] Logs aparecem com user_id, ip, resource_id, table?
+[ ] Logs de DELETE têm snapshot de dados deletados?
+⚠️ SE LOGS NÃO APARECEM: Logger não está funcionando!
+</code></pre>
+
+<hr />
+
+<h3 id="✅checklistfinaldeentrega">✅ CHECKLIST FINAL DE ENTREGA</h3>
+
+<p><strong>SÓ MARQUE COMO COMPLETO APÓS PASSAR NOS 4 TESTES ACIMA</strong></p>
+
+<pre><code>[ ] ✅ TESTE 1 passou (funcionalidade)
+[ ] ✅ TESTE 2 passou (segurança)
+[ ] ✅ TESTE 3 passou (permissões)
+[ ] ✅ TESTE 4 passou (auditoria)
+
+ARQUIVOS:
+[ ] Arquivo controller salvo
+[ ] Arquivo routes modificado
+[ ] Views criadas com chmod 644
+[ ] Frontend page modificado (se aplicável)
+
+GIT:
+[ ] Commit feito
+[ ] Mensagem de commit clara
+[ ] Testado no browser APÓS commit
+
+DOCUMENTAÇÃO:
+[ ] Se comportamento especial: documentado em comentários
+[ ] Se API: endpoints documentados
+</code></pre>
+
+<hr />
+
+<h3 id="🎉aprovaÇÃofinal">🎉 APROVAÇÃO FINAL</h3>
+
+<p><strong>SE TODOS OS 4 TESTES PASSARAM E CHECKLIST ESTÁ 100%:</strong></p>
+
+<pre><code>✅ SEU CRUD ESTÁ PRONTO PARA PRODUÇÃO!
+✅ Segurança: OWASP Top 10 compliant
+✅ Auditoria: Todas ações logadas
+✅ Performance: Rate limiting ativo
+✅ Funcionalidade: Testada e validada
+
+👉 PODE ENTREGAR COM CONFIANÇA!
+</code></pre>
+
+<p><strong>SE ALGUM TESTE FALHOU:</strong></p>
+
+<pre><code>⛔ NÃO ENTREGUE COM FALHAS!
+⛔ VOLTE, CORRIJA E TESTE NOVAMENTE
+⛔ CÓDIGO COM BUGS = RETRABALHO = TEMPO PERDIDO
+</code></pre>
+
+<hr />
+
+<h2 id="referÊnciarÁpida-nomesdeaÇÃo">REFERÊNCIA RÁPIDA - NOMES DE AÇÃO</h2>
+
+<p><strong>Use exatamente assim:</strong></p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Operação </th>
+	<th> Nome </th>
+	<th> Exemplo </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> Criar </td>
+	<td> CREATE_RECURSO </td>
+	<td> CREATE_CATEGORY </td>
+</tr>
+<tr>
+	<td> Atualizar </td>
+	<td> UPDATE_RECURSO </td>
+	<td> UPDATE_MEMBER </td>
+</tr>
+<tr>
+	<td> Deletar </td>
+	<td> DELETE_RECURSO </td>
+	<td> DELETE_POST </td>
+</tr>
+<tr>
+	<td> Erro de criação </td>
+	<td> CREATE_RECURSO_FAILED </td>
+	<td> CREATE_CATEGORY_FAILED </td>
+</tr>
+<tr>
+	<td> Erro de update </td>
+	<td> UPDATE_RECURSO_FAILED </td>
+	<td> UPDATE_MEMBER_FAILED </td>
+</tr>
+<tr>
+	<td> Erro de deleção </td>
+	<td> DELETE_RECURSO_FAILED </td>
+	<td> DELETE_POST_FAILED </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>SEMPRE singular, SEMPRE maiúsculas.</strong></p>
+
+<hr />
+
+<h2 id="referÊnciarÁpida-ratelimits">REFERÊNCIA RÁPIDA - RATE LIMITS</h2>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Tipo </th>
+	<th> Limite </th>
+	<th> Janela </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> store </td>
+	<td> 5 </td>
+	<td> 60s </td>
+</tr>
+<tr>
+	<td> update </td>
+	<td> 10 </td>
+	<td> 60s </td>
+</tr>
+<tr>
+	<td> destroy </td>
+	<td> 5 </td>
+	<td> 60s </td>
+</tr>
+<tr>
+	<td> API index/show </td>
+	<td> 60 </td>
+	<td> 60s </td>
+</tr>
+<tr>
+	<td> login (especial) </td>
+	<td> 5 </td>
+	<td> 300s </td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="referÊnciarÁpida-consultarsetiverdÚvida">REFERÊNCIA RÁPIDA - CONSULTAR SE TIVER DÚVIDA</h2>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Dúvida </th>
+	<th> Arquivo </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> &#8220;Como fazer CSRF?&#8221; </td>
+	<td> MASTER-CHECKLIST-SEGURANCA.md seção 1 </td>
+</tr>
+<tr>
+	<td> &#8220;Como fazer RateLimit?&#8221; </td>
+	<td> MASTER-CHECKLIST-SEGURANCA.md seção 2 </td>
+</tr>
+<tr>
+	<td> &#8220;Como validar email?&#8221; </td>
+	<td> MASTER-CHECKLIST-VALIDACAO.md seção 2 </td>
+</tr>
+<tr>
+	<td> &#8220;Como fazer Logger?&#8221; </td>
+	<td> MASTER-CHECKLIST-AUDITORIA.md seção 1&#8211;3 </td>
+</tr>
+<tr>
+	<td> &#8220;Preciso de exemplo completo?&#8221; </td>
+	<td> TEMPLATE-CRUD-*.md </td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="prÓximo:fazernaprÁtica">PRÓXIMO: FAZER NA PRÁTICA</h2>
+
+<p><strong>Quando estiver pronto, escolha um CRUD dos 31 e execute este guia.</strong></p>
+
+<p>Eu vou seguir exatamente estes passos.</p>
+
+</body>
+</html>
+

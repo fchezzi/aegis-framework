@@ -1,0 +1,25 @@
+{
+  "id": "htmllivre",
+  "name": "HTML Customizado",
+  "description": "Insira código HTML diretamente sem configurações",
+  "version": "1.0.0",
+  "author": "AEGIS Team",
+  "filter_group": "content",
+  "fields": {
+    "html": {
+      "type": "textarea",
+      "label": "Código HTML",
+      "placeholder": "Cole ou escreva seu código HTML aqui...",
+      "rows": 15,
+      "required": true,
+      "default": ""
+    },
+    "wrapper_class": {
+      "type": "text",
+      "label": "Classe CSS Adicional (opcional)",
+      "placeholder": "Ex: meu-widget custom-spacing",
+      "required": false,
+      "default": ""
+    }
+  }
+}

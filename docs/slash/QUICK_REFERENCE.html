@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="⚡quickreference-aegiscoreclasses">⚡ Quick Reference - AEGIS Core Classes</h1>
+
+<blockquote>
+<p><strong>Quando usar:</strong> Consulta rápida de APIs das classes core mais usadas</p>
+</blockquote>
+
+<hr />
+
+<h2 id="🗄️dbdatabase-maisusado">🗄️ DB (Database - Mais usado)</h2>
+
+<pre><code class="php">// Connection (sempre usar)
+$db = DB::connect();  // REGRAS.md #1
+
+// Select
+$users = $db-&gt;select('users', ['active' =&gt; 1]);  // WHERE active = 1
+$user = $db-&gt;select('users', ['email' =&gt; $email], 1);  // LIMIT 1
+
+// Insert (sempre usar UUID)
+$id = Core::generateUUID();
+$db-&gt;insert('users', [
+    'id' =&gt; $id,
+    'email' =&gt; $email,
+    'name' =&gt; $name
+]);
+
+// Update
+$db-&gt;update('users',
+    ['name' =&gt; 'Novo Nome'],  // SET
+    ['id' =&gt; $userId]         // WHERE
+);
+
+// Delete
+$db-&gt;delete('users', ['id' =&gt; $userId]);
+
+// Raw query (com prepared statements - REGRAS.md #4)
+$stmt = $db-&gt;prepare(&quot;SELECT * FROM users WHERE email = ?&quot;);
+$result = $stmt-&gt;execute([$email]);
+</code></pre>
+
+<hr />
+
+<h2 id="🔐authadminauthentication">🔐 Auth (Admin Authentication)</h2>
+
+<pre><code class="php">// Require auth (OBRIGATÓRIO em controllers admin - REGRAS.md #7)
+Auth::require();  // PRIMEIRA LINHA sempre
+
+// Check
+if (Auth::check()) {
+    $admin = Auth::user();  // ['id', 'email', 'name']
+}
+
+// Login
+$success = Auth::login($email, $password, $db);  // Rate-limited (5/5min)
+
+// Logout
+Auth::logout();
+</code></pre>
+
+<hr />
+
+<h2 id="👥memberauthfrontendusers">👥 MemberAuth (Frontend Users)</h2>
+
+<pre><code class="php">// Require (páginas protegidas frontend)
+MemberAuth::require();  // Redireciona para /login
+
+// Check
+if (MemberAuth::check()) {
+    $member = MemberAuth::member();  // ['id', 'email', 'name', 'group_id']
+}
+
+// Login
+$success = MemberAuth::login($email, $password);  // Rate-limited
+
+// Get allowed pages
+$pages = MemberAuth::getPaginasPermitidas($memberId);
+</code></pre>
+
+<p><strong>Ver mais:</strong> <code>permissions.md</code></p>
+
+<hr />
+
+<h2 id="🔑permissionaccesscontrol">🔑 Permission (Access Control)</h2>
+
+<pre><code class="php">// Check access
+if (Permission::canAccess($memberId, $pageId)) {
+    // Allowed
+}
+
+// Get accessible pages
+$pages = Permission::getAccessiblePages($memberId);
+
+// Grant permissions
+Permission::grantIndividual($memberId, $pageId);
+Permission::grantGroup($groupId, $pageId);
+
+// Remove
+Permission::removeIndividual($memberId, $pageId);
+Permission::removeGroup($groupId, $pageId);
+</code></pre>
+
+<p><strong>Ordem de precedência:</strong> <code>is_public = 1</code> &gt; individual &gt; grupo &gt; bloquear</p>
+
+<p><strong>Ver mais:</strong> <code>permissions.md</code></p>
+
+<hr />
+
+<h2 id="🛡️securitycsrfsanitize">🛡️ Security (CSRF + Sanitize)</h2>
+
+<pre><code class="php">// Generate CSRF token (em forms)
+&lt;input type=&quot;hidden&quot; name=&quot;csrf_token&quot; value=&quot;&lt;?= Security::generateCSRF() ?&gt;&quot;&gt;
+
+// Validate CSRF (em controllers)
+Security::validateCSRF($_POST['csrf_token']);  // REGRAS.md #5
+
+// Sanitize input
+$nome = Security::sanitize($_POST['nome']);  // REGRAS.md #6
+
+// Password hash
+$hash = Security::hashPassword($password);  // bcrypt
+
+// Verify password
+if (Security::verifyPassword($password, $hash)) { }
+</code></pre>
+
+<hr />
+
+<h2 id="📤uploadfilehandling">📤 Upload (File handling)</h2>
+
+<pre><code class="php">// Upload image
+$result = Upload::image($_FILES['foto'], 'uploads/fotos');
+
+if ($result['success']) {
+    $path = $result['path'];  // Não é 'file', é 'path'
+} else {
+    $erro = $result['message'];  // Não é 'error', é 'message'
+}
+
+// Validações automáticas (REGRAS.md #9):
+// - Tipo/extensão permitida
+// - Tamanho máximo
+// - Mime type real
+</code></pre>
+
+<p><strong>Ver mais:</strong> <code>file-upload-template.md</code></p>
+
+<hr />
+
+<h2 id="🎯coreutilities">🎯 Core (Utilities)</h2>
+
+<pre><code class="php">// UUID (OBRIGATÓRIO para IDs - REGRAS.md #3)
+$id = Core::generateUUID();  // RFC 4122 v4
+
+// URLs
+Core::redirect('/admin/pages');
+$url = Core::url('/admin');
+
+// JSON response
+Core::json(['success' =&gt; true, 'data' =&gt; $data], 200);
+
+// Error pages
+Core::error(404, 'Página não encontrada');
+
+// Flash messages
+Core::success('Salvo com sucesso!', '/admin/pages');
+
+// Environment
+if (Core::isDev()) { }
+if (Core::isProduction()) { }
+
+// Members system
+if (Core::membersEnabled()) { }  // ENABLE_MEMBERS
+</code></pre>
+
+<hr />
+
+<h2 id="💾cachefile-based">💾 Cache (File-based)</h2>
+
+<pre><code class="php">// Set (TTL em segundos)
+Cache::set('key', $data, 3600);  // 1 hora
+
+// Get
+$data = Cache::get('key');  // null se não existir
+
+// Check
+if (Cache::has('key')) { }
+
+// Delete
+Cache::delete('key');
+
+// Clear all
+Cache::clear();
+
+// Clear expired only
+Cache::clearExpired();
+</code></pre>
+
+<hr />
+
+<h2 id="🚦ratelimitbruteforceprotection">🚦 RateLimit (Brute Force Protection)</h2>
+
+<pre><code class="php">// Check (padrão: 5 tentativas em 5min)
+$key = 'login:' . $email;
+
+if (!RateLimit::check($key, 5, 300)) {
+    // Bloqueado
+    $seconds = RateLimit::getBlockedTime($key);
+    die(&quot;Aguarde {$seconds}s&quot;);
+}
+
+// Reset (após sucesso)
+RateLimit::reset($key);
+
+// Block manually
+RateLimit::block($key, 600);  // 10min
+
+// Check if blocked
+if (RateLimit::isBlocked($key)) { }
+</code></pre>
+
+<hr />
+
+<h2 id="🛤️routerstaticmethods-regras.md8">🛤️ Router (Static methods - REGRAS.md #8)</h2>
+
+<pre><code class="php">// Register routes
+Router::get('/blog', function() { ... });
+Router::post('/contact', function() { ... });
+
+// Com parâmetros
+Router::get('/blog/:slug', function($params) {
+    $slug = $params['slug'];
+});
+
+// CRÍTICO: Ordem importa (REGRAS.md #11)
+Router::get('/blog', ...);           // 1. Específico
+Router::get('/blog/:slug', ...);     // 2. Com param
+Router::get('/:slug', ...);          // 3. Genérico ÚLTIMO
+
+// Run router
+Router::run();
+
+// Generate URL
+$url = Router::url('/admin/pages');
+</code></pre>
+
+<p><strong>Ver mais:</strong> <code>routing.md</code></p>
+
+<hr />
+
+<h2 id="📦modulemanagermodulesystem">📦 ModuleManager (Module System)</h2>
+
+<pre><code class="php">// Get installed modules
+$modules = ModuleManager::getInstalled();  // Cached
+
+// Check if installed
+if (ModuleManager::isInstalled('blog')) { }
+
+// Install/Uninstall
+$result = ModuleManager::install('blog');
+$result = ModuleManager::uninstall('blog', true);
+
+// Load all module routes (em routes.php)
+ModuleManager::loadAllRoutes();
+
+// Get menu items from modules
+$menuItems = ModuleManager::getMenuItems();
+</code></pre>
+
+<p><strong>Fonte de verdade:</strong> <code>module.json</code> com <code>&quot;public&quot;: true/false</code> (REGRAS.md #10)</p>
+
+<p><strong>Ver mais:</strong> <code>module-patterns.md</code></p>
+
+<hr />
+
+<h2 id="🍔menubuilderdynamicmenus">🍔 MenuBuilder (Dynamic Menus)</h2>
+
+<pre><code class="php">// Render complete menu (HTML)
+echo MenuBuilder::render($memberId = null);
+
+// Get filtered menu array (sem HTML)
+$items = MenuBuilder::getFilteredMenu($memberId = null);
+</code></pre>
+
+<p><strong>Verifica automaticamente:</strong></p>
+
+<ol>
+<li><code>is_public = 1</code> em pages</li>
+<li><code>&quot;public&quot;: true</code> em modules</li>
+<li>Permissões de member (se logado)</li>
+</ol>
+
+<hr />
+
+<h2 id="🏗️pagebuildervisualpagebuilder">🏗️ PageBuilder (Visual Page Builder)</h2>
+
+<pre><code class="php">// Render page blocks
+echo PageBuilder::render($pageSlug, $skipCache = false);
+
+// Check if has blocks
+if (PageBuilder::hasBlocks($pageSlug)) { }
+
+// Count cards
+$total = PageBuilder::countCards($pageSlug);
+
+// Clear cache
+PageBuilder::clearCache($pageSlug);
+PageBuilder::clearCache();  // All pages
+
+// Stats
+$stats = PageBuilder::getCacheStats();
+</code></pre>
+
+<hr />
+
+<h2 id="🌐envenvironment-nãousar">🌐 Env (Environment - Não usar)</h2>
+
+<p><strong>⚠️ AEGIS NÃO usa .env - usa <code>_config.php</code></strong> (REGRAS.md)</p>
+
+<p>Se precisar de Env:</p>
+
+<pre><code class="php">Env::load();
+$value = Env::get('DB_HOST', 'localhost');
+</code></pre>
+
+<p>Mas prefira <code>_config.php</code>:</p>
+
+<pre><code class="php">define('DB_HOST', 'localhost');
+</code></pre>
+
+<hr />
+
+<h2 id="📚quandoleroutrosdocs">📚 Quando Ler Outros Docs</h2>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Preciso de&#8230; </th>
+	<th> Ler&#8230; </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> Regras críticas, segurança </td>
+	<td> <code>REGRAS.md</code> </td>
+</tr>
+<tr>
+	<td> MemberAuth, grupos, permissões </td>
+	<td> <code>permissions.md</code> </td>
+</tr>
+<tr>
+	<td> Criar módulo </td>
+	<td> <code>module-patterns.md</code> </td>
+</tr>
+<tr>
+	<td> Upload de arquivos </td>
+	<td> <code>file-upload-template.md</code> </td>
+</tr>
+<tr>
+	<td> Rotas, 404 </td>
+	<td> <code>routing.md</code> </td>
+</tr>
+<tr>
+	<td> Erro aconteceu </td>
+	<td> <code>ERRO-PROTOCOL.md</code> + <code>known-issues.md</code> </td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="🎯top5classesmaisusadas">🎯 Top 5 Classes Mais Usadas</h2>
+
+<ol>
+<li><strong>DB</strong> - Toda interação com banco</li>
+<li><strong>Auth</strong> - Todo controller admin</li>
+<li><strong>Core</strong> - UUIDs, redirects, URLs</li>
+<li><strong>Security</strong> - CSRF, sanitize</li>
+<li><strong>Router</strong> - Todas as rotas</li>
+</ol>
+
+<p><strong>Memorizar:</strong> <code>DB::connect()</code>, <code>Auth::require()</code>, <code>Core::generateUUID()</code>, <code>Security::validateCSRF()</code>, <code>Router::get()</code></p>
+
+<hr />
+
+<p><strong>Versão:</strong> 4.0.0
+<strong>Data:</strong> 2026&#8211;02&#8211;14
+<strong>Changelog:</strong> Removido workflows desatualizados, focado apenas em top 12 classes core essenciais, reduzido de 1.463 → 350 linhas</p>
+
+</body>
+</html>
+

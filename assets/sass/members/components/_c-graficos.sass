@@ -1,0 +1,98 @@
+// Component - Gráficos
+// Estilos para componente de gráficos ApexCharts
+
+
+
+@use 'sass:color'
+@use '../../shared/colors' as *
+@use '../base/variables' as *
+@use '../../shared/mixins' as *
+@use '../../shared/responsive' as *  
+
+.chart-card
+  transition: transform 0.3s ease, box-shadow 0.3s ease
+  width: 100%
+  max-width: 100%
+
+  &:hover
+    transform: translateY(-2px)
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
+
+.chart-header
+  margin-bottom: 20px
+
+.chart-title
+  font-size: 20px
+  font-weight: normal
+  color: #ff6201 !important
+  margin-bottom: 7px
+  font-family: 'inter'
+
+.chart-subtitle
+  font-size: 13px
+  color: $gray-10
+  font-family: 'inter'
+
+.chart-container
+  min-height: 300px
+  width: 100%
+  overflow: hidden
+
+  // Sobrescrever estilos inline do ApexCharts
+  .apexcharts-canvas
+    width: 100% !important
+    max-width: 100% !important
+
+  svg
+    width: 100% !important
+    max-width: 100% !important
+
+  // Textos dos eixos
+  .apexcharts-xaxis-label,
+  .apexcharts-yaxis-label
+    fill: gray !important
+    font-size: 12px !important
+
+  // Legendas
+  .apexcharts-legend-text
+    color: #4a5568 !important
+    font-size: 13px !important
+
+  // Grid
+  .apexcharts-gridline
+    stroke: #e2e8f0 !important
+
+
+
+// Dark mode
+body.dark
+  .chart-card
+
+    &:hover
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4)
+
+  .chart-title
+    color: #f7fafc
+
+  .chart-subtitle
+    color: #a0aec0
+
+  // Textos dos eixos
+  .apexcharts-xaxis-label,
+  .apexcharts-yaxis-label
+    fill: white !important
+    font-size: 12px !important    
+
+  // Legendas
+  .apexcharts-legend-text
+    color: white !important
+    font-size: 13px !important    
+
+// Responsivo
+@media (max-width: 768px)
+
+  .chart-title
+    font-size: 16px
+
+  .chart-subtitle
+    font-size: 12px
