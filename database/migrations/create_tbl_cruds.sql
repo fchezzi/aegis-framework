@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `tbl_cruds` (
   `has_slug` TINYINT(1) DEFAULT 0 COMMENT 'Gera slug automaticamente',
   `slug_source` VARCHAR(50) DEFAULT NULL COMMENT 'Campo base para slug (ex: titulo)',
   `has_frontend` TINYINT(1) DEFAULT 0 COMMENT 'Tem display frontend',
-  `frontend_format` ENUM('grid', 'list', 'table') DEFAULT 'grid' COMMENT 'Formato de exibição frontend',
+  `frontend_format` ENUM('grid', 'carousel', 'list', 'table') DEFAULT 'grid' COMMENT 'Formato de exibição frontend',
   `has_upload` TINYINT(1) DEFAULT 0 COMMENT 'Tem upload de arquivos',
 
   -- Configuração de upload (JSON)
