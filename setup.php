@@ -472,7 +472,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
                 $db->execute($sql);
 
-                // Tabela tbl_fonts - Sistema de fontes customizáveis
+            }
+            FIM DO BLOCO COMENTADO */
+
+            // Tabela tbl_fonts - Sistema de fontes customizáveis (SEMPRE criada)
+            if ($dbType === 'mysql') {
                 $sql = "CREATE TABLE IF NOT EXISTS tbl_fonts (
                     id VARCHAR(36) PRIMARY KEY,
                     name VARCHAR(100) NOT NULL,
@@ -487,9 +491,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     INDEX idx_active (active)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
                 $db->execute($sql);
-
             }
-            FIM DO BLOCO COMENTADO */
 
             // Criar usuário admin
             Auth::createUser($adminEmail, $adminPassword, $adminName, $db);
